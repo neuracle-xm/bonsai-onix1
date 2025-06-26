@@ -19,6 +19,11 @@ namespace OpenEphys.Onix1
         internal const string ConfigurationCategory = "Configuration";
         internal const string AcquisitionCategory = "Acquisition";
 
+        internal const string StimulatorCh1 = "Stimulator Channel 1";
+        internal const string StimulatorCh2 = "Stimulator Channel 2";
+        internal const string StimulatorCh3 = "Stimulator Channel 3";
+        internal const string StimulatorCh4 = "Stimulator Channel 4";
+
         internal abstract IEnumerable<IDeviceConfiguration> GetDevices();
     }
 
