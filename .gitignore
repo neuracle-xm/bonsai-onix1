@@ -5,3 +5,8 @@
 .bonsai/*.exe.settings
 .bonsai/*.exe.WebView2/
 *.user
+python/*
+!python/main.py
+!python/python环境搭建.md
+!python/requirements.txt
+!python/get-pip.py
