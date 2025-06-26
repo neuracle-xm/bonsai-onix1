@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -11,15 +12,36 @@ namespace OpenEphys.Onix1
 {
     /// <summary>
     /// Produces a sequence of <see cref="Rhd2164DataFrame"/> objects with data from an Intan
-    /// Rhd2164 bioacquisition chip.
+    /// Rhd2164 bioacquisition chip or simulated data when DeviceName is set to "test".
     /// </summary>
-    /// <remarks>
-    /// This data IO operator must be linked to an appropriate configuration, such as a <see
-    /// cref="ConfigureRhd2164"/>, using a shared <c>DeviceName</c>.
-    /// </remarks>
     [Description("Produces a sequence of Rhd2164DataFrame objects with data from an Intan Rhd2164 bioacquisition chip.")]
     public class Rhd2164Data : Source<Rhd2164DataFrame>
     {
+        private static float[,] _example_data;
+        private static int _col;
+
+        //static Rhd2164Data()
+        //{
+        //    string csvPath = "./unit_100_channel_64_secs_10.csv";
+        //    string[] lines = File.ReadAllLines(csvPath);
+        //    int row = lines.Length;
+        //    _col = lines[0].Split(',').Length;
+        //    _example_data = new float[Rhd2164.AmplifierChannelCount, _col];
+        //    for (int i = 0; i < Rhd2164.AmplifierChannelCount; i++)
+        //    {
+        //        string[] values = lines[i % row].Split(',');
+        //        for (int j = 0; j < _col; j++)
+        //        {
+        //            _example_data[i, j] = float.Parse(values[j]);
+        //        }
+        //    }
+        //}
+
+        /// <summary>
+        /// 当前发到哪一个点了
+        /// </summary>
+        private int _index = 0;
+
         /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
         [TypeConverter(typeof(Rhd2164.NameConverter))]
         [Description(SingleDeviceFactory.DeviceNameDescription)]
@@ -29,15 +51,54 @@ namespace OpenEphys.Onix1
         /// <summary>
         /// Gets or sets the number of samples collected for each channel that are used to create a single <see cref="Rhd2164DataFrame"/>.
         /// </summary>
-        /// <remarks>
-        /// This property determines the number of samples that are buffered for each electrophysiology and auxiliary channel produced by the Rhd2164 chip
-        /// before data is propagated. For instance, if this value is set to 30, then 30 samples, along with corresponding clock values, will be collected
-        /// from each of the electrophysiology and auxiliary channels and packed into each <see cref="Rhd2164DataFrame"/>. Because channels are sampled at
-        /// 30 kHz, this is equivalent to 1 millisecond of data from each channel.
-        /// </remarks>
         [Description("The number of samples collected for each channel that are used to create a single Rhd2164DataFrame.")]
         [Category(DeviceFactory.ConfigurationCategory)]
-        public int BufferSize { get; set; } = 30;
+        public int BufferSize { get; set; } = 320;
+
+        /// <summary>
+        /// 生成测试用的方波
+        /// </summary>
+        /// <returns></returns>
+        private float[,] GenerateSquareWave()
+        {
+            var middleIndex = BufferSize / 2;
+            var result = new float[Rhd2164.AmplifierChannelCount, BufferSize];
+            for (int row = 0; row < Rhd2164.AmplifierChannelCount; row++)
+            {
+                //for (int col = 0; col < middleIndex; col++)
+                //{
+                //    result[row, col] = 150;
+                //}
+                //for (int col = middleIndex; col < BufferSize; col++)
+                //{
+                //    result[row, col] = -150;
+                //}
+                result[row, 150] = -150;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 生成一个一维的数组，数据按通道顺序排列
+        /// </summary>
+        /// <returns></returns>
+        private float[] GenerateOneDimensionSquareWave()
+        {
+            float[] result = new float[BufferSize * Rhd2164.AmplifierChannelCount];
+            var middle = BufferSize / 2;
+            for (int channel = 0; channel < Rhd2164.AmplifierChannelCount; channel++)
+            {
+                for (int index = channel * BufferSize; index < channel * BufferSize + middle; index++)
+                {
+                    result[index] = 150;
+                }
+                for (int index = channel * BufferSize + middle; index < (channel + 1) * BufferSize; index++)
+                {
+                    result[index] = -150;
+                }
+            }
+            return result;
+        }
 
         /// <summary>
         /// Generates a sequence of <see cref="Rhd2164DataFrame"/> objects, each of which are a buffered set of multichannel samples an Rhd2164 device.
@@ -46,40 +107,79 @@ namespace OpenEphys.Onix1
         public unsafe override IObservable<Rhd2164DataFrame> Generate()
         {
             var bufferSize = BufferSize;
-            return DeviceManager.GetDevice(DeviceName).SelectMany(
-                deviceInfo => Observable.Create<Rhd2164DataFrame>(observer =>
+            if (DeviceName == "test")
+            {
+                return Observable.Create<Rhd2164DataFrame>(observer =>
                 {
-                    var sampleIndex = 0;
-                    var device = deviceInfo.GetDeviceContext(typeof(Rhd2164));
-                    var amplifierBuffer = new short[Rhd2164.AmplifierChannelCount * bufferSize];
-                    var auxBuffer = new short[Rhd2164.AuxChannelCount * bufferSize];
                     var hubClockBuffer = new ulong[bufferSize];
                     var clockBuffer = new ulong[bufferSize];
-
-                    var frameObserver = Observer.Create<oni.Frame>(
-                        frame =>
+                    return Observable.Interval(TimeSpan.FromSeconds(1.0 / 200))
+                        .Subscribe(_ =>
                         {
-                            var payload = (Rhd2164Payload*)frame.Data.ToPointer();
-                            Marshal.Copy(new IntPtr(payload->AmplifierData), amplifierBuffer, sampleIndex * Rhd2164.AmplifierChannelCount, Rhd2164.AmplifierChannelCount);
-                            Marshal.Copy(new IntPtr(payload->AuxData), auxBuffer, sampleIndex * Rhd2164.AuxChannelCount, Rhd2164.AuxChannelCount);
-                            hubClockBuffer[sampleIndex] = payload->HubClock;
-                            clockBuffer[sampleIndex] = frame.Clock;
-                            if (++sampleIndex >= bufferSize)
+                            //float[,] ampliferArray = new float[Rhd2164.AmplifierChannelCount, bufferSize];
+                            //for (int col = 0; col < bufferSize; col++)
+                            //{
+                            //    for (int row = 0; row < Rhd2164.AmplifierChannelCount; row++)
+                            //    {
+                            //        ampliferArray[row, col] = _example_data[row, _index];
+                            //    }
+                            //    _index++;
+                            //    if (_index >= _col)
+                            //    {
+                            //        _index = 0;
+                            //    }
+                            //}
+                            var ampliferArray = GenerateSquareWave();
+                            //var ampliferArray = GenerateOneDimensionSquareWave();
+                            //var data = BufferHelper.CopyTranspose(ampliferArray, bufferSize, Rhd2164.AmplifierChannelCount, Depth.F32);
+                            var auxArray = new float[Rhd2164.AuxChannelCount, bufferSize];
+                            //var auxArray = new int[Rhd2164.AuxChannelCount, bufferSize];
+                            //数据的形状是 (BufferSize,ChannelCount
+                            observer.OnNext(new Rhd2164DataFrame(
+                                clockBuffer,
+                                hubClockBuffer,
+                                Mat.FromArray(ampliferArray),
+                                Mat.FromArray(auxArray)));
+                        }, observer.OnError, observer.OnCompleted);
+                });
+            }
+            else
+            {
+                return DeviceManager.GetDevice(DeviceName).SelectMany(
+                    deviceInfo => Observable.Create<Rhd2164DataFrame>(observer =>
+                    {
+                        var sampleIndex = 0;
+                        var device = deviceInfo.GetDeviceContext(typeof(Rhd2164));
+                        var amplifierBuffer = new short[Rhd2164.AmplifierChannelCount * bufferSize];
+                        var auxBuffer = new short[Rhd2164.AuxChannelCount * bufferSize];
+                        var hubClockBuffer = new ulong[bufferSize];
+                        var clockBuffer = new ulong[bufferSize];
+
+                        var frameObserver = Observer.Create<oni.Frame>(
+                            frame =>
                             {
-                                var amplifierData = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, Rhd2164.AmplifierChannelCount, Depth.U16);
-                                var auxData = BufferHelper.CopyTranspose(auxBuffer, bufferSize, Rhd2164.AuxChannelCount, Depth.U16);
-                                observer.OnNext(new Rhd2164DataFrame(clockBuffer, hubClockBuffer, amplifierData, auxData));
-                                hubClockBuffer = new ulong[bufferSize];
-                                clockBuffer = new ulong[bufferSize];
-                                sampleIndex = 0;
-                            }
-                        },
-                        observer.OnError,
-                        observer.OnCompleted);
-                    return deviceInfo.Context
-                        .GetDeviceFrames(device.Address)
-                        .SubscribeSafe(frameObserver);
-                }));
+                                var payload = (Rhd2164Payload*)frame.Data.ToPointer();
+                                Marshal.Copy(new IntPtr(payload->AmplifierData), amplifierBuffer, sampleIndex * Rhd2164.AmplifierChannelCount, Rhd2164.AmplifierChannelCount);
+                                Marshal.Copy(new IntPtr(payload->AuxData), auxBuffer, sampleIndex * Rhd2164.AuxChannelCount, Rhd2164.AuxChannelCount);
+                                hubClockBuffer[sampleIndex] = payload->HubClock;
+                                clockBuffer[sampleIndex] = frame.Clock;
+                                if (++sampleIndex >= bufferSize)
+                                {
+                                    var amplifierData = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, Rhd2164.AmplifierChannelCount, Depth.U16);
+                                    var auxData = BufferHelper.CopyTranspose(auxBuffer, bufferSize, Rhd2164.AuxChannelCount, Depth.U16);
+                                    observer.OnNext(new Rhd2164DataFrame(clockBuffer, hubClockBuffer, amplifierData, auxData));
+                                    hubClockBuffer = new ulong[bufferSize];
+                                    clockBuffer = new ulong[bufferSize];
+                                    sampleIndex = 0;
+                                }
+                            },
+                            observer.OnError,
+                            observer.OnCompleted);
+                        return deviceInfo.Context
+                            .GetDeviceFrames(device.Address)
+                            .SubscribeSafe(frameObserver);
+                    }));
+            }
         }
     }
 }

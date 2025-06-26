@@ -40,7 +40,7 @@ namespace OpenEphys.Onix1
             return source.ConfigureDevice(context =>
             {
                 var device = context.GetDeviceContext(deviceAddress, DeviceType);
-                device.WriteRegister(Headstage64ElectricalStimulator.ENABLE, 0);
+                //device.WriteRegister(Headstage64ElectricalStimulator.ENABLE, 0);
                 return DeviceManager.RegisterDevice(deviceName, device, DeviceType);
             });
         }
@@ -48,7 +48,7 @@ namespace OpenEphys.Onix1
 
     static class Headstage64ElectricalStimulator
     {
-        public const int ID = 4;
+        public const int ID = 3;
 
         // NB: could be read from REZ but these are constant
         public const double DacBitDepth = 16;

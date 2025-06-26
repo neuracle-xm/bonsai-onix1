@@ -1,0 +1,208 @@
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Threading;
+
+namespace OpenEphys.Onix1
+{
+    /// <summary>
+    /// Configures an ONIX multifunction 64-channel headstage on the specified port.
+    /// </summary>
+    /// <remarks>
+    /// Headstage-64 is a 1.5g serialized, multifunction headstage designed to function with passive
+    /// probes such as tetrode microdrives, silicon arrays, EEG/ECOG arrays, etc. It provides the
+    /// following features:
+    /// <list type="bullet">
+    /// <item><description>64 electrophysiology channels and 3 auxiliary channels sampled at 30 kHz per
+    /// channel.</description></item>
+    /// <item><description>A BNO055 9-axis IMU for real-time, 3D orientation tracking.</description></item>
+    /// <item><description>Three TS4231 light to digital converters for real-time, 3D position tracking with
+    /// HTC Vive base stations.</description></item>
+    /// <item><description>A single electrical stimulator (current controlled, +/-15V compliance, automatic
+    /// electrode discharge).</description></item>
+    /// <item><description>Two optical stimulators (800 mA peak current per channel).</description></item>
+    /// </list>
+    /// </remarks>
+    [Description("Configures an ONIX multifunction 64-channel headstage.")]
+    public class ConfigureHeadstage64NoAux : MultiDeviceFactory
+    {
+        HubName hub;
+        //readonly ConfigureHeadstage64PortController PortControl = new();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConfigureHeadstage64NoAux"/> class.
+        /// </summary>
+        public ConfigureHeadstage64NoAux()
+        {
+            Hub = HubName.HubA;
+            // WONTFIX: The issue with this headstage is that its locking voltage is far, far lower than the
+            // voltage required for full functionality. Locking occurs at around 2V on the headstage (enough
+            // to turn 1.8V on). Full functionality is at 5.0 volts. The FMC port voltage can only go down to
+            // 3.3V, which means that its very hard to find the true lowest voltage for a lock and then add a
+            // large offset to that. Fixing this requires a hardware change.
+            //PortControl.HubConfiguration = HubConfiguration.Standard;
+        }
+
+        /// <summary>
+        /// Gets or sets the Rhd2164 configuration.
+        /// </summary>
+        [Category(DevicesCategory)]
+        [TypeConverter(typeof(SingleDeviceFactoryConverter))]
+        [Description("Specifies the configuration for the Rhd2164-NoAux device in the headstage-64.")]
+        public ConfigureRhd2164NoAux Rhd2164NoAux { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets onboard electrical stimulator configuration.
+        /// </summary>
+        /// <inheritdoc cref="ConfigureHeadstage64ElectricalStimulator"/>
+        [Category(DevicesCategory)]
+        [TypeConverter(typeof(SingleDeviceFactoryConverter))]
+        [Description("Specifies the configuration for the ElectricalStimulator device in the headstage-64.")]
+        public ConfigureHeadstage64ElectricalStimulator ElectricalStimulator { get; set; } = new();
+
+        ///// <summary>
+        ///// Gets or sets the SteamVR V1 basestation 3D tracking array configuration.
+        ///// </summary>
+        [Category(DevicesCategory)]
+        [TypeConverter(typeof(SingleDeviceFactoryConverter))]
+        [Description("模拟开关")]
+        public ConfigureSwitchDevice SwitchDevice { get; set; } = new();
+
+
+        /// <summary>
+        /// Gets or sets the port.
+        /// </summary>
+        /// <remarks>
+        /// The port is the physical connection to the ONIX breakout board and must be specified prior to
+        /// operation.
+        /// </remarks>
+        [Description("Specifies the physical connection address of the headstage to the ONIX breakout board.")]
+        [Category(ConfigurationCategory)]
+        public HubName Hub
+        {
+            get { return hub; }
+            set
+            {
+                hub = value;
+                Rhd2164NoAux.DeviceAddress = (uint)value;
+                ElectricalStimulator.DeviceAddress = (uint)value + 1;
+                SwitchDevice.DeviceAddress = (uint)value + 2;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the port voltage override.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If defined, it will override automated voltage discovery and apply the specified voltage to the
+        /// headstage. If left blank, an automated headstage detection algorithm will attempt to communicate
+        /// with the headstage and apply an appropriate voltage for stable operation. Because ONIX allows any
+        /// coaxial tether to be used, some of which are thin enough to result in a significant voltage drop,
+        /// its may be required to manually specify the port voltage.
+        /// </para>
+        /// <para>
+        /// Warning: this device requires 5.5V to 6.0V, measured at the headstage, for proper operation.
+        /// Supplying higher voltages may result in damage.
+        /// </para>
+        /// </remarks>
+        //[Description("If defined, it will override automated voltage discovery and apply the specified voltage" +
+        //             "to the headstage. Warning: this device requires 5.5V to 6.0V for proper operation." +
+        //             "Supplying higher voltages may result in damage to the headstage.")]
+        //[Category(ConfigurationCategory)]
+        //public double? PortVoltage
+        //{
+        //    get => PortControl.PortVoltage;
+        //    set => PortControl.PortVoltage = value;
+        //}
+
+        
+
+        internal override IEnumerable<IDeviceConfiguration> GetDevices()
+        {
+            yield return Rhd2164NoAux;
+            yield return ElectricalStimulator;
+            yield return SwitchDevice;
+        }
+
+        //class ConfigureHeadstage64PortController : ConfigurePortController
+        //{
+        //    protected override bool ConfigurePortVoltage(DeviceContext device)
+        //    {
+        //        // WONTFIX: It takes a huge amount of time to get to 0, almost 10 seconds. The best we can do
+        //        // at the moment is drive port voltage to minimum which is an active process and then settle
+        //        // from there to zero volts. This requires a hardware revision that discharges the headstage
+        //        // between cycles to fix.
+        //        const uint MinVoltage = 33;
+        //        const uint MaxVoltage = 60;
+        //        const uint VoltageOffset = 34;
+        //        const uint VoltageIncrement = 02;
+
+        //        // Start with highest voltage and ramp it down to find lowest lock voltage
+        //        var voltage = MaxVoltage;
+        //        for (; voltage >= MinVoltage; voltage -= VoltageIncrement)
+        //        {
+        //            device.WriteRegister(PortController.PORTVOLTAGE, voltage);
+        //            Thread.Sleep(200);
+        //            if (!CheckLinkState(device))
+        //            {
+        //                if (voltage == MaxVoltage) return false;
+        //                else break;
+        //            }
+        //        }
+
+        //        device.WriteRegister(PortController.PORTVOLTAGE, MinVoltage);
+        //        device.WriteRegister(PortController.PORTVOLTAGE, 0);
+        //        Thread.Sleep(1000);
+        //        device.WriteRegister(PortController.PORTVOLTAGE, voltage + VoltageOffset);
+        //        Thread.Sleep(200);
+        //        return CheckLinkState(device);
+        //    }
+        //}
+
+        public enum HubName
+        {
+            /// <summary>
+            /// Specifies Hub A.
+            /// </summary>
+            [Description("Hub A")]
+            HubA = 0x1100,
+            /// <summary>
+            /// Specifies Hub B.
+            /// </summary>
+            [Description("Hub B")]
+            HubB = 0x2200,
+            /// <summary>
+            /// Specifies Hub B.
+            /// </summary>
+            [Description("Hub C")]
+            HubC = 0x3300,
+            /// <summary>
+            /// Specifies Hub B.
+            /// </summary>
+            [Description("Hub D")]
+            HubD = 0x4400,
+            /// <summary>
+            /// Specifies Hub B.
+            /// </summary>
+            [Description("Hub E")]
+            HubE = 0x5500,
+            /// <summary>
+            /// Specifies Hub B.
+            /// </summary>
+            [Description("Hub F")]
+            HubF = 0x6600,
+            /// <summary>
+            /// Specifies Hub B.
+            /// </summary>
+            [Description("Hub G")]
+            HubG = 0x7700,
+            /// <summary>
+            /// Specifies Hub B.
+            /// </summary>
+            [Description("Hub H")]
+            HubH = 0x8800,
+        }
+    }
+
+
+}

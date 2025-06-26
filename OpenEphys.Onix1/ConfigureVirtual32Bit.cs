@@ -1,4 +1,4 @@
-// filepath: d:\Bonsai-onix1\OpenEphys.Onix1\ConfigureVirtual32Bit.cs
+﻿// filepath: d:\Bonsai-onix1\OpenEphys.Onix1\ConfigureVirtual32Bit.cs
 using System;
 using System.ComponentModel;
 
@@ -95,7 +95,7 @@ namespace OpenEphys.Onix1
     internal static class Virtual32Bit
     {
         // Assign a unique ID, different from existing devices (e.g., Rhd2164 is 3)
-        public const int ID = 100; // Example ID
+        public const int ID = 2; // Example ID
 
         // Define constants - adjust channel counts if needed for the virtual device
         public const int AmplifierChannelCount = 64;
