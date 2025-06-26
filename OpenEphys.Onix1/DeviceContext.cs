@@ -2,7 +2,7 @@
 
 namespace OpenEphys.Onix1
 {
-    internal class DeviceContext
+    public class DeviceContext
     {
         readonly ContextTask _context;
         readonly oni.Device _device;
