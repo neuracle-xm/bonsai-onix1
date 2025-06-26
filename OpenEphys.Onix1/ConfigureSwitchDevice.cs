@@ -46,48 +46,48 @@ namespace OpenEphys.Onix1
         }
     }
 
-    static class SwitchDevice
+    public static class SwitchDevice
     {
-        const int ID = 4;
+        public const int ID = 4;
 
         /// <summary>
         /// 下面是模拟开关控制寄存器中的各个地址
         /// 参考模拟开关
         /// </summary>
-        const int SwitchCref = 0;
+        public const int SwitchCref = 0;
 
         /// <summary>
         /// ADC(采样用)
         /// </summary>
-        const int SwitchAdc0_31 = 1;
-        const int SwitchAdc32_63 = 2;
-        const int SwitchAdc64_95 = 3;
-        const int SwitchAdc96_127 = 4;
+        public const int SwitchAdc0_31 = 1;
+        public const int SwitchAdc32_63 = 2;
+        public const int SwitchAdc64_95 = 3;
+        public const int SwitchAdc96_127 = 4;
 
         /// <summary>
         /// DAC(刺激用)
         /// </summary>
-        const int SwitchDac0_31 = 5;
-        const int SwitchDac32_63 = 6;
-        const int SwitchDac64_95 = 7;
-        const int SwitchDac96_127 = 8;
-        const int SwitchDac128_159 = 9;
-        const int SwitchDac160_191 = 10;
-        const int SwitchDac192_223 = 11;
-        const int SwitchDac224_255 = 12;
-        const int SwitchDac256_287 = 13;
-        const int SwitchDac288_319 = 14;
-        const int SwitchDac320_351 = 15;
-        const int SwitchDac352_383 = 16;
-        const int SwitchDac384_415 = 17;
-        const int SwitchDac416_447 = 18;
-        const int SwitchDac448_479 = 19;
-        const int SwitchDac480_511 = 20;
+        public const int SwitchDac0_31 = 5;
+        public const int SwitchDac32_63 = 6;
+        public const int SwitchDac64_95 = 7;
+        public const int SwitchDac96_127 = 8;
+        public const int SwitchDac128_159 = 9;
+        public const int SwitchDac160_191 = 10;
+        public const int SwitchDac192_223 = 11;
+        public const int SwitchDac224_255 = 12;
+        public const int SwitchDac256_287 = 13;
+        public const int SwitchDac288_319 = 14;
+        public const int SwitchDac320_351 = 15;
+        public const int SwitchDac352_383 = 16;
+        public const int SwitchDac384_415 = 17;
+        public const int SwitchDac416_447 = 18;
+        public const int SwitchDac448_479 = 19;
+        public const int SwitchDac480_511 = 20;
 
         /// <summary>
         /// 开始切换
         /// </summary>
-        const int SwitchStart = 21;
+        public const int SwitchStart = 21;
 
         internal class NameConverter : DeviceNameConverter
         {
