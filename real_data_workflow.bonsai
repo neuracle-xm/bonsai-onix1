@@ -33,7 +33,6 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:ReadDataCache">
           <onix1:DeviceName>A</onix1:DeviceName>
-          <onix1:PollInterval />
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
