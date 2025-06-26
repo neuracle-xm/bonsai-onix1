@@ -34,7 +34,7 @@ public class SwitchToData : Sink<bool>
                             return;
                         }
                         GlobalState.HubState = HubState.Data;
-                        device.WriteRegister(Headstage64ElectricalStimulator.TRIGGER, value ? 1u : 0u);
+                        device.WriteRegister(1, value ? 1u : 0u);
                         observer.OnNext(value);
                     },
                     observer.OnError,
