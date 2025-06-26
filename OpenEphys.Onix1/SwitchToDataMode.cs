@@ -34,7 +34,10 @@ public class SwitchToData : Sink<bool>
                             return;
                         }
                         GlobalState.HubState = HubState.Data;
-                        device.WriteRegister(1, value ? 1u : 0u);
+                        device.WriteRegister(SwitchDevice.SwitchCref, 4);
+                        device.OpenAllAdc();
+                        device.CloseAllDac();
+                        device.Start();
                         observer.OnNext(value);
                     },
                     observer.OnError,
