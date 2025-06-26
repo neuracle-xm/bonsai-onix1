@@ -102,6 +102,7 @@ namespace OpenEphys.Onix1
             AcquisitionClockHz = ctx.AcquisitionClockHz;
             MaxReadFrameSize = ctx.MaxReadFrameSize;
             MaxWriteFrameSize = ctx.MaxWriteFrameSize;
+            //DeviceTable中有模拟开关、刺激、阻抗的Address
             DeviceTable = ctx.DeviceTable;
         }
 
