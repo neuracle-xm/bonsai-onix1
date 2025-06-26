@@ -227,7 +227,7 @@ namespace OpenEphys.Onix1
                     var triggerObserver = Observer.Create<bool>(
                         value =>
                         {
-                            device.WriteRegister(Headstage64ElectricalStimulator.TRIGGER, value ? 1u : 0u);
+                            //device.WriteRegister(Headstage64ElectricalStimulator.TRIGGER, value ? 1u : 0u);
                             observer.OnNext(value);
                         },
                         observer.OnError,
@@ -240,19 +240,19 @@ namespace OpenEphys.Onix1
                     }
 
                     return new CompositeDisposable(
-                        enable.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.ENABLE, value ? 1u : 0u)),
-                        phaseOneCurrent.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.CURRENT1, uAToCode(value))),
-                        interPhaseCurrent.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.RESTCURR, uAToCode(value))),
-                        phaseTwoCurrent.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.CURRENT2, uAToCode(value))),
-                        triggerDelay.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.TRAINDELAY, value)),
-                        phaseOneDuration.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.PULSEDUR1, value)),
-                        interPhaseInterval.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.INTERPHASEINTERVAL, value)),
-                        phaseTwoDuration.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.PULSEDUR2, value)),
-                        interPulseInterval.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.INTERPULSEINTERVAL, value)),
-                        interBurstInterval.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.INTERBURSTINTERVAL, value)),
-                        burstPulseCount.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.BURSTCOUNT, value)),
-                        trainBurstCount.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.TRAINCOUNT, value)),
-                        powerEnable.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.POWERON, value ? 1u : 0u)),
+                        //enable.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.ENABLE, value ? 1u : 0u)),
+                        //phaseOneCurrent.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.CURRENT1, uAToCode(value))),
+                        //interPhaseCurrent.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.RESTCURR, uAToCode(value))),
+                        //phaseTwoCurrent.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.CURRENT2, uAToCode(value))),
+                        //triggerDelay.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.TRAINDELAY, value)),
+                        //phaseOneDuration.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.PULSEDUR1, value)),
+                        //interPhaseInterval.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.INTERPHASEINTERVAL, value)),
+                        //phaseTwoDuration.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.PULSEDUR2, value)),
+                        //interPulseInterval.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.INTERPULSEINTERVAL, value)),
+                        //interBurstInterval.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.INTERBURSTINTERVAL, value)),
+                        //burstPulseCount.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.BURSTCOUNT, value)),
+                        //trainBurstCount.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.TRAINCOUNT, value)),
+                        //powerEnable.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.POWERON, value ? 1u : 0u)),
                         source.SubscribeSafe(triggerObserver)
                     );
                 }));
