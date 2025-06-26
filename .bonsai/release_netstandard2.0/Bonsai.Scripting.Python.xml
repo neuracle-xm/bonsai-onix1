@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Bonsai.Scripting.Python</name>
+    </assembly>
+    <members>
+        <member name="T:Bonsai.Scripting.Python.CreateModule">
+            <summary>
+            Represents an operator that creates a top-level module in the Python runtime.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.CreateModule.Name">
+            <summary>
+            Gets or sets the name of the top-level module.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.CreateModule.ScriptPath">
+            <summary>
+            Gets or sets the path to the Python script file to run on module initialization.
+            </summary>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.CreateModule.Generate">
+            <summary>
+            Generates an observable sequence that contains the created top-level module.
+            </summary>
+            <returns>
+            A sequence containing a single instance of the <see cref="T:Python.Runtime.PyModule"/> class
+            representing the created top-level module.
+            </returns>
+        </member>
+        <member name="T:Bonsai.Scripting.Python.CreateRuntime">
+            <summary>
+            Represents an operator that creates a Python runtime object which can be used to
+            import modules, evaluate expressions, and pass data to and from a Python scope.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.CreateRuntime.PythonHome">
+            <summary>
+            Gets or sets the location where the standard Python libraries are installed.
+            </summary>
+            <remarks>
+            If no location is specified, the runtime will be created from the currently
+            activated Python virtual environment.
+            </remarks>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.CreateRuntime.ScriptPath">
+            <summary>
+            Gets or sets the path to the Python script file to run on runtime initialization.
+            </summary>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.CreateRuntime.Generate">
+            <summary>
+            Creates an observable sequence that initializes a Python runtime object which
+            can be used to import modules, evaluate expressions, and pass data to and
+            from a Python scope.
+            </summary>
+            <returns>
+            An observable sequence that initializes and returns a <see cref="T:Bonsai.Scripting.Python.RuntimeManager"/>
+            object on subscription. On cancellation, the runtime object is disposed.
+            </returns>
+        </member>
+        <member name="T:Bonsai.Scripting.Python.Eval">
+            <summary>
+            Represents an operator that evaluates a Python expression in the specified
+            top-level module.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.Eval.Module">
+            <summary>
+            Gets or sets the top-level module on which to evaluate the Python expression.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.Eval.Expression">
+            <summary>
+            Gets or sets the Python expression to evaluate.
+            </summary>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Eval.Process``1(System.IObservable{``0})">
+            <summary>
+            Evaluates a Python expression in the specified top-level module whenever an
+            observable sequence emits a notification.
+            </summary>
+            <typeparam name="TSource">
+            The type of the elements in the <paramref name="source"/> sequence.
+            </typeparam>
+            <param name="source">
+            The sequence of notifications used to trigger evaluation of the Python expression.
+            </param>
+            <returns>
+            A sequence of <see cref="T:Python.Runtime.PyObject"/> handles representing the result
+            of evaluating the Python expression.
+            </returns>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Eval.Process(System.IObservable{Python.Runtime.PyModule})">
+            <summary>
+            Evaluates a Python expression in an observable sequence of modules.
+            </summary>
+            <param name="source">
+            The sequence of modules in which to evaluate the Python expression.
+            </param>
+            <returns>
+            A sequence of <see cref="T:Python.Runtime.PyObject"/> handles representing the result
+            of evaluating the Python expression.
+            </returns>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Eval.Process(System.IObservable{Bonsai.Scripting.Python.RuntimeManager})">
+            <summary>
+            Evaluates an expression in the main module of the Python runtime.
+            </summary>
+            <param name="source">
+            A sequence containing the Python runtime in which to evaluate the expression.
+            </param>
+            <returns>
+            A sequence of <see cref="T:Python.Runtime.PyObject"/> handles representing the result
+            of evaluating the Python expression.
+            </returns>
+        </member>
+        <member name="T:Bonsai.Scripting.Python.Exec">
+            <summary>
+            Represents an operator that executes a Python script in the specified
+            top-level module.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.Exec.Module">
+            <summary>
+            Gets or sets the top-level module on which to execute the Python script.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.Exec.Script">
+            <summary>
+            Gets or sets the Python script to evaluate.
+            </summary>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Exec.Process``1(System.IObservable{``0})">
+            <summary>
+            Executes a Python script in the specified top-level module whenever an
+            observable sequence emits a notification.
+            </summary>
+            <typeparam name="TSource">
+            The type of the elements in the <paramref name="source"/> sequence.
+            </typeparam>
+            <param name="source">
+            The sequence of notifications used to trigger execution of the Python script.
+            </param>
+            <returns>
+            A sequence of <see cref="T:Python.Runtime.PyModule"/> objects representing the top-level
+            module where each Python script was executed.
+            </returns>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Exec.Process(System.IObservable{Python.Runtime.PyModule})">
+            <summary>
+            Executes a Python script in an observable sequence of modules.
+            </summary>
+            <param name="source">
+            The sequence of modules in which to execute the Python script.
+            </param>
+            <returns>
+            An observable sequence that is identical to the <paramref name="source"/>
+            sequence but where there is an additional side effect of executing the
+            Python script in each of the <see cref="T:Python.Runtime.PyModule"/> objects.
+            </returns>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Exec.Process(System.IObservable{Bonsai.Scripting.Python.RuntimeManager})">
+            <summary>
+            Executes a script in the main module of the Python runtime.
+            </summary>
+            <param name="source">
+            A sequence containing the Python runtime in which to execute the script.
+            </param>
+            <returns>
+            A sequence containing the <see cref="T:Python.Runtime.PyModule"/> object representing
+            the top-level module where the Python script was executed.
+            </returns>
+        </member>
+        <member name="T:Bonsai.Scripting.Python.Get">
+            <summary>
+            Represents an operator that gets the value of a variable in the specified
+            Python module.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.Get.Module">
+            <summary>
+            Gets or sets the Python module containing the variable.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.Get.VariableName">
+            <summary>
+            Gets or sets the name of the variable to get the value of.
+            </summary>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Get.Generate">
+            <summary>
+            Gets the value of a variable in the specified Python module and
+            surfaces it through an observable sequence.
+            </summary>
+            <returns>
+            A sequence containing the value of the Python runtime variable as
+            a <see cref="T:Python.Runtime.PyObject"/>.
+            </returns>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Get.Generate``1(System.IObservable{``0})">
+            <summary>
+            Gets the value of a variable in the specified Python module
+            whenever an observable sequence emits a notification.
+            </summary>
+            <typeparam name="TSource">
+            The type of the elements in the <paramref name="source"/> sequence.
+            </typeparam>
+            <param name="source">
+            The sequence of notifications used to get the value of the variable.
+            </param>
+            <returns>
+            A sequence of <see cref="T:Python.Runtime.PyObject"/> handles representing the value
+            of the Python runtime variable.
+            </returns>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Get.Process(System.IObservable{Python.Runtime.PyModule})">
+            <summary>
+            Gets the value of the specified variable in each of the Python modules
+            in an observable sequence.
+            </summary>
+            <param name="source">
+            The sequence of modules from which to get the value of the specified
+            variable.
+            </param>
+            <returns>
+            A sequence of <see cref="T:Python.Runtime.PyObject"/> handles representing the value
+            of the specified variable for each of the modules in the
+            <paramref name="source"/> sequence.
+            </returns>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Get.Process(System.IObservable{Bonsai.Scripting.Python.RuntimeManager})">
+            <summary>
+            Gets the value of the specified variable in the main module of the
+            Python runtime.
+            </summary>
+            <param name="source">
+            A sequence containing the Python runtime from which to get the
+            value of the specified variable.
+            </param>
+            <returns>
+            A sequence of <see cref="T:Python.Runtime.PyObject"/> handles representing the value
+            of the specified variable in the main module of the Python runtime.
+            </returns>
+        </member>
+        <member name="T:Bonsai.Scripting.Python.GetRuntime">
+            <summary>
+            Represents an operator that gets the Python runtime object which can be used
+            to import modules, evaluate expressions, and pass data to and from Python.
+            </summary>
+            <remarks>
+            The runtime object notification is emitted while holding the global interpreter lock.
+            </remarks>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.GetRuntime.Generate">
+            <summary>
+            Wraps an observable sequence to ensure all notifications are emitted
+            while holding the Python global interpreter lock.
+            </summary>
+            <returns>
+            An observable sequence that returns the active <see cref="T:Bonsai.Scripting.Python.RuntimeManager"/>
+            object on subscription. The value is emitted while holding the global
+            interpreter lock.
+            </returns>
+        </member>
+        <member name="T:Bonsai.Scripting.Python.ObserveOnGIL">
+            <summary>
+            Represents an operator that wraps the source sequence to ensure all notifications
+            are emitted while holding the Python global interpreter lock.
+            </summary>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.ObserveOnGIL.Process``1(System.IObservable{``0})">
+            <summary>
+            Wraps an observable sequence to ensure all notifications are emitted
+            while holding the Python global interpreter lock.
+            </summary>
+            <typeparam name="TSource">
+            The type of the elements in the <paramref name="source"/> sequence.
+            </typeparam>
+            <param name="source">The source sequence to wrap.</param>
+            <returns>
+            An observable sequence that is identical to the <paramref name="source"/>
+            sequence but where there is an additional side effect of ensuring that
+            all notifications are emitted inside the Python global interpreter lock.
+            </returns>
+        </member>
+        <member name="T:Bonsai.Scripting.Python.RuntimeManager">
+            <summary>
+            Provides functionality for initializing and managing resources held
+            by the Python runtime and an interface for scheduling work in the
+            runtime scheduler.
+            </summary>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.RuntimeManager.Dispose">
+            <summary>
+            Shutdown the thread and release all resources associated with the Python runtime.
+            All remaining work scheduled after shutdown is abandoned.
+            </summary>
+        </member>
+        <member name="T:Bonsai.Scripting.Python.Set">
+            <summary>
+            Represents an operator that adds or updates a Python runtime variable in the
+            specified top-level module.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.Set.Module">
+            <summary>
+            Gets or sets the Python top-level module containing the variable.
+            </summary>
+        </member>
+        <member name="P:Bonsai.Scripting.Python.Set.VariableName">
+            <summary>
+            Gets or sets the name of the variable to add or update the value of.
+            </summary>
+        </member>
+        <member name="M:Bonsai.Scripting.Python.Set.Process``1(System.IObservable{``0})">
+            <summary>
+            Adds or updates a Python runtime variable in the specified top-level module
+            with the values from an observable sequence.
+            </summary>
+            <typeparam name="TSource">
+            The type of the values in the <paramref name="source"/> sequence.
+            </typeparam>
+            <param name="source">
+            The sequence of values used to update the Python runtime variable.
+            </param>
+            <returns>
+            An observable sequence that is identical to the <paramref name="source"/>
+            sequence but where there is an additional side effect of setting the
+            specified Python runtime variable to the values of the sequence.
+            </returns>
+        </member>
+    </members>
+</doc>
