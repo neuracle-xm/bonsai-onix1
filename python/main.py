@@ -13,7 +13,7 @@ result = 1
 # 通道数
 channel_number = 64
 # 选择哪一个通道进行Sorting
-selected_number = 0
+selected_channel = 0
 # 一次传来的时间点
 sample_number = 3200
 # 采样率
@@ -49,7 +49,7 @@ def run(mat):
     # print("Start")
     raw_data = mat2np(mat)
     referenced_data = common_median_reference(raw_data)
-    selected_data = referenced_data[selected_number, :]
+    selected_data = referenced_data[selected_channel, :]
     filtered_data = bandpass_filter(
         selected_data,
         low=low_cutoff,
@@ -60,9 +60,9 @@ def run(mat):
     # print(f"filtered_data:{filtered_data[0,:]}")
     # plot_data([raw_data, filtered_data, referenced_data], [0, 1])
     spike_threshold = compute_spike_threshold(filtered_data)
-    # print(f"spike_threshold:{spike_threshold[selected_number]}")
+    # print(f"spike_threshold:{spike_threshold[selected_channel]}")
     spike_indices, spike_waveforms = spike_detection(filtered_data, spike_threshold)
-    # print(f"spike number:{len(spike_indices[selected_number])}")
+    # print(f"spike number:{len(spike_indices[selected_channel])}")
     # 没检测到Spike就直接返回空结果
     if spike_indices.shape[0] == 0:
         # print("no spike detected")
@@ -126,8 +126,8 @@ def run(mat):
     # raster_data = classify_spike(
     #     cluster_nodes,
     #     nodes,
-    #     spike_indices[selected_number],
-    #     spike_waveforms[selected_number],
+    #     spike_indices[selected_channel],
+    #     spike_waveforms[selected_channel],
     #     u,
     #     sample_number,
     # )
