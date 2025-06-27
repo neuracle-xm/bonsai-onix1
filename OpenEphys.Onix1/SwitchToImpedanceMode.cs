@@ -77,8 +77,8 @@ public class SwitchToImpedanceMode : Sink<bool>
                     //    switchDevice.WriteRegister(SwitchDevice.SwitchCref, 5);
                     //    //Switch_adc全部关闭，全置0
                     //    switchDevice.CloseAllAdc();
-                    //    //Switch_dac中通道0的stima的bit置为1，其他置为0
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac32_63, 0b10000000_00000000_00000000_00000000);
+                    //    //Switch_dac中通道0的stimb的bit置为1，其他置为0
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac32_63, 0b01000000_00000000_00000000_00000000);
                     //    //其他Dac都关闭
                     //    switchDevice.WriteRegister(SwitchDevice.SwitchDac0_31, 0);
                     //    switchDevice.WriteRegister(SwitchDevice.SwitchDac64_95, 0);

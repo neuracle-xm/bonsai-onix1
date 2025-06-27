@@ -145,6 +145,14 @@ namespace OpenEphys.Onix1
         public uint Ch1TrainBurstCount { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of bursts in a stimulus train.
+        /// </summary>
+        [Description("The number of RestCurrent.")]
+        [Range(0, uint.MaxValue)]
+        [Category(DeviceFactory.StimulatorCh1)]
+        public uint Ch1RestCurrent { get; set; }
+
+        /// <summary>
         /// Gets or sets the device enable state.
         /// </summary>
         /// <remarks>
@@ -254,6 +262,14 @@ namespace OpenEphys.Onix1
         [Range(0, uint.MaxValue)]
         [Category(DeviceFactory.StimulatorCh2)]
         public uint Ch2TrainBurstCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of bursts in a stimulus train.
+        /// </summary>
+        [Description("The number of RestCurrent.")]
+        [Range(0, uint.MaxValue)]
+        [Category(DeviceFactory.StimulatorCh2)]
+        public uint Ch2RestCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the device enable state.
@@ -367,6 +383,14 @@ namespace OpenEphys.Onix1
         public uint Ch3TrainBurstCount { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of bursts in a stimulus train.
+        /// </summary>
+        [Description("The number of RestCurrent.")]
+        [Range(0, uint.MaxValue)]
+        [Category(DeviceFactory.StimulatorCh3)]
+        public uint Ch3RestCurrent { get; set; }
+
+        /// <summary>
         /// Gets or sets the device enable state.
         /// </summary>
         /// <remarks>
@@ -477,6 +501,14 @@ namespace OpenEphys.Onix1
         [Category(DeviceFactory.StimulatorCh4)]
         public uint Ch4TrainBurstCount { get; set; }
 
+        /// <summary>
+        /// Gets or sets the number of bursts in a stimulus train.
+        /// </summary>
+        [Description("The number of RestCurrent.")]
+        [Range(0, uint.MaxValue)]
+        [Category(DeviceFactory.StimulatorCh4)]
+        public uint Ch4RestCurrent { get; set; }
+
         public override IObservable<bool> Process(IObservable<bool> source)
         {
             return Observable.Create<bool>(observer =>
@@ -492,47 +524,99 @@ namespace OpenEphys.Onix1
                         DeviceManager.GetDevice(SwitchDeviceName).Subscribe(x =>
                         {
                             var device = x.GetDeviceContext(typeof(SwitchDevice));
-                            uint stiChIdx = 0; //使用哪个刺激通道
                             device.WriteRegister(SwitchDevice.SwitchCref, 0);
                             device.CloseAllAdc();
                             if (Ch1Enable)
                             {
-                                device.WriteStimulateChannel(Ch1StimulateChannel, stiChIdx);
-                                stiChIdx++;
+                                device.WriteStimulateChannel(Ch1StimulateChannel, 0);
                             }
                             if (Ch2Enable)
                             {
-                                device.WriteStimulateChannel(Ch2StimulateChannel, stiChIdx);
-                                stiChIdx++;
+                                device.WriteStimulateChannel(Ch2StimulateChannel, 1);
                             }
                             if (Ch3Enable)
                             {
-                                device.WriteStimulateChannel(Ch3StimulateChannel, stiChIdx);
-                                stiChIdx++;
+                                device.WriteStimulateChannel(Ch3StimulateChannel, 2);
                             }
                             if (Ch4Enable)
                             {
-                                device.WriteStimulateChannel(Ch4StimulateChannel, stiChIdx);
+                                device.WriteStimulateChannel(Ch4StimulateChannel, 3);
                             }
                             device.StartSwitch();
                         });
 
+                        uint channelEnable = 0;
                         DeviceManager.GetDevice(StimulationDevice).Subscribe(x =>
                         {
                             var device = x.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1BURSTCNT, Ch1BurstPulseCount);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1BURSTINTERVAL, Ch1InterBurstInterval);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1PHASEINTERVAL, Ch1InterPhaseInterval);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEINTERVAL, Ch1InterPulseInterval);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, 10);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT2, 10);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CHIPULSEDUR1, Ch1PhaseOneDuration);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEDUR2, Ch1PhaseTwoDuration);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1TRAINDELAY, Ch1TriggerDelay);
-                            device.WriteRegister(Headstage64ElectricalStimulator.CH1TRAINCNT, Ch1TrainBurstCount);
+                            if (Ch1Enable)
+                            {
+                                channelEnable += 0b0001;
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1BURSTCNT, Ch1BurstPulseCount);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1BURSTINTERVAL, Ch1InterBurstInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PHASEINTERVAL, Ch1InterPhaseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEINTERVAL, Ch1InterPulseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT2, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEDUR1, Ch1PhaseOneDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEDUR2, Ch1PhaseTwoDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1TRAINDELAY, Ch1TriggerDelay);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1TRAINCNT, Ch1TrainBurstCount);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1RESTCURRENT, Ch1RestCurrent);
+                            }
+                            if (Ch2Enable)
+                            {
+                                channelEnable += 0b0010;
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2BURSTCNT, Ch2BurstPulseCount);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2BURSTINTERVAL, Ch2InterBurstInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PHASEINTERVAL, Ch2InterPhaseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEINTERVAL, Ch2InterPulseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT2, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEDUR1, Ch2PhaseOneDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEDUR2, Ch2PhaseTwoDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2TRAINDELAY, Ch2TriggerDelay);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2TRAINCNT, Ch2TrainBurstCount);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2RESTCURRENT, Ch2RestCurrent);
+
+                            }
+                            if (Ch3Enable)
+                            {
+                                channelEnable += 0b0100;
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3BURSTCNT, Ch3BurstPulseCount);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3BURSTINTERVAL, Ch3InterBurstInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PHASEINTERVAL, Ch3InterPhaseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEINTERVAL, Ch3InterPulseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT1, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT2, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEDUR1, Ch3PhaseOneDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEDUR2, Ch3PhaseTwoDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3TRAINDELAY, Ch3TriggerDelay);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3TRAINCNT, Ch3TrainBurstCount);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3RESTCURRENT, Ch3RestCurrent);
+
+                            }
+                            if (Ch4Enable)
+                            {
+                                channelEnable += 0b1000;
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4BURSTCNT, Ch4BurstPulseCount);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4BURSTINTERVAL, Ch4InterBurstInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PHASEINTERVAL, Ch4InterPhaseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEINTERVAL, Ch4InterPulseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT1, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT2, 10); // 要转化
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEDUR1, Ch4PhaseOneDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEDUR2, Ch4PhaseTwoDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4TRAINDELAY, Ch4TriggerDelay);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4TRAINCNT, Ch4TrainBurstCount);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4RESTCURRENT, Ch4RestCurrent);
+
+                            }
+
                             // 将设置的寄存器值写入设备
-                            device.WriteRegister(Headstage64ElectricalStimulator.CHANNEL_ENABLE, 0x1111);
+                            device.WriteRegister(Headstage64ElectricalStimulator.CHANNEL_ENABLE, channelEnable);  // 根据每个Enabel
                             device.WriteRegister(Headstage64ElectricalStimulator.RESISTOR_MODE, 0);
+                            device.StartStimulate();
                         });
                         observer.OnNext(value);
                     },

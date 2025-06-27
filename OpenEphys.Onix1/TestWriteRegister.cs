@@ -195,9 +195,22 @@ public static class SwitchWriteRegisterFunctions
     /// </summary>
     /// <param name="deviceContext"></param>
     /// <param name="channel">被刺激通道（0-63）</param>
-    /// <param name="stiChIdx">用于刺激的通道(0-3)</param>
+    /// <param name="stiChIdx">用于刺激的通道(0-3) 对应abcd</param>
     public static void WriteStimulateChannel(this DeviceContext deviceContext, uint channel, uint stiChIdx)
     {
+        // 奇数通道时，stim由高至低为 badc
+        // 偶数通道时，stim由高至低为 abcd
+        // 所以如果是奇数通道，stiChIdx需要调整一下
+        if (channel % 2 == 1)
+        {
+            if (stiChIdx == 0 || stiChIdx == 2)
+            {
+                stiChIdx++;
+            } else if (stiChIdx == 1 || stiChIdx == 3)
+            {
+                stiChIdx--;
+            }
+        }
         uint mask = 0b10000000_00000000_00000000_00000000;
         uint channelIndex = channel % 4;
         uint targetIndex = channelIndex * 8 + stiChIdx;
