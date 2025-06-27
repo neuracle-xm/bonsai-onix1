@@ -1,4 +1,6 @@
-﻿namespace OpenEphys.Onix1;
+﻿using System;
+
+namespace OpenEphys.Onix1;
 
 /// <summary>
 /// 模拟开关的一些扩展方法
@@ -57,11 +59,48 @@ public static class SwitchWriteRegisterFunctions
     /// 切换开关
     /// </summary>
     /// <param name="deviceContext"></param>
-    public static void Start(this DeviceContext deviceContext)
+    public static void StartSwitch(this DeviceContext deviceContext)
     {
         deviceContext.WriteRegister(SwitchDevice.SwitchStart, 0);
         deviceContext.WriteRegister(SwitchDevice.SwitchStart, 1);
         deviceContext.WriteRegister(SwitchDevice.SwitchStart, 0);
+    }
+
+    /// <summary>
+    /// 选择某个阻抗通道进行测量
+    /// </summary>
+    /// <param name="deviceContext"></param>
+    /// <param name="channelIndex"></param>
+    public static void SetImpedanceChannel(this DeviceContext deviceContext, uint channelIndex)
+    {
+        //先关闭所有Dac
+        deviceContext.CloseAllDac();
+        //Switch_dac中对应通道(0 - 63中的某个)的stima的bit置为1，其他置为0
+        //Switch_dac中另一个电极(不是上一步中那个电极)的stimb的bit置为1，其他置为0
+        //先找到这个通道对应的地址
+        var address = SelectRegisterAddressWithChannel(channelIndex);
+        //计算这个通道在这个地址上是第几个位置
+        var currentChannelIndexInAddress = 3 - channelIndex % 4;
+        //找另一个输出电流为0的通道的Index(测一块地址内前3个通道时就-1，测第4个通道时就+1，这样能在同一个地址内)
+        var anotherChannelIndexAddress = currentChannelIndexInAddress >= 1 ? currentChannelIndexInAddress - 1 : currentChannelIndexInAddress + 1;
+        //找到这俩电极的stim输出通道，currentChannel用stima，anotherChannel用stimb
+        uint stimaIndex;
+        uint stimbIndex;
+        //奇数时stima和stimb都在最后一个bit
+        if (currentChannelIndexInAddress % 2 == 1)
+        {
+            stimaIndex = currentChannelIndexInAddress * 8 + 7;
+            stimbIndex = anotherChannelIndexAddress * 8 + 7;
+        }
+        //偶数时stima和stimb都在倒数第二个bit
+        else
+        {
+            stimaIndex = currentChannelIndexInAddress * 8 + 6;
+            stimbIndex = anotherChannelIndexAddress * 8 + 6;
+        }
+        //最终需要写入的值
+        uint writeValue = (uint)(Math.Pow(2, stimaIndex) + Math.Pow(2, stimbIndex));
+        deviceContext.WriteRegister(address, writeValue);
     }
 
     /// <summary>

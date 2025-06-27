@@ -22,6 +22,12 @@ public class SwitchToImpedanceMode : Sink<bool>
     public string StimulationDeviceName { get; set; }
 
     /// <summary>
+    /// 选择哪个通道进行阻抗测量
+    /// </summary>
+    [Category(DeviceFactory.ConfigurationCategory)]
+    public uint ChannelIndex { get; set; } = 0;
+
+    /// <summary>
     /// Start an electrical stimulus sequence.
     /// </summary>
     /// <param name="source">A sequence of boolean values indicating the start of a stimulus sequence when true.</param>
@@ -46,27 +52,10 @@ public class SwitchToImpedanceMode : Sink<bool>
                         switchDevice.WriteRegister(SwitchDevice.SwitchCref, 0);
                         //Switch_adc全部关闭，全置0
                         switchDevice.CloseAllAdc();
-                        //Switch_dac中对应通道(0 - 63中的某个)的stima的bit置为1，其他置为0
-                        //Switch_dac中另一个电极(不是上一步中那个电极)的stimb的bit置为1，其他置为0
-                        //这里是在同一个地址中选的通道0和1
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac32_63, 0b10000000_10000000_00000000_00000000);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac0_31, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac64_95, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac96_127, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac128_159, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac160_191, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac192_223, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac224_255, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac256_287, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac288_319, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac320_351, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac352_383, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac384_415, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac416_447, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac448_479, 0);
-                        switchDevice.WriteRegister(SwitchDevice.SwitchDac480_511, 0);
+                        //设置需要检测的那个阻抗通道
+                        switchDevice.SetImpedanceChannel(ChannelIndex);
                         //开始切换
-                        switchDevice.Start();
+                        switchDevice.StartSwitch();
                     });
                     DeviceManager.GetDevice(StimulationDeviceName).Subscribe(deviceInfo =>
                     {   // TODO: 待完善公式

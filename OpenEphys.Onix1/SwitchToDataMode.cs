@@ -56,7 +56,7 @@ public class SwitchToData : Sink<bool>
                         device.WriteRegister(SwitchDevice.SwitchCref, 4);
                         device.OpenAllAdc();
                         device.CloseAllDac();
-                        device.Start();
+                        device.StartSwitch();
                         observer.OnNext(value);
                     },
                     observer.OnError,
