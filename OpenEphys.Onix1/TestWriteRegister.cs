@@ -18,6 +18,18 @@ public static class SwitchWriteRegisterFunctions
     }
 
     /// <summary>
+    /// 关闭所有Adc通道
+    /// </summary>
+    /// <param name="deviceContext"></param>
+    public static void CloseAllAdc(this DeviceContext deviceContext)
+    {
+        deviceContext.WriteRegister(SwitchDevice.SwitchAdc0_31, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchAdc32_63, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchAdc64_95, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchAdc96_127, 0);
+    }
+
+    /// <summary>
     /// 关闭所有Dac通道
     /// </summary>
     /// <param name="deviceContext"></param>

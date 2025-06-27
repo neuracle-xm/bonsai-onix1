@@ -500,8 +500,8 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:SwitchToImpedanceMode">
-          <onix1:SwitchDevice>HubA/SwitchDevice</onix1:SwitchDevice>
-          <onix1:StimulationDevice>HubA/Headstage64ElectricalStimulator</onix1:StimulationDevice>
+          <onix1:SwitchDeviceName>HubA/SwitchDevice</onix1:SwitchDeviceName>
+          <onix1:StimulationDeviceName>HubA/Headstage64ElectricalStimulator</onix1:StimulationDeviceName>
         </Combinator>
       </Expression>
     </Nodes>
