@@ -63,6 +63,17 @@ public static class SwitchWriteRegisterFunctions
         deviceContext.WriteRegister(SwitchDevice.SwitchStart, 1);
         deviceContext.WriteRegister(SwitchDevice.SwitchStart, 0);
     }
+
+    /// <summary>
+    /// 开始刺激
+    /// </summary>
+    /// <param name="deviceContext"></param>
+    public static void StartStimulate(this DeviceContext deviceContext)
+    {
+        deviceContext.WriteRegister(Headstage64ElectricalStimulator.STIM_START, 0);
+        deviceContext.WriteRegister(Headstage64ElectricalStimulator.STIM_START, 1);
+        deviceContext.WriteRegister(Headstage64ElectricalStimulator.STIM_START, 0);
+    }
 }
 
 /// <summary>
