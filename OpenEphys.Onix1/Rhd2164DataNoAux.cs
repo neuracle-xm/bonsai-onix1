@@ -117,7 +117,7 @@ namespace OpenEphys.Onix1
                                 Marshal.Copy(new IntPtr(payload->AmplifierData), amplifierBuffer, sampleIndex * Rhd2164NoAux.AmplifierChannelCount, Rhd2164NoAux.AmplifierChannelCount);
                                 Marshal.Copy(new IntPtr(payload->ImpedanceData), impedanceBuffer, sampleIndex * Rhd2164NoAux.ImpedanceChannelCount, Rhd2164NoAux.ImpedanceChannelCount);
                                 //采集模式取前64个通道数据
-                                if (GlobalState.HubState == HubState.Data)
+                                if (GlobalState.HubStates[GlobalState.DeviceNameToHubName[DeviceName]] == HubState.Data)
                                 {
                                     if (++sampleIndex >= bufferSize)
                                     {
@@ -127,7 +127,7 @@ namespace OpenEphys.Onix1
                                     }
                                 }
                                 //阻抗取最后8个通道数据用于计算阻抗
-                                else if (GlobalState.HubState == HubState.Impedance)
+                                else if (GlobalState.HubStates[GlobalState.DeviceNameToHubName[DeviceName]] == HubState.Impedance)
                                 {
                                     if (++sampleIndex >= bufferSize)
                                     {
