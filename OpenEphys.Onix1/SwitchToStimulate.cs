@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using Bonsai;
 
 namespace OpenEphys.Onix1
@@ -145,12 +146,11 @@ namespace OpenEphys.Onix1
         public uint Ch1TrainBurstCount { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of bursts in a stimulus train.
+        /// Gets or set Ch1BiPhasic.
         /// </summary>
-        [Description("The number of RestCurrent.")]
-        [Range(0, uint.MaxValue)]
+        [Description("Ch1BiPhasic.")]
         [Category(DeviceFactory.StimulatorCh1)]
-        public uint Ch1RestCurrent { get; set; }
+        public bool Ch1BiPhasic { get; set; }
 
         /// <summary>
         /// Gets or sets the device enable state.
@@ -264,12 +264,11 @@ namespace OpenEphys.Onix1
         public uint Ch2TrainBurstCount { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of bursts in a stimulus train.
+        /// Gets or set Ch2BiPhasic.
         /// </summary>
-        [Description("The number of RestCurrent.")]
-        [Range(0, uint.MaxValue)]
+        [Description("Ch2BiPhasic.")]
         [Category(DeviceFactory.StimulatorCh2)]
-        public uint Ch2RestCurrent { get; set; }
+        public bool Ch2BiPhasic { get; set; }
 
         /// <summary>
         /// Gets or sets the device enable state.
@@ -383,12 +382,11 @@ namespace OpenEphys.Onix1
         public uint Ch3TrainBurstCount { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of bursts in a stimulus train.
+        /// Gets or set Ch3BiPhasic.
         /// </summary>
-        [Description("The number of RestCurrent.")]
-        [Range(0, uint.MaxValue)]
+        [Description("Ch3BiPhasic.")]
         [Category(DeviceFactory.StimulatorCh3)]
-        public uint Ch3RestCurrent { get; set; }
+        public bool Ch3BiPhasic { get; set; }
 
         /// <summary>
         /// Gets or sets the device enable state.
@@ -502,12 +500,57 @@ namespace OpenEphys.Onix1
         public uint Ch4TrainBurstCount { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of bursts in a stimulus train.
+        /// Gets or set Ch4BiPhasic.
         /// </summary>
-        [Description("The number of RestCurrent.")]
-        [Range(0, uint.MaxValue)]
+        [Description("Ch1BiPhasic.")]
         [Category(DeviceFactory.StimulatorCh4)]
-        public uint Ch4RestCurrent { get; set; }
+        public bool Ch4BiPhasic { get; set; }
+
+        /// <summary>
+        /// 计算单个刺激通道的刺激时间
+        /// </summary>
+        /// <param name="trainDelay"></param>
+        /// <param name="trainCnt"></param>
+        /// <param name="burstCnt"></param>
+        /// <param name="interPulseInterval"></param>
+        /// <param name="interBurstInterval"></param>
+        /// <param name="pulseDur1"></param>
+        /// <param name="pulseDur2"></param>
+        /// <param name="interPhaseInterval"></param>
+        /// <param name="biPhasic"></param>
+        /// <returns></returns>
+        private int CalStimulationDuration(uint trainDelay, uint trainCnt, uint burstCnt, uint interPulseInterval, uint interBurstInterval, uint pulseDur1, uint pulseDur2, uint interPhaseInterval)
+        {
+            int CalPulseDuration(uint pulseDur1, uint pulseDur2, uint interPhaseInterval)
+            {
+                return (int)(pulseDur1 + interPhaseInterval + pulseDur2);
+            }
+
+            int CalBurstDuration(uint burstCnt, uint interPulseInterval, uint pulseDur1, uint pulseDur2, uint interPhaseInterval)
+            {
+                return (int)(burstCnt * CalPulseDuration(pulseDur1, pulseDur2, interPhaseInterval) + (burstCnt - 1) * interPulseInterval);
+            }
+
+            return (int)(CalBurstDuration(burstCnt, interPulseInterval, pulseDur1, pulseDur2, interPhaseInterval) * trainCnt + (trainCnt - 1) * interBurstInterval + trainDelay);
+        }
+
+        private Tuple<uint, uint, uint, uint, uint> ChangeParamByBiPhasic(bool biPhasic, uint phaseTwoCurrent, uint interPhaseCurrent, uint phaseTwoDuration, uint interPhaseInterval, uint interPulseInterval)
+        {
+            if (!biPhasic)
+            {
+                phaseTwoCurrent = 0;
+                interPhaseCurrent = 0;
+                phaseTwoDuration = 1;
+                interPhaseInterval = 1;
+                interPulseInterval -= 2;
+                if (interPulseInterval < 1)
+                {
+                    interPulseInterval = 1;
+                }
+            }
+
+            return Tuple.Create(phaseTwoCurrent, interPhaseCurrent, phaseTwoDuration, interPhaseInterval, interPulseInterval);
+        }
 
         public override IObservable<bool> Process(IObservable<bool> source)
         {
@@ -546,77 +589,117 @@ namespace OpenEphys.Onix1
                         });
 
                         uint channelEnable = 0;
+                        int maxDuration = 0;
                         DeviceManager.GetDevice(StimulationDevice).Subscribe(x =>
                         {
                             var device = x.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
                             if (Ch1Enable)
                             {
                                 channelEnable += 0b0001;
+                                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch1BiPhasic, Ch1PhaseTwoCurrent, Ch1InterPhaseCurrent, Ch1PhaseTwoDuration, Ch1InterPhaseInterval, Ch1InterPulseInterval);
+                                int ch1Duration = CalStimulationDuration(Ch1TriggerDelay, Ch1TrainBurstCount, Ch1BurstPulseCount, interPulseInterval, Ch1InterBurstInterval, Ch1PhaseOneDuration, phaseTwoDuration, interPhaseInterval);
+                                if (ch1Duration > maxDuration)
+                                {
+                                    maxDuration = ch1Duration;
+                                }
+
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1BURSTCNT, Ch1BurstPulseCount);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1BURSTINTERVAL, Ch1InterBurstInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PHASEINTERVAL, Ch1InterPhaseInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEINTERVAL, Ch1InterPulseInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, 10);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT2, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PHASEINTERVAL, interPhaseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEINTERVAL, interPulseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, Ch1PhaseOneCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT2, phaseTwoCurrent);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEDUR1, Ch1PhaseOneDuration);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEDUR2, Ch1PhaseTwoDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEDUR2, phaseTwoDuration);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1TRAINDELAY, Ch1TriggerDelay);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1TRAINCNT, Ch1TrainBurstCount);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1RESTCURRENT, Ch1RestCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1RESTCURRENT, interPhaseCurrent);
                             }
                             if (Ch2Enable)
                             {
                                 channelEnable += 0b0010;
+                                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch2BiPhasic, Ch2PhaseTwoCurrent, Ch2InterPhaseCurrent, Ch2PhaseTwoDuration, Ch2InterPhaseInterval, Ch2InterPulseInterval);
+                                int ch2Duration = CalStimulationDuration(Ch2TriggerDelay, Ch2TrainBurstCount, Ch2BurstPulseCount, interPulseInterval, Ch2InterBurstInterval, Ch2PhaseOneDuration, phaseTwoDuration, interPhaseInterval);
+                                if (ch2Duration > maxDuration)
+                                {
+                                    maxDuration = ch2Duration;
+                                }
+
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2BURSTCNT, Ch2BurstPulseCount);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2BURSTINTERVAL, Ch2InterBurstInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PHASEINTERVAL, Ch2InterPhaseInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEINTERVAL, Ch2InterPulseInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, 10);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT2, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PHASEINTERVAL, interPhaseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEINTERVAL, interPulseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, Ch2PhaseOneCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT2, phaseTwoCurrent);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEDUR1, Ch2PhaseOneDuration);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEDUR2, Ch2PhaseTwoDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEDUR2, phaseTwoDuration);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2TRAINDELAY, Ch2TriggerDelay);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2TRAINCNT, Ch2TrainBurstCount);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2RESTCURRENT, Ch2RestCurrent);
-
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2RESTCURRENT, interPhaseCurrent);
                             }
                             if (Ch3Enable)
                             {
                                 channelEnable += 0b0100;
+                                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch3BiPhasic, Ch3PhaseTwoCurrent, Ch3InterPhaseCurrent, Ch3PhaseTwoDuration, Ch3InterPhaseInterval, Ch3InterPulseInterval);
+                                int ch3Duration = CalStimulationDuration(Ch3TriggerDelay, Ch3TrainBurstCount, Ch3BurstPulseCount, interPulseInterval, Ch3InterBurstInterval, Ch3PhaseOneDuration, phaseTwoDuration, interPhaseInterval);
+                                if (ch3Duration > maxDuration)
+                                {
+                                    maxDuration = ch3Duration;
+                                }
+
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3BURSTCNT, Ch3BurstPulseCount);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3BURSTINTERVAL, Ch3InterBurstInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PHASEINTERVAL, Ch3InterPhaseInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEINTERVAL, Ch3InterPulseInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT1, 10);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT2, 10);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PHASEINTERVAL, interPhaseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEINTERVAL, interPulseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT1, Ch3PhaseOneCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT2, phaseTwoCurrent);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEDUR1, Ch3PhaseOneDuration);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEDUR2, Ch3PhaseTwoDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEDUR2, phaseTwoDuration);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3TRAINDELAY, Ch3TriggerDelay);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3TRAINCNT, Ch3TrainBurstCount);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3RESTCURRENT, Ch3RestCurrent);
-
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3RESTCURRENT, interPhaseCurrent);
                             }
                             if (Ch4Enable)
                             {
                                 channelEnable += 0b1000;
+                                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch4BiPhasic, Ch4PhaseTwoCurrent, Ch4InterPhaseCurrent, Ch4PhaseTwoDuration, Ch4InterPhaseInterval, Ch4InterPulseInterval);
+                                int ch4Duration = CalStimulationDuration(Ch4TriggerDelay, Ch4TrainBurstCount, Ch4BurstPulseCount, interPulseInterval, Ch4InterBurstInterval, Ch4PhaseOneDuration, phaseTwoDuration, interPhaseInterval);
+                                if (ch4Duration > maxDuration)
+                                {
+                                    maxDuration = ch4Duration;
+                                }
+
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4BURSTCNT, Ch4BurstPulseCount);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4BURSTINTERVAL, Ch4InterBurstInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PHASEINTERVAL, Ch4InterPhaseInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEINTERVAL, Ch4InterPulseInterval);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT1, 10);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT2, 10); // 要转化
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PHASEINTERVAL, interPhaseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEINTERVAL, interPulseInterval);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT1, Ch4PhaseOneCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT2, phaseTwoCurrent);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEDUR1, Ch4PhaseOneDuration);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEDUR2, Ch4PhaseTwoDuration);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEDUR2, phaseTwoDuration);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4TRAINDELAY, Ch4TriggerDelay);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4TRAINCNT, Ch4TrainBurstCount);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4RESTCURRENT, Ch4RestCurrent);
-
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4RESTCURRENT, interPhaseCurrent);
                             }
 
                             // 将设置的寄存器值写入设备
-                            device.WriteRegister(Headstage64ElectricalStimulator.CHANNEL_ENABLE, channelEnable);  // 根据每个Enabel
+                            device.WriteRegister(Headstage64ElectricalStimulator.CHANNEL_ENABLE, channelEnable);
                             device.WriteRegister(Headstage64ElectricalStimulator.RESISTOR_MODE, 0);
                             device.StartStimulate();
+
+                            Thread.Sleep(maxDuration / 1000); // 等待刺激完成
+
+                            DeviceManager.GetDevice(SwitchDeviceName).Subscribe(x =>
+                            {
+                                GlobalState.HubStates[GlobalState.DeviceNameToHubName[SwitchDeviceName]] = HubState.Data;
+                                var device = x.GetDeviceContext(typeof(SwitchDevice));
+                                device.WriteRegister(SwitchDevice.SwitchCref, 4);
+                                device.OpenAllAdc();
+                                device.CloseAllDac();
+                                device.StartSwitch();
+                            });
+
+
                         });
                         observer.OnNext(value);
                     },
