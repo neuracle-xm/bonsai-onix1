@@ -34,6 +34,8 @@ namespace OpenEphys.Onix1
         public ConfigureHeadstage64NoAux()
         {
             Hub = HubName.HubA;
+            //每个头盒初始都是采集模式
+            GlobalState.HubStates[Hub] = HubState.Data;
             // WONTFIX: The issue with this headstage is that its locking voltage is far, far lower than the
             // voltage required for full functionality. Locking occurs at around 2V on the headstage (enough
             // to turn 1.8V on). Full functionality is at 5.0 volts. The FMC port voltage can only go down to
@@ -115,13 +117,17 @@ namespace OpenEphys.Onix1
         //    set => PortControl.PortVoltage = value;
         //}
 
-        
+
 
         internal override IEnumerable<IDeviceConfiguration> GetDevices()
         {
             yield return Rhd2164NoAux;
+            //把每个设备的DeviceName关联到HubName
+            GlobalState.DeviceNameToHubName[Rhd2164NoAux.DeviceName] = hub;
             yield return ElectricalStimulator;
+            GlobalState.DeviceNameToHubName[ElectricalStimulator.DeviceName] = hub;
             yield return SwitchDevice;
+            GlobalState.DeviceNameToHubName[SwitchDevice.DeviceName] = hub;
         }
 
         //class ConfigureHeadstage64PortController : ConfigurePortController

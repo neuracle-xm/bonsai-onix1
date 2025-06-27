@@ -414,6 +414,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:SwitchToStimulate">
+          <onix1:SwitchDeviceName>HubA/SwitchDevice</onix1:SwitchDeviceName>
           <onix1:StimulationDevice>HubA/Headstage64ElectricalStimulator</onix1:StimulationDevice>
           <onix1:Ch1Enable>false</onix1:Ch1Enable>
           <onix1:Ch1StimulateChannel>0</onix1:Ch1StimulateChannel>

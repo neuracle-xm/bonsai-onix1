@@ -33,7 +33,26 @@ public class SwitchToData : Sink<bool>
                         {
                             return;
                         }
-                        GlobalState.HubState = HubState.Data;
+                        GlobalState.HubStates[GlobalState.DeviceNameToHubName[DeviceName]] = HubState.Data;
+                        //这些是测试用的
+                        //device.TestCref1();
+                        //device.TestCref2();
+                        //device.TestStima();
+                        //device.TestCref1_Stima();
+                        //device.TestCref2_Stima();
+                        //device.TestChannel0();
+                        //device.TestChannel1();
+                        //device.TestCloseAll();
+                        //device.TestOpenAll();
+                        //device.TestChannel2Stima();
+                        //device.TestChannel2Stimb();
+                        //device.TestChannel2Stimc();
+                        //device.TestChannel2Stimd();
+                        //device.TestChannel9Stima();
+                        //device.TestChannel9Stimb();
+                        //device.TestChannel9Stimc();
+                        //device.TestChannel9Stimd();
+                        //下面的是正式切换到采集流程
                         device.WriteRegister(SwitchDevice.SwitchCref, 4);
                         device.OpenAllAdc();
                         device.CloseAllDac();

@@ -569,8 +569,8 @@ namespace OpenEphys.Onix1
                         {
                             return;
                         }
-                        GlobalState.HubState = HubState.Stimulation;
-                        var d1 = DeviceManager.GetDevice(SwitchDeviceName).Subscribe(x =>
+                        GlobalState.HubStates[GlobalState.DeviceNameToHubName[SwitchDeviceName]] = HubState.Stimulation;
+                        DeviceManager.GetDevice(SwitchDeviceName).Subscribe(x =>
                         {
                             var device = x.GetDeviceContext(typeof(SwitchDevice));
                             device.WriteRegister(SwitchDevice.SwitchCref, 0);
@@ -604,7 +604,7 @@ namespace OpenEphys.Onix1
                             device.Start();
                         });
 
-                        var d2 = DeviceManager.GetDevice(StimulationDevice).Subscribe(x =>
+                        DeviceManager.GetDevice(StimulationDevice).Subscribe(x =>
                         {
                             var device = x.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
                             // 将设置的寄存器值写入设备

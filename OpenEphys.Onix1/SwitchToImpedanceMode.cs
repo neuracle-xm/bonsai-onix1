@@ -37,7 +37,7 @@ public class SwitchToImpedanceMode : Sink<bool>
                     {
                         return;
                     }
-                    GlobalState.HubState = HubState.Impedance;
+                    GlobalState.HubStates[GlobalState.DeviceNameToHubName[SwitchDeviceName]] = HubState.Impedance;
                     //测(0 - 63通道)
                     DeviceManager.GetDevice(SwitchDeviceName).Subscribe(deviceInfo =>
                     {
