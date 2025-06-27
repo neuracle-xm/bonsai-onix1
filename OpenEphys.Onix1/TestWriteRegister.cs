@@ -74,6 +74,99 @@ public static class SwitchWriteRegisterFunctions
         deviceContext.WriteRegister(Headstage64ElectricalStimulator.STIM_START, 1);
         deviceContext.WriteRegister(Headstage64ElectricalStimulator.STIM_START, 0);
     }
+
+    /// <summary>
+    /// 根据通道号选择寄存器
+    /// </summary>
+    /// <param name="channel"></param>
+    public static uint SelectRegisterAddressWithChannel(uint channel)
+    {
+        if (channel < 4)
+        {
+            return SwitchDevice.SwitchDac32_63;
+        }
+        else if (channel < 8)
+        {
+            return SwitchDevice.SwitchDac0_31;
+        }
+        else if (channel < 12)
+        {
+            return SwitchDevice.SwitchDac96_127;
+        }
+        else if (channel < 16)
+        {
+            return SwitchDevice.SwitchDac64_95;
+        }
+        else if (channel < 20)
+        {
+            return SwitchDevice.SwitchDac160_191;
+        }
+        else if (channel < 24)
+        {
+            return SwitchDevice.SwitchDac128_159;
+        }
+        else if (channel < 28)
+        {
+            return SwitchDevice.SwitchDac224_255;
+        }
+        else if (channel < 32)
+        {
+            return SwitchDevice.SwitchDac192_223;
+        }
+        else if (channel < 36)
+        {
+            return SwitchDevice.SwitchDac288_319;
+        }
+        else if (channel < 40)
+        {
+            return SwitchDevice.SwitchDac256_287;
+        }
+        else if (channel < 44)
+        {
+            return SwitchDevice.SwitchDac352_383;
+        }
+        else if (channel < 48)
+        {
+            return SwitchDevice.SwitchDac320_351;
+        }
+        else if (channel < 52)
+        {
+            return SwitchDevice.SwitchDac416_447;
+        }
+        else if (channel < 56)
+        {
+            return SwitchDevice.SwitchDac384_415;
+        }
+        else if (channel < 60)
+        {
+            return SwitchDevice.SwitchDac480_511;
+        }
+        else if (channel < 64)
+        {
+            return SwitchDevice.SwitchDac448_479;
+        }
+        else
+        {
+            return 100;
+        }
+    }
+
+    /// <summary>
+    /// 选择刺激通道和被刺激通道
+    /// </summary>
+    /// <param name="deviceContext"></param>
+    /// <param name="channel">被刺激通道（0-63）</param>
+    /// <param name="stiChIdx">用于刺激的通道(0-3)</param>
+    public static void WriteStimulateChannel(this DeviceContext deviceContext, uint channel, uint stiChIdx)
+    {
+        uint mask = 0b10000000_00000000_00000000_00000000;
+        uint channelIndex = channel % 4;
+        uint targetIndex = channelIndex * 8 + stiChIdx;
+        uint ch1value = mask >> (int)targetIndex;
+        var registerAddress = SelectRegisterAddressWithChannel(channel);
+
+        deviceContext.WriteRegister(registerAddress, ch1value);
+    }
 }
 
 /// <summary>
