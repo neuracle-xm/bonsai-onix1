@@ -31,6 +31,19 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
+        <Combinator xsi:type="IntProperty">
+          <Value>0</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:ObserveOnGIL" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:Set">
+          <py:VariableName>selected_channel</py:VariableName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:ReadDataCache">
           <onix1:DeviceName>A</onix1:DeviceName>
         </Combinator>
@@ -275,12 +288,10 @@
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="onix1:WriteToDataCache">
-            <onix1:DeviceName>B</onix1:DeviceName>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:WriteToDataCache">
+          <onix1:DeviceName>B</onix1:DeviceName>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:Rhd2164DataNoAux">
@@ -291,12 +302,10 @@
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="onix1:WriteToDataCache">
-            <onix1:DeviceName>C</onix1:DeviceName>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:WriteToDataCache">
+          <onix1:DeviceName>C</onix1:DeviceName>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:Rhd2164DataNoAux">
@@ -307,24 +316,18 @@
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p1:SendMatOverSocket">
-            <p1:Connection>Tcp2</p1:Connection>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:SendMatOverSocket">
+          <p1:Connection>Tcp2</p1:Connection>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="MemberSelector">
-          <Selector>ImpedanceValue</Selector>
-        </Builder>
+      <Expression xsi:type="MemberSelector">
+        <Selector>ImpedanceValue</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="onix1:WriteToDataCache">
-            <onix1:DeviceName>D</onix1:DeviceName>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:WriteToDataCache">
+          <onix1:DeviceName>D</onix1:DeviceName>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:Rhd2164DataNoAux">
@@ -335,12 +338,10 @@
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="onix1:WriteToDataCache">
-            <onix1:DeviceName>E</onix1:DeviceName>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:WriteToDataCache">
+          <onix1:DeviceName>E</onix1:DeviceName>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:Rhd2164DataNoAux">
@@ -351,12 +352,10 @@
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="onix1:WriteToDataCache">
-            <onix1:DeviceName>F</onix1:DeviceName>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:WriteToDataCache">
+          <onix1:DeviceName>F</onix1:DeviceName>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:Rhd2164DataNoAux">
@@ -367,12 +366,10 @@
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="onix1:WriteToDataCache">
-            <onix1:DeviceName>G</onix1:DeviceName>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:WriteToDataCache">
+          <onix1:DeviceName>G</onix1:DeviceName>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:Rhd2164DataNoAux">
@@ -383,12 +380,10 @@
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="onix1:WriteToDataCache">
-            <onix1:DeviceName>H</onix1:DeviceName>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:WriteToDataCache">
+          <onix1:DeviceName>H</onix1:DeviceName>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="wie:KeyDown">
@@ -419,9 +414,9 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:SwitchToStimulate">
-          <onix1:SwitchDevice>HubA/SwitchDevice</onix1:SwitchDevice>
           <onix1:StimulationDevice>HubA/Headstage64ElectricalStimulator</onix1:StimulationDevice>
           <onix1:Ch1Enable>false</onix1:Ch1Enable>
+          <onix1:Ch1StimulateChannel>0</onix1:Ch1StimulateChannel>
           <onix1:Ch1TriggerDelay>0</onix1:Ch1TriggerDelay>
           <onix1:Ch1PhaseOneCurrent>0</onix1:Ch1PhaseOneCurrent>
           <onix1:Ch1InterPhaseCurrent>897.436</onix1:Ch1InterPhaseCurrent>
@@ -434,6 +429,7 @@
           <onix1:Ch1BurstPulseCount>0</onix1:Ch1BurstPulseCount>
           <onix1:Ch1TrainBurstCount>0</onix1:Ch1TrainBurstCount>
           <onix1:Ch2Enable>false</onix1:Ch2Enable>
+          <onix1:Ch2StimulateChannel>0</onix1:Ch2StimulateChannel>
           <onix1:Ch2TriggerDelay>0</onix1:Ch2TriggerDelay>
           <onix1:Ch2PhaseOneCurrent>0</onix1:Ch2PhaseOneCurrent>
           <onix1:Ch2InterPhaseCurrent>0</onix1:Ch2InterPhaseCurrent>
@@ -446,6 +442,7 @@
           <onix1:Ch2BurstPulseCount>0</onix1:Ch2BurstPulseCount>
           <onix1:Ch2TrainBurstCount>0</onix1:Ch2TrainBurstCount>
           <onix1:Ch3Enable>false</onix1:Ch3Enable>
+          <onix1:Ch3StimulateChannel>0</onix1:Ch3StimulateChannel>
           <onix1:Ch3TriggerDelay>0</onix1:Ch3TriggerDelay>
           <onix1:Ch3PhaseOneCurrent>0</onix1:Ch3PhaseOneCurrent>
           <onix1:Ch3InterPhaseCurrent>0</onix1:Ch3InterPhaseCurrent>
@@ -458,6 +455,7 @@
           <onix1:Ch3BurstPulseCount>0</onix1:Ch3BurstPulseCount>
           <onix1:Ch3TrainBurstCount>0</onix1:Ch3TrainBurstCount>
           <onix1:Ch4Enable>false</onix1:Ch4Enable>
+          <onix1:Ch4StimulateChannel>0</onix1:Ch4StimulateChannel>
           <onix1:Ch4TriggerDelay>0</onix1:Ch4TriggerDelay>
           <onix1:Ch4PhaseOneCurrent>0</onix1:Ch4PhaseOneCurrent>
           <onix1:Ch4InterPhaseCurrent>0</onix1:Ch4InterPhaseCurrent>
@@ -508,20 +506,20 @@
     <Edges>
       <Edge From="3" To="4" Label="Source1" />
       <Edge From="4" To="5" Label="Source1" />
-      <Edge From="5" To="6" Label="Source1" />
       <Edge From="6" To="7" Label="Source1" />
       <Edge From="7" To="8" Label="Source1" />
       <Edge From="8" To="9" Label="Source1" />
       <Edge From="9" To="10" Label="Source1" />
+      <Edge From="10" To="11" Label="Source1" />
       <Edge From="11" To="12" Label="Source1" />
       <Edge From="12" To="13" Label="Source1" />
-      <Edge From="13" To="14" Label="Source1" />
       <Edge From="14" To="15" Label="Source1" />
       <Edge From="15" To="16" Label="Source1" />
       <Edge From="16" To="17" Label="Source1" />
       <Edge From="17" To="18" Label="Source1" />
       <Edge From="18" To="19" Label="Source1" />
       <Edge From="19" To="20" Label="Source1" />
+      <Edge From="20" To="21" Label="Source1" />
       <Edge From="21" To="22" Label="Source1" />
       <Edge From="22" To="23" Label="Source1" />
       <Edge From="24" To="25" Label="Source1" />
@@ -529,11 +527,11 @@
       <Edge From="27" To="28" Label="Source1" />
       <Edge From="28" To="29" Label="Source1" />
       <Edge From="30" To="31" Label="Source1" />
-      <Edge From="30" To="33" Label="Source1" />
       <Edge From="31" To="32" Label="Source1" />
-      <Edge From="31" To="34" Label="Source1" />
-      <Edge From="35" To="36" Label="Source1" />
-      <Edge From="36" To="37" Label="Source1" />
+      <Edge From="33" To="34" Label="Source1" />
+      <Edge From="33" To="36" Label="Source1" />
+      <Edge From="34" To="35" Label="Source1" />
+      <Edge From="34" To="37" Label="Source1" />
       <Edge From="38" To="39" Label="Source1" />
       <Edge From="39" To="40" Label="Source1" />
       <Edge From="41" To="42" Label="Source1" />
@@ -548,6 +546,8 @@
       <Edge From="54" To="55" Label="Source1" />
       <Edge From="56" To="57" Label="Source1" />
       <Edge From="57" To="58" Label="Source1" />
+      <Edge From="59" To="60" Label="Source1" />
+      <Edge From="60" To="61" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
