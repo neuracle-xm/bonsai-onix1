@@ -477,11 +477,6 @@ namespace OpenEphys.Onix1
         [Category(DeviceFactory.StimulatorCh4)]
         public uint Ch4TrainBurstCount { get; set; }
 
-        /// <summary>
-        /// Start an electrical stimulus sequence.
-        /// </summary>
-        /// <param name="source">A sequence of boolean values indicating the start of a stimulus sequence when true.</param>
-        /// <returns>A sequence of boolean values that is identical to <paramref name="source"/></returns>
         public override IObservable<bool> Process(IObservable<bool> source)
         {
             return Observable.Create<bool>(observer =>
@@ -519,7 +514,7 @@ namespace OpenEphys.Onix1
                             {
                                 device.WriteStimulateChannel(Ch4StimulateChannel, stiChIdx);
                             }
-                            device.Start();
+                            device.StartSwitch();
                         });
 
                         DeviceManager.GetDevice(StimulationDevice).Subscribe(x =>
