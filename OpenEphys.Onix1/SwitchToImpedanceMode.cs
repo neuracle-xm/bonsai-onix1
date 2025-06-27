@@ -13,13 +13,13 @@ public class SwitchToImpedanceMode : Sink<bool>
     [TypeConverter(typeof(SwitchDevice.NameConverter))]
     [Description(SingleDeviceFactory.DeviceNameDescription)]
     [Category(DeviceFactory.ConfigurationCategory)]
-    public string SwitchDevice { get; set; }
+    public string SwitchDeviceName { get; set; }
 
     /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
     [TypeConverter(typeof(Headstage64ElectricalStimulator.NameConverter))]
     [Description(SingleDeviceFactory.DeviceNameDescription)]
     [Category(DeviceFactory.ConfigurationCategory)]
-    public string StimulationDevice { get; set; }
+    public string StimulationDeviceName { get; set; }
 
     /// <summary>
     /// Start an electrical stimulus sequence.
@@ -38,16 +38,89 @@ public class SwitchToImpedanceMode : Sink<bool>
                         return;
                     }
                     GlobalState.HubState = HubState.Impedance;
-                    var d1 = DeviceManager.GetDevice(SwitchDevice).Subscribe(x =>
+                    //测(0 - 63通道)
+                    DeviceManager.GetDevice(SwitchDeviceName).Subscribe(deviceInfo =>
                     {
-                        var device = x.GetDeviceContext(typeof(SwitchDevice));
-                        device.WriteRegister(123, 0);
+                        var switchDevice = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
+                        //Switch_cref置为0
+                        switchDevice.WriteRegister(SwitchDevice.SwitchCref, 0);
+                        //Switch_adc全部关闭，全置0
+                        switchDevice.CloseAllAdc();
+                        //Switch_dac中对应通道(0 - 63中的某个)的stima的bit置为1，其他置为0
+                        //Switch_dac中另一个电极(不是上一步中那个电极)的stimb的bit置为1，其他置为0
+                        //这里是在同一个地址中选的通道0和1
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac32_63, 0b10000000_10000000_00000000_00000000);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac0_31, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac64_95, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac96_127, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac128_159, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac160_191, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac192_223, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac224_255, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac256_287, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac288_319, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac320_351, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac352_383, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac384_415, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac416_447, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac448_479, 0);
+                        switchDevice.WriteRegister(SwitchDevice.SwitchDac480_511, 0);
+                        //开始切换
+                        switchDevice.Start();
                     });
-                    var d2 = DeviceManager.GetDevice(StimulationDevice).Subscribe(x =>
+                    DeviceManager.GetDevice(StimulationDeviceName).Subscribe(deviceInfo =>
                     {
-                        var device = x.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
-                        device.WriteRegister(123, 0);
+                        var stimulationDevice = deviceInfo.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
+                        //刺激参数中Channel_enable置为0
+                        stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CHANNEL_ENABLE, 0);
+                        //刺激参数中Ch1current1置为1mA(暂定)
+                        stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, 1);
+                        //刺激参数中Ch2current1置为0
+                        stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, 0);
+                        //刺激参数中resistor_mode置为1
+                        stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.RESISTOR_MODE, 1);
                     });
+                    ////内部测Cref(Cref1,Cref2)
+                    //DeviceManager.GetDevice(SwitchDeviceName).Subscribe(deviceInfo =>
+                    //{
+                    //    var switchDevice = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
+                    //    //Switch_cref置为5(测Cref1)或3(测Cref2)
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchCref, 5);
+                    //    //Switch_adc全部关闭，全置0
+                    //    switchDevice.CloseAllAdc();
+                    //    //Switch_dac中通道0的stima的bit置为1，其他置为0
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac32_63, 0b10000000_00000000_00000000_00000000);
+                    //    //其他Dac都关闭
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac0_31, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac64_95, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac96_127, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac128_159, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac160_191, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac192_223, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac224_255, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac256_287, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac288_319, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac320_351, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac352_383, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac384_415, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac416_447, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac448_479, 0);
+                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac480_511, 0);
+                    //    //开始切换
+                    //    switchDevice.Start();
+                    //});
+                    //DeviceManager.GetDevice(StimulationDeviceName).Subscribe(deviceInfo =>
+                    //{
+                    //    var stimulationDevice = deviceInfo.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
+                    //    //刺激参数中Channel_enable置为0
+                    //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CHANNEL_ENABLE, 0);
+                    //    //刺激参数中Ch1current1置为1mA(暂定)
+                    //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, 1);
+                    //    //刺激参数中Ch2current1置为0
+                    //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, 0);
+                    //    //刺激参数中resistor_mode置为1
+                    //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.RESISTOR_MODE, 1);
+                    //});
                     observer.OnNext(value);
                 },
                 observer.OnError,
