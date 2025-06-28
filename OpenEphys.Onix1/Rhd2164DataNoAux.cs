@@ -63,6 +63,16 @@ namespace OpenEphys.Onix1
             return result;
         }
 
+        /// <summary>
+        /// 阻抗检测中的电压增益
+        /// </summary>
+        public static float VoltageScale = (float)(4096 / Math.Pow(2, 23) * 10 * 11);
+
+        /// <summary>
+        /// 阻抗检测中的电流增益
+        /// </summary>
+        public static float CurrentScale = (float)(4096 / Math.Pow(2, 23) / 200 * 10);
+
         public unsafe override IObservable<Rhd2164DataFrameNoAux> Generate()
         {
             var bufferSize = BufferSize;
