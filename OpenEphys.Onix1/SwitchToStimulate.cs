@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Threading;
 using Bonsai;
 
@@ -569,21 +572,72 @@ namespace OpenEphys.Onix1
                             var device = x.GetDeviceContext(typeof(SwitchDevice));
                             device.WriteRegister(SwitchDevice.SwitchCref, 0);
                             device.CloseAllAdc();
+                            //把所有使用的通道分成几個組
+                            Dictionary<uint, List<uint>> addressWithChannels = new();
                             if (Ch1Enable)
                             {
-                                device.WriteStimulateChannel(Ch1StimulateChannel, 0);
+                                var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(Ch1StimulateChannel);
+                                if (!addressWithChannels.ContainsKey(chAddress))
+                                {
+                                    addressWithChannels[chAddress] = new List<uint>();
+                                }
+                                addressWithChannels[chAddress].Add(Ch1StimulateChannel);
                             }
                             if (Ch2Enable)
                             {
-                                device.WriteStimulateChannel(Ch2StimulateChannel, 1);
+                                var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(Ch2StimulateChannel);
+                                if (!addressWithChannels.ContainsKey(chAddress))
+                                {
+                                    addressWithChannels[chAddress] = new List<uint>();
+                                }
+                                addressWithChannels[chAddress].Add(Ch2StimulateChannel);
                             }
                             if (Ch3Enable)
                             {
-                                device.WriteStimulateChannel(Ch3StimulateChannel, 2);
+                                var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(Ch3StimulateChannel);
+                                if (!addressWithChannels.ContainsKey(chAddress))
+                                {
+                                    addressWithChannels[chAddress] = new List<uint>();
+                                }
+                                addressWithChannels[chAddress].Add(Ch3StimulateChannel);
                             }
                             if (Ch4Enable)
                             {
-                                device.WriteStimulateChannel(Ch4StimulateChannel, 3);
+                                var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(Ch4StimulateChannel);
+                                if (!addressWithChannels.ContainsKey(chAddress))
+                                {
+                                    addressWithChannels[chAddress] = new List<uint>();
+                                }
+                                addressWithChannels[chAddress].Add(Ch4StimulateChannel);
+                            }
+                            foreach (var item in addressWithChannels)
+                            {
+                                var address = item.Key;
+                                var channels = item.Value;
+                                uint totalWriteValue = 0;
+                                foreach (var channel in channels)
+                                {
+                                    uint stimIndex = 0;
+                                    if (channel == Ch1StimulateChannel)
+                                    {
+                                        stimIndex = 0;
+                                    }
+                                    else if (channel == Ch2StimulateChannel)
+                                    {
+                                        stimIndex = 1;
+                                    }
+                                    else if (channel == Ch3StimulateChannel)
+                                    {
+                                        stimIndex = 2;
+                                    }
+                                    else
+                                    {
+                                        stimIndex = 3;
+                                    }
+                                    var writeValue = SwitchWriteRegisterFunctions.GetWriteValue(channel, stimIndex);
+                                    totalWriteValue += writeValue;
+                                }
+                                device.WriteRegister(address, totalWriteValue);
                             }
                             device.StartSwitch();
                         });

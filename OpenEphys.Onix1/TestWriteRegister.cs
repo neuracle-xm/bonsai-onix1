@@ -196,7 +196,7 @@ public static class SwitchWriteRegisterFunctions
     /// <param name="deviceContext"></param>
     /// <param name="channel">被刺激通道（0-63）</param>
     /// <param name="stiChIdx">用于刺激的通道(0-3) 对应abcd</param>
-    public static void WriteStimulateChannel(this DeviceContext deviceContext, uint channel, uint stiChIdx)
+    public static uint GetWriteValue(uint channel, uint stiChIdx)
     {
         // 奇数通道时，stim由高至低为 badc
         // 偶数通道时，stim由高至低为 abcd
@@ -214,10 +214,8 @@ public static class SwitchWriteRegisterFunctions
         uint mask = 0b10000000_00000000_00000000_00000000;
         uint channelIndex = channel % 4;
         uint targetIndex = channelIndex * 8 + stiChIdx;
-        uint ch1value = mask >> (int)targetIndex;
-        var registerAddress = SelectRegisterAddressWithChannel(channel);
-
-        deviceContext.WriteRegister(registerAddress, ch1value);
+        uint writeValue = mask >> (int)targetIndex;
+        return writeValue;
     }
 }
 
