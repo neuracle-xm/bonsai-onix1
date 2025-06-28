@@ -20,22 +20,22 @@ namespace OpenEphys.Onix1
         private static float[,] _example_data;
         private static int _col;
 
-        //static Rhd2164Data()
-        //{
-        //    string csvPath = "./unit_100_channel_64_secs_10.csv";
-        //    string[] lines = File.ReadAllLines(csvPath);
-        //    int row = lines.Length;
-        //    _col = lines[0].Split(',').Length;
-        //    _example_data = new float[Rhd2164.AmplifierChannelCount, _col];
-        //    for (int i = 0; i < Rhd2164.AmplifierChannelCount; i++)
-        //    {
-        //        string[] values = lines[i % row].Split(',');
-        //        for (int j = 0; j < _col; j++)
-        //        {
-        //            _example_data[i, j] = float.Parse(values[j]);
-        //        }
-        //    }
-        //}
+        static Rhd2164Data()
+        {
+            string csvPath = "./unit_100_channel_64_secs_10.csv";
+            string[] lines = File.ReadAllLines(csvPath);
+            int row = lines.Length;
+            _col = lines[0].Split(',').Length;
+            _example_data = new float[Rhd2164.AmplifierChannelCount, _col];
+            for (int i = 0; i < Rhd2164.AmplifierChannelCount; i++)
+            {
+                string[] values = lines[i % row].Split(',');
+                for (int j = 0; j < _col; j++)
+                {
+                    _example_data[i, j] = float.Parse(values[j]);
+                }
+            }
+        }
 
         /// <summary>
         /// 当前发到哪一个点了
@@ -65,15 +65,15 @@ namespace OpenEphys.Onix1
             var result = new float[Rhd2164.AmplifierChannelCount, BufferSize];
             for (int row = 0; row < Rhd2164.AmplifierChannelCount; row++)
             {
-                //for (int col = 0; col < middleIndex; col++)
-                //{
-                //    result[row, col] = 150;
-                //}
-                //for (int col = middleIndex; col < BufferSize; col++)
-                //{
-                //    result[row, col] = -150;
-                //}
-                result[row, 150] = -150;
+                for (int col = 0; col < middleIndex; col++)
+                {
+                    result[row, col] = 150;
+                }
+                for (int col = middleIndex; col < BufferSize; col++)
+                {
+                    result[row, col] = -150;
+                }
+                //result[row, 150] = -150;
             }
             return result;
         }
@@ -113,23 +113,23 @@ namespace OpenEphys.Onix1
                 {
                     var hubClockBuffer = new ulong[bufferSize];
                     var clockBuffer = new ulong[bufferSize];
-                    return Observable.Interval(TimeSpan.FromSeconds(1.0 / 200))
+                    return Observable.Interval(TimeSpan.FromSeconds(1.0 / 20))
                         .Subscribe(_ =>
                         {
-                            //float[,] ampliferArray = new float[Rhd2164.AmplifierChannelCount, bufferSize];
-                            //for (int col = 0; col < bufferSize; col++)
-                            //{
-                            //    for (int row = 0; row < Rhd2164.AmplifierChannelCount; row++)
-                            //    {
-                            //        ampliferArray[row, col] = _example_data[row, _index];
-                            //    }
-                            //    _index++;
-                            //    if (_index >= _col)
-                            //    {
-                            //        _index = 0;
-                            //    }
-                            //}
-                            var ampliferArray = GenerateSquareWave();
+                            float[,] ampliferArray = new float[Rhd2164.AmplifierChannelCount, bufferSize];
+                            for (int col = 0; col < bufferSize; col++)
+                            {
+                                for (int row = 0; row < Rhd2164.AmplifierChannelCount; row++)
+                                {
+                                    ampliferArray[row, col] = _example_data[row, _index];
+                                }
+                                _index++;
+                                if (_index >= _col)
+                                {
+                                    _index = 0;
+                                }
+                            }
+                            //var ampliferArray = GenerateSquareWave();
                             //var ampliferArray = GenerateOneDimensionSquareWave();
                             //var data = BufferHelper.CopyTranspose(ampliferArray, bufferSize, Rhd2164.AmplifierChannelCount, Depth.F32);
                             var auxArray = new float[Rhd2164.AuxChannelCount, bufferSize];

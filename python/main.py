@@ -43,10 +43,22 @@ k_means_cluster_centers = None
 # 空结果
 empty_data = np.zeros((max_cluster_num, sample_number), dtype=np.float32)
 
+def set_channel(selected_channel_index):
+    """选择哪一个通道进行sorting
+
+    Args:
+        selected_channel (_type_): _description_
+    """
+    global selected_channel
+    if selected_channel_index >= channel_number or selected_channel_index < 0:
+        selected_channel = 0
+    else:
+        selected_channel = selected_channel_index
 
 def run(mat):
     global result, is_training, u, k_means_cluster_centers
     # print("Start")
+    # print(f"selected_channel:{selected_channel}")
     raw_data = mat2np(mat)
     referenced_data = common_median_reference(raw_data)
     selected_data = referenced_data[selected_channel, :]
