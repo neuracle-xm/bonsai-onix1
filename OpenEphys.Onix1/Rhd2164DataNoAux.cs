@@ -63,6 +63,16 @@ namespace OpenEphys.Onix1
             return result;
         }
 
+        /// <summary>
+        /// 阻抗检测中的电压增益
+        /// </summary>
+        public static float VoltageScale = (float)(4096 / Math.Pow(2, 23) * 10);
+
+        /// <summary>
+        /// 阻抗检测中的电流增益
+        /// </summary>
+        public static float CurrentScale = (float)(4096 / Math.Pow(2, 23) / 50);
+
         public unsafe override IObservable<Rhd2164DataFrameNoAux> Generate()
         {
             var bufferSize = BufferSize;
@@ -121,9 +131,9 @@ namespace OpenEphys.Onix1
                                 {
                                     if (++sampleIndex >= bufferSize)
                                     {
-                                        var l1_sum = 0;
-                                        var v1_sum = 0;
-                                        var v2_sum = 0;
+                                        long l1_sum = 0;
+                                        long v1_sum = 0;
+                                        long v2_sum = 0;
                                         for (int i = 0; i < impedanceBuffer.Length; i++)
                                         {
                                             var channelIndex = i % Rhd2164NoAux.ImpedanceChannelCount;
@@ -144,9 +154,9 @@ namespace OpenEphys.Onix1
                                                 v2_sum += value;
                                             }
                                         }
-                                        var l1_mean = l1_sum / bufferSize;
-                                        var v1_mean = v1_sum / bufferSize;
-                                        var v2_mean = v2_sum / bufferSize;
+                                        var l1_mean = l1_sum * CurrentScale / bufferSize;
+                                        var v1_mean = v1_sum * VoltageScale / bufferSize;
+                                        var v2_mean = v2_sum * VoltageScale / bufferSize;
                                         float r1 = 0;
                                         float r2 = 0;
                                         if (l1_mean != 0)
