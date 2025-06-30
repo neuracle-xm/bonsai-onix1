@@ -84,7 +84,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh1)]
-        public uint Ch1PhaseOneCurrent { get; set; }
+        public int Ch1PhaseOneCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the amplitude of the interphase current of each pulse in μA.
@@ -94,7 +94,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh1)]
-        public uint Ch1InterPhaseCurrent { get; set; }
+        public int Ch1InterPhaseCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the amplitude of the second phase of each pulse in μA.
@@ -104,7 +104,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh1)]
-        public uint Ch1PhaseTwoCurrent { get; set; }
+        public int Ch1PhaseTwoCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the duration of the first phase of each pulse in μsec.
@@ -203,7 +203,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh2)]
-        public uint Ch2PhaseOneCurrent { get; set; }
+        public int Ch2PhaseOneCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the amplitude of the interphase current of each pulse in μA.
@@ -213,7 +213,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh2)]
-        public uint Ch2InterPhaseCurrent { get; set; }
+        public int Ch2InterPhaseCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the amplitude of the second phase of each pulse in μA.
@@ -223,7 +223,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh2)]
-        public uint Ch2PhaseTwoCurrent { get; set; }
+        public int Ch2PhaseTwoCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the duration of the first phase of each pulse in μsec.
@@ -321,7 +321,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh3)]
-        public uint Ch3PhaseOneCurrent { get; set; }
+        public int Ch3PhaseOneCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the amplitude of the interphase current of each pulse in μA.
@@ -331,7 +331,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh3)]
-        public uint Ch3InterPhaseCurrent { get; set; }
+        public int Ch3InterPhaseCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the amplitude of the second phase of each pulse in μA.
@@ -341,7 +341,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh3)]
-        public uint Ch3PhaseTwoCurrent { get; set; }
+        public int Ch3PhaseTwoCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the duration of the first phase of each pulse in μsec.
@@ -439,7 +439,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh4)]
-        public uint Ch4PhaseOneCurrent { get; set; }
+        public int Ch4PhaseOneCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the amplitude of the interphase current of each pulse in μA.
@@ -449,7 +449,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh4)]
-        public uint Ch4InterPhaseCurrent { get; set; }
+        public int Ch4InterPhaseCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the amplitude of the second phase of each pulse in μA.
@@ -459,7 +459,7 @@ namespace OpenEphys.Onix1
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.StimulatorCh4)]
-        public uint Ch4PhaseTwoCurrent { get; set; }
+        public int Ch4PhaseTwoCurrent { get; set; }
 
         /// <summary>
         /// Gets or sets the duration of the first phase of each pulse in μsec.
@@ -561,7 +561,7 @@ namespace OpenEphys.Onix1
         /// <param name="interPhaseInterval"></param>
         /// <param name="interPulseInterval"></param>
         /// <returns></returns>
-        private Tuple<uint, uint, uint, uint, uint> ChangeParamByBiPhasic(bool biPhasic, uint phaseTwoCurrent, uint interPhaseCurrent, uint phaseTwoDuration, uint interPhaseInterval, uint interPulseInterval)
+        private Tuple<int, int, uint, uint, uint> ChangeParamByBiPhasic(bool biPhasic, int phaseTwoCurrent, int interPhaseCurrent, uint phaseTwoDuration, uint interPhaseInterval, uint interPulseInterval)
         {
             // 单向波参数适配
             if (!biPhasic)
@@ -585,7 +585,7 @@ namespace OpenEphys.Onix1
         /// <param name="interBurstInterval"></param>
         /// <param name="triggerDelay"></param>
         /// <returns></returns>
-        private Tuple<uint, uint, uint, uint, uint, uint> ValidateDuration(uint phaseOneDuration, uint phaseTwoDuration, uint interPhaseInterval, uint interPulseInterval, uint interBurstInterval,  uint triggerDelay)
+        private Tuple<uint, uint, uint, uint, uint, uint> ValidateDuration(uint phaseOneDuration, uint phaseTwoDuration, uint interPhaseInterval, uint interPulseInterval, uint interBurstInterval, uint triggerDelay)
         {
             uint phaseOneDurationValidated = Math.Max(phaseOneDuration, 1);
             uint phaseTwoDurationValidated = Math.Max(phaseTwoDuration, 1);
@@ -601,9 +601,13 @@ namespace OpenEphys.Onix1
         /// </summary>
         /// <param name="CurrentUA"></param>
         /// <returns></returns>
-        private uint ConvertUAToDeviceValue(uint CurrentUA)
+        private uint ConvertUAToDeviceValue(int CurrentUA)
         {
-            return (uint)(CurrentUA * 4.096 * Math.Pow(10, 6) / 65536 / 512);
+            if (CurrentUA > 0)
+            {
+                return (uint)(CurrentUA / 4000.0f * 32767);
+            }
+            return (uint)((4000 + CurrentUA) * 32767.0f / 4000 + 32768);
         }
 
         public override IObservable<bool> Process(IObservable<bool> source)
@@ -801,10 +805,10 @@ namespace OpenEphys.Onix1
                             device.StartStimulate();
 
                             Thread.Sleep(maxDuration / 1000); // 等待刺激完成
+                            GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Data;
 
                             DeviceManager.GetDevice(_switchDeviceName).Subscribe(x =>
                             {
-                                GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Data;
                                 var device = x.GetDeviceContext(typeof(SwitchDevice));
                                 device.WriteRegister(SwitchDevice.SwitchCref, 4);
                                 device.OpenAllAdc();
