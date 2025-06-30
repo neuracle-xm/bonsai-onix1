@@ -605,9 +605,14 @@ namespace OpenEphys.Onix1
         {
             if (CurrentUA > 0)
             {
-                return (uint)(CurrentUA / 4000.0f * 32767);
+                uint CurrentUAValidated = (uint)Math.Min(CurrentUA, 4000);
+                return (uint)(CurrentUAValidated / 4000.0f * 32767);
             }
-            return (uint)((4000 + CurrentUA) * 32767.0f / 4000 + 32768);
+            else
+            {
+                uint CurrentUAValidated = (uint)Math.Max(CurrentUA, -4000);
+                return (uint)((4000 + CurrentUAValidated) * 32767.0f / 4000 + 32768);
+            }
         }
 
         public override IObservable<bool> Process(IObservable<bool> source)
