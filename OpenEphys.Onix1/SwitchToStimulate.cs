@@ -596,6 +596,16 @@ namespace OpenEphys.Onix1
             return Tuple.Create(phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated, interPulseIntervalValidated, interBurstIntervalValidated, triggerDelayValidated);
         }
 
+        /// <summary>
+        /// 将微安转换为设备值
+        /// </summary>
+        /// <param name="CurrentUA"></param>
+        /// <returns></returns>
+        private uint ConvertUAToDeviceValue(uint CurrentUA)
+        {
+            return (uint)(CurrentUA * 4.096 * Math.Pow(10, 6) / 65536 / 512);
+        }
+
         public override IObservable<bool> Process(IObservable<bool> source)
         {
             return Observable.Create<bool>(observer =>
@@ -704,13 +714,13 @@ namespace OpenEphys.Onix1
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1BURSTINTERVAL, interBurstIntervalValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1PHASEINTERVAL, interPhaseIntervalValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEINTERVAL, interPulseIntervalValidated);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, Ch1PhaseOneCurrent);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT2, phaseTwoCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, ConvertUAToDeviceValue(Ch1PhaseOneCurrent));
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT2, ConvertUAToDeviceValue(phaseTwoCurrent));
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEDUR1, phaseOneDurationValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1PULSEDUR2, phaseTwoDurationValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1TRAINDELAY, triggerDelayValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH1TRAINCNT, Ch1TrainBurstCount);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH1RESTCURRENT, interPhaseCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH1RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
                             }
                             if (Ch2Enable)
                             {
@@ -728,13 +738,13 @@ namespace OpenEphys.Onix1
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2BURSTINTERVAL, interBurstIntervalValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2PHASEINTERVAL, interPhaseIntervalValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEINTERVAL, interPulseIntervalValidated);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, Ch2PhaseOneCurrent);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT2, phaseTwoCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, ConvertUAToDeviceValue(Ch2PhaseOneCurrent));
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT2, ConvertUAToDeviceValue(phaseTwoCurrent));
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEDUR1, phaseOneDurationValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2PULSEDUR2, phaseTwoDurationValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2TRAINDELAY, triggerDelayValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH2TRAINCNT, Ch2TrainBurstCount);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH2RESTCURRENT, interPhaseCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH2RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
                             }
                             if (Ch3Enable)
                             {
@@ -752,13 +762,13 @@ namespace OpenEphys.Onix1
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3BURSTINTERVAL, interBurstIntervalValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3PHASEINTERVAL, interPhaseIntervalValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEINTERVAL, interPulseIntervalValidated);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT1, Ch3PhaseOneCurrent);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT2, phaseTwoCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT1, ConvertUAToDeviceValue(Ch3PhaseOneCurrent));
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3CURRENT2, ConvertUAToDeviceValue(phaseTwoCurrent));
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEDUR1, phaseOneDurationValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3PULSEDUR2, phaseTwoDurationValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3TRAINDELAY, triggerDelayValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH3TRAINCNT, Ch3TrainBurstCount);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH3RESTCURRENT, interPhaseCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH3RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
                             }
                             if (Ch4Enable)
                             {
@@ -776,13 +786,13 @@ namespace OpenEphys.Onix1
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4BURSTINTERVAL, interBurstIntervalValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4PHASEINTERVAL, interPhaseIntervalValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEINTERVAL, interPulseIntervalValidated);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT1, Ch4PhaseOneCurrent);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT2, phaseTwoCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT1, ConvertUAToDeviceValue(Ch4PhaseOneCurrent));
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4CURRENT2, ConvertUAToDeviceValue(phaseTwoCurrent));
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEDUR1, phaseOneDurationValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4PULSEDUR2, phaseTwoDurationValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4TRAINDELAY, triggerDelayValidated);
                                 device.WriteRegister(Headstage64ElectricalStimulator.CH4TRAINCNT, Ch4TrainBurstCount);
-                                device.WriteRegister(Headstage64ElectricalStimulator.CH4RESTCURRENT, interPhaseCurrent);
+                                device.WriteRegister(Headstage64ElectricalStimulator.CH4RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
                             }
 
                             // 将设置的寄存器值写入设备
