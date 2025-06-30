@@ -704,7 +704,7 @@ namespace OpenEphys.Onix1
                                 (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch2BiPhasic, Ch2PhaseTwoCurrent, Ch2InterPhaseCurrent, Ch2PhaseTwoDuration, Ch2InterPhaseInterval, Ch2InterPulseInterval);
                                 (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = ValidateDuration(Ch2PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch2InterBurstInterval, Ch2TriggerDelay);
 
-                                int ch2Duration = CalStimulationDuration(triggerDelayValidated, Ch1TrainBurstCount, Ch1BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                                int ch2Duration = CalStimulationDuration(triggerDelayValidated, Ch2TrainBurstCount, Ch2BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
                                 if (ch2Duration > maxDuration)
                                 {
                                     maxDuration = ch2Duration;
@@ -728,7 +728,7 @@ namespace OpenEphys.Onix1
                                 (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch3BiPhasic, Ch3PhaseTwoCurrent, Ch3InterPhaseCurrent, Ch3PhaseTwoDuration, Ch3InterPhaseInterval, Ch3InterPulseInterval);
                                 (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = ValidateDuration(Ch3PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch3InterBurstInterval, Ch3TriggerDelay);
 
-                                int ch3Duration = CalStimulationDuration(Ch3TriggerDelay, Ch3TrainBurstCount, Ch3BurstPulseCount, interPulseInterval, Ch3InterBurstInterval, Ch3PhaseOneDuration, phaseTwoDuration, interPhaseInterval);
+                                int ch3Duration = CalStimulationDuration(triggerDelayValidated, Ch3TrainBurstCount, Ch3BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
                                 if (ch3Duration > maxDuration)
                                 {
                                     maxDuration = ch3Duration;
@@ -752,7 +752,7 @@ namespace OpenEphys.Onix1
                                 (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch4BiPhasic, Ch4PhaseTwoCurrent, Ch4InterPhaseCurrent, Ch4PhaseTwoDuration, Ch4InterPhaseInterval, Ch4InterPulseInterval);
                                 (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = ValidateDuration(Ch4PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch4InterBurstInterval, Ch4TriggerDelay);
 
-                                int ch4Duration = CalStimulationDuration(Ch4TriggerDelay, Ch4TrainBurstCount, Ch4BurstPulseCount, interPulseInterval, Ch4InterBurstInterval, Ch4PhaseOneDuration, phaseTwoDuration, interPhaseInterval);
+                                int ch4Duration = CalStimulationDuration(triggerDelayValidated, Ch4TrainBurstCount, Ch4BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
                                 if (ch4Duration > maxDuration)
                                 {
                                     maxDuration = ch4Duration;
