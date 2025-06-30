@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using static OpenEphys.Onix1.ConfigureHeadstage64NoAux;
 
 namespace OpenEphys.Onix1;
@@ -14,5 +15,13 @@ public class GlobalState
     /// 记录每个DeviceName对应的头盒
     /// </summary>
     public static Dictionary<string, HubName> DeviceNameToHubName { get; set; } = new();
+
+    /// <summary>
+    /// 记录每个头盒下有哪些Device
+    /// 第一个是Rhd2164NoAux
+    /// 第二个是ElectricalStimulator
+    /// 第三个是SwitchDevice
+    /// </summary>
+    public static Dictionary<HubName, Tuple<string, string, string>> HubNameToDeviceName { get; set; } = new();
 }
 

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
 
 namespace OpenEphys.Onix1
 {
@@ -25,7 +25,6 @@ namespace OpenEphys.Onix1
     [Description("Configures an ONIX multifunction 64-channel headstage.")]
     public class ConfigureHeadstage64NoAux : MultiDeviceFactory
     {
-        HubName hub;
         //readonly ConfigureHeadstage64PortController PortControl = new();
 
         /// <summary>
@@ -33,9 +32,6 @@ namespace OpenEphys.Onix1
         /// </summary>
         public ConfigureHeadstage64NoAux()
         {
-            Hub = HubName.HubA;
-            //每个头盒初始都是采集模式
-            GlobalState.HubStates[Hub] = HubState.Data;
             // WONTFIX: The issue with this headstage is that its locking voltage is far, far lower than the
             // voltage required for full functionality. Locking occurs at around 2V on the headstage (enough
             // to turn 1.8V on). Full functionality is at 5.0 volts. The FMC port voltage can only go down to
@@ -77,17 +73,44 @@ namespace OpenEphys.Onix1
         /// The port is the physical connection to the ONIX breakout board and must be specified prior to
         /// operation.
         /// </remarks>
+        private HubName _hub = HubName.HubA;
         [Description("Specifies the physical connection address of the headstage to the ONIX breakout board.")]
         [Category(ConfigurationCategory)]
         public HubName Hub
         {
-            get { return hub; }
+            get
+            {
+                return _hub;
+            }
             set
             {
-                hub = value;
+                _hub = value;
                 Rhd2164NoAux.DeviceAddress = (uint)value;
                 ElectricalStimulator.DeviceAddress = (uint)value + 1;
                 SwitchDevice.DeviceAddress = (uint)value + 2;
+                //每个头盒初始都是采集模式
+                if (!GlobalState.HubStates.ContainsKey(_hub))
+                {
+                    GlobalState.HubStates[_hub] = HubState.Data;
+                }
+                //把每个设备的DeviceName关联到HubName
+                if (!GlobalState.DeviceNameToHubName.ContainsKey(Rhd2164NoAux.DeviceName))
+                {
+                    GlobalState.DeviceNameToHubName[Rhd2164NoAux.DeviceName] = _hub;
+                }
+                if (!GlobalState.DeviceNameToHubName.ContainsKey(ElectricalStimulator.DeviceName))
+                {
+                    GlobalState.DeviceNameToHubName[ElectricalStimulator.DeviceName] = _hub;
+                }
+                if (!GlobalState.DeviceNameToHubName.ContainsKey(SwitchDevice.DeviceName))
+                {
+                    GlobalState.DeviceNameToHubName[SwitchDevice.DeviceName] = _hub;
+                }
+                //记录当前hub下有哪些Device
+                if (!GlobalState.HubNameToDeviceName.ContainsKey(_hub))
+                {
+                    GlobalState.HubNameToDeviceName[_hub] = Tuple.Create(Rhd2164NoAux.DeviceName, ElectricalStimulator.DeviceName, SwitchDevice.DeviceName);
+                }
             }
         }
 
@@ -118,16 +141,11 @@ namespace OpenEphys.Onix1
         //}
 
 
-
         internal override IEnumerable<IDeviceConfiguration> GetDevices()
         {
             yield return Rhd2164NoAux;
-            //把每个设备的DeviceName关联到HubName
-            GlobalState.DeviceNameToHubName[Rhd2164NoAux.DeviceName] = hub;
             yield return ElectricalStimulator;
-            GlobalState.DeviceNameToHubName[ElectricalStimulator.DeviceName] = hub;
             yield return SwitchDevice;
-            GlobalState.DeviceNameToHubName[SwitchDevice.DeviceName] = hub;
         }
 
         //class ConfigureHeadstage64PortController : ConfigurePortController

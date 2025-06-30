@@ -3,17 +3,33 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using Bonsai;
+using static OpenEphys.Onix1.ConfigureHeadstage64NoAux;
 
 namespace OpenEphys.Onix1;
 
 [Description("切换成采集模式")]
 public class SwitchToData : Sink<bool>
 {
-    /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
-    [TypeConverter(typeof(SwitchDevice.NameConverter))]
-    [Description(SingleDeviceFactory.DeviceNameDescription)]
+    private HubName _hubName;
+    [Description("选择的头盒")]
     [Category(DeviceFactory.ConfigurationCategory)]
-    public string DeviceName { get; set; }
+    public HubName HubName
+    {
+        get
+        {
+            return _hubName;
+        }
+        set
+        {
+            _hubName = value;
+            _switchDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item3;
+        }
+    }
+
+    /// <summary>
+    /// 模拟开关的DeviceName
+    /// </summary>
+    private string _switchDeviceName;
 
     /// <summary>
     /// Start an electrical stimulus sequence.
@@ -22,7 +38,7 @@ public class SwitchToData : Sink<bool>
     /// <returns>A sequence of boolean values that is identical to <paramref name="source"/></returns>
     public override IObservable<bool> Process(IObservable<bool> source)
     {
-        return DeviceManager.GetDevice(DeviceName).SelectMany(
+        return DeviceManager.GetDevice(_switchDeviceName).SelectMany(
             deviceInfo => Observable.Create<bool>(observer =>
             {
                 var device = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
@@ -33,7 +49,7 @@ public class SwitchToData : Sink<bool>
                         {
                             return;
                         }
-                        GlobalState.HubStates[GlobalState.DeviceNameToHubName[DeviceName]] = HubState.Data;
+                        GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Data;
                         //这些是测试用的
                         //device.TestCref1();
                         //device.TestCref2();

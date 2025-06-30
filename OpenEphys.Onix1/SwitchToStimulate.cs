@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
-using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Runtime.Remoting.Channels;
 using System.Threading;
 using Bonsai;
+using static OpenEphys.Onix1.ConfigureHeadstage64NoAux;
 
 namespace OpenEphys.Onix1
 {
@@ -24,17 +23,32 @@ namespace OpenEphys.Onix1
     [Description("Controls a headstage-64 onboard electrical stimulus sequencer V2.")]
     public class SwitchToStimulate : Sink<bool>
     {
-        /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
-        [TypeConverter(typeof(SwitchDevice.NameConverter))]
-        [Description(SingleDeviceFactory.DeviceNameDescription)]
+        private HubName _hubName;
+        [Description("选择的头盒")]
         [Category(DeviceFactory.ConfigurationCategory)]
-        public string SwitchDeviceName { get; set; }
+        public HubName HubName
+        {
+            get
+            {
+                return _hubName;
+            }
+            set
+            {
+                _hubName = value;
+                _stimulationDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item2;
+                _switchDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item3;
+            }
+        }
 
-        /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
-        [TypeConverter(typeof(Headstage64ElectricalStimulator.NameConverter))]
-        [Description(SingleDeviceFactory.DeviceNameDescription)]
-        [Category(DeviceFactory.ConfigurationCategory)]
-        public string StimulationDevice { get; set; }
+        /// <summary>
+        /// 模拟开关的DeviceName
+        /// </summary>
+        private string _switchDeviceName;
+
+        /// <summary>
+        /// 刺激设备的DeviceName
+        /// </summary>
+        private string _stimulationDeviceName;
 
         /// <summary>
         /// Gets or sets the device enable state.
@@ -593,8 +607,8 @@ namespace OpenEphys.Onix1
                         {
                             return;
                         }
-                        GlobalState.HubStates[GlobalState.DeviceNameToHubName[SwitchDeviceName]] = HubState.Stimulation;
-                        DeviceManager.GetDevice(SwitchDeviceName).Subscribe(x =>
+                        GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Stimulation;
+                        DeviceManager.GetDevice(_switchDeviceName).Subscribe(x =>
                         {
                             var device = x.GetDeviceContext(typeof(SwitchDevice));
                             device.WriteRegister(SwitchDevice.SwitchCref, 0);
@@ -671,7 +685,7 @@ namespace OpenEphys.Onix1
 
                         uint channelEnable = 0;
                         int maxDuration = 0;
-                        DeviceManager.GetDevice(StimulationDevice).Subscribe(x =>
+                        DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(x =>
                         {
                             var device = x.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
                             if (Ch1Enable)
@@ -778,9 +792,9 @@ namespace OpenEphys.Onix1
 
                             Thread.Sleep(maxDuration / 1000); // 等待刺激完成
 
-                            DeviceManager.GetDevice(SwitchDeviceName).Subscribe(x =>
+                            DeviceManager.GetDevice(_switchDeviceName).Subscribe(x =>
                             {
-                                GlobalState.HubStates[GlobalState.DeviceNameToHubName[SwitchDeviceName]] = HubState.Data;
+                                GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Data;
                                 var device = x.GetDeviceContext(typeof(SwitchDevice));
                                 device.WriteRegister(SwitchDevice.SwitchCref, 4);
                                 device.OpenAllAdc();

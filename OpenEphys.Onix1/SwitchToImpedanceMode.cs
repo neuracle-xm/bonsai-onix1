@@ -3,23 +3,39 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using Bonsai;
+using static OpenEphys.Onix1.ConfigureHeadstage64NoAux;
 
 namespace OpenEphys.Onix1;
 
 [Description("切换成阻抗模式")]
 public class SwitchToImpedanceMode : Sink<bool>
 {
-    /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
-    [TypeConverter(typeof(SwitchDevice.NameConverter))]
-    [Description(SingleDeviceFactory.DeviceNameDescription)]
+    private HubName _hubName;
+    [Description("选择的头盒")]
     [Category(DeviceFactory.ConfigurationCategory)]
-    public string SwitchDeviceName { get; set; }
+    public HubName HubName
+    {
+        get
+        {
+            return _hubName;
+        }
+        set
+        {
+            _hubName = value;
+            _stimulationDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item2;
+            _switchDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item3;
+        }
+    }
 
-    /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
-    [TypeConverter(typeof(Headstage64ElectricalStimulator.NameConverter))]
-    [Description(SingleDeviceFactory.DeviceNameDescription)]
-    [Category(DeviceFactory.ConfigurationCategory)]
-    public string StimulationDeviceName { get; set; }
+    /// <summary>
+    /// 模拟开关的DeviceName
+    /// </summary>
+    private string _switchDeviceName;
+
+    /// <summary>
+    /// 刺激设备的DeviceName
+    /// </summary>
+    private string _stimulationDeviceName;
 
     /// <summary>
     /// 选择哪个通道进行阻抗测量
@@ -43,9 +59,9 @@ public class SwitchToImpedanceMode : Sink<bool>
                     {
                         return;
                     }
-                    GlobalState.HubStates[GlobalState.DeviceNameToHubName[SwitchDeviceName]] = HubState.Impedance;
+                    GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Impedance;
                     //测(0 - 63通道)
-                    DeviceManager.GetDevice(SwitchDeviceName).Subscribe(deviceInfo =>
+                    DeviceManager.GetDevice(_switchDeviceName).Subscribe(deviceInfo =>
                     {
                         var switchDevice = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
                         //Switch_cref置为0
@@ -57,7 +73,7 @@ public class SwitchToImpedanceMode : Sink<bool>
                         //开始切换
                         switchDevice.StartSwitch();
                     });
-                    DeviceManager.GetDevice(StimulationDeviceName).Subscribe(deviceInfo =>
+                    DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(deviceInfo =>
                     {   // TODO: 待完善公式
                         var stimulationDevice = deviceInfo.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
                         //刺激参数中Channel_enable置为0
