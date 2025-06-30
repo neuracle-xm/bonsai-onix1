@@ -131,13 +131,13 @@ namespace OpenEphys.Onix1
                                 {
                                     if (++sampleIndex >= bufferSize)
                                     {
-                                        var i1_sum = 0;
-                                        var v1_sum = 0;
-                                        var v2_sum = 0;
-                                        for (int i = 0; i < impedanceBuffer.Length; i++)
+                                        long i1_sum = 0;
+                                        long v1_sum = 0;
+                                        long v2_sum = 0;
+                                        for (var i = 0; i < impedanceBuffer.Length; i++)
                                         {
                                             var channelIndex = i % Rhd2164NoAux.ImpedanceChannelCount;
-                                            var value = impedanceBuffer[i];
+                                            int value = impedanceBuffer[i];
                                             //通道1输出电流l1
                                             if (channelIndex == 0)
                                             {
@@ -154,9 +154,9 @@ namespace OpenEphys.Onix1
                                                 v2_sum += value;
                                             }
                                         }
-                                        var i1_mean = i1_sum / bufferSize;
-                                        var v1_mean = v1_sum / bufferSize;
-                                        var v2_mean = v2_sum / bufferSize;
+                                        var i1_mean = i1_sum * CurrentScale / bufferSize;
+                                        var v1_mean = v1_sum * VoltageScale / bufferSize;
+                                        var v2_mean = v2_sum * VoltageScale / bufferSize;
                                         float r1 = 0;
                                         float r2 = 0;
                                         if (i1_mean != 0)
