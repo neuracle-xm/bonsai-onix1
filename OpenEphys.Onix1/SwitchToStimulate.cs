@@ -60,13 +60,13 @@ namespace OpenEphys.Onix1
         [Category(DeviceFactory.StimulatorCh1)]
         public bool Ch1Enable { get; set; }
 
+        private uint _ch1StimulateChannel;
         /// <summary>
         /// 设置刺激通道1 需要进行刺激的通道.
         /// </summary>
         [Description("Ch1刺激通道.")]
-        [Range(0, 63)]
         [Category(DeviceFactory.StimulatorCh1)]
-        public uint Ch1StimulateChannel { get; set; }
+        public uint Ch1StimulateChannel { get => _ch1StimulateChannel; set => _ch1StimulateChannel = value > 63 ? 63 : value; }
 
         /// <summary>
         /// Gets or sets a delay from receiving a trigger to the start of stimulus sequence application in μsec
@@ -179,13 +179,14 @@ namespace OpenEphys.Onix1
         [Category(DeviceFactory.StimulatorCh2)]
         public bool Ch2Enable { get; set; }
 
+
+        private uint _ch2StimulateChannel;
         /// <summary>
         /// 设置刺激通道2 需要进行刺激的通道.
         /// </summary>
         [Description("Ch2刺激通道.")]
-        [Range(0, 63)]
         [Category(DeviceFactory.StimulatorCh2)]
-        public uint Ch2StimulateChannel { get; set; }
+        public uint Ch2StimulateChannel { get => _ch2StimulateChannel; set => _ch2StimulateChannel = value > 63 ? 63 : value; }
 
         /// <summary>
         /// Gets or sets a delay from receiving a trigger to the start of stimulus sequence application in μsec
@@ -297,13 +298,13 @@ namespace OpenEphys.Onix1
         [Category(DeviceFactory.StimulatorCh3)]
         public bool Ch3Enable { get; set; }
 
+        private uint _ch3StimulateChannel;
         /// <summary>
         /// 设置刺激通道3 需要进行刺激的通道.
         /// </summary>
         [Description("Ch3刺激通道.")]
-        [Range(0, 63)]
         [Category(DeviceFactory.StimulatorCh3)]
-        public uint Ch3StimulateChannel { get; set; }
+        public uint Ch3StimulateChannel { get => _ch3StimulateChannel; set => _ch3StimulateChannel = value > 63 ? 63 : value; }
 
         /// <summary>
         /// Gets or sets a delay from receiving a trigger to the start of stimulus sequence application in μsec
@@ -415,13 +416,13 @@ namespace OpenEphys.Onix1
         [Category(DeviceFactory.StimulatorCh4)]
         public bool Ch4Enable { get; set; }
 
+        private uint _ch4StimulateChannel;
         /// <summary>
         /// 设置刺激通道4 需要进行刺激的通道.
         /// </summary>
         [Description("Ch4刺激通道.")]
-        [Range(0, 63)]
         [Category(DeviceFactory.StimulatorCh4)]
-        public uint Ch4StimulateChannel { get; set; }
+        public uint Ch4StimulateChannel { get => _ch4StimulateChannel; set => _ch4StimulateChannel = value > 63 ? 63 : value; }
 
         /// <summary>
         /// Gets or sets a delay from receiving a trigger to the start of stimulus sequence application in μsec
