@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.8.5"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:onix1="clr-namespace:OpenEphys.Onix1;assembly=OpenEphys.Onix1"
+                 xmlns:p1="clr-namespace:NeuracleExtension;assembly=OpenEphys.Onix1"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
+                 xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns:p2="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:CreateContext">
+          <onix1:Driver>riffa</onix1:Driver>
+          <onix1:Index>0</onix1:Index>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleConfigureHub">
+          <p1:Name>HubA</p1:Name>
+          <p1:Data>
+            <p1:DeviceName>HubA/NeuracleData</p1:DeviceName>
+            <p1:DeviceAddress>4352</p1:DeviceAddress>
+          </p1:Data>
+          <p1:ElectricalStimulator>
+            <p1:DeviceName>HubA/ElectricalStimulator</p1:DeviceName>
+            <p1:DeviceAddress>4353</p1:DeviceAddress>
+          </p1:ElectricalStimulator>
+          <p1:SwitchDevice>
+            <p1:DeviceName>HubA/SwitchDevice</p1:DeviceName>
+            <p1:DeviceAddress>4354</p1:DeviceAddress>
+          </p1:SwitchDevice>
+          <p1:Hub>HubA</p1:Hub>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:StartAcquisition">
+          <onix1:ReadSize>2048</onix1:ReadSize>
+          <onix1:WriteSize>2048</onix1:WriteSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleHubData">
+          <p1:DeviceName>HubA/NeuracleData</p1:DeviceName>
+          <p1:BufferSize>3200</p1:BufferSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>ImpedanceValue</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>AmplifierData</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:MatrixWriter">
+          <dsp:Suffix>None</dsp:Suffix>
+          <dsp:Overwrite>false</dsp:Overwrite>
+          <dsp:Layout>ColumnMajor</dsp:Layout>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>LButton ShiftKey ControlKey Space Prior PageUp D0 D1 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="HasFlag">
+        <Operand xsi:type="WorkflowProperty" TypeArguments="p2:Keys">
+          <Value>LButton ShiftKey ControlKey Space Prior PageUp D0 D1 Control</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleDataMode">
+          <p1:HubName>HubA</p1:HubName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>RButton ShiftKey Menu Space Next PageDown D0 D2 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="HasFlag">
+        <Operand xsi:type="WorkflowProperty" TypeArguments="p2:Keys">
+          <Value>RButton ShiftKey Menu Space Next PageDown D0 D2 Control</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleStimulateMode">
+          <p1:HubName>HubA</p1:HubName>
+          <p1:Ch1Enable>false</p1:Ch1Enable>
+          <p1:Ch1StimulateChannel>0</p1:Ch1StimulateChannel>
+          <p1:Ch1TriggerDelay>0</p1:Ch1TriggerDelay>
+          <p1:Ch1PhaseOneCurrent>0</p1:Ch1PhaseOneCurrent>
+          <p1:Ch1InterPhaseCurrent>0</p1:Ch1InterPhaseCurrent>
+          <p1:Ch1PhaseTwoCurrent>0</p1:Ch1PhaseTwoCurrent>
+          <p1:Ch1PhaseOneDuration>0</p1:Ch1PhaseOneDuration>
+          <p1:Ch1InterPhaseInterval>0</p1:Ch1InterPhaseInterval>
+          <p1:Ch1PhaseTwoDuration>0</p1:Ch1PhaseTwoDuration>
+          <p1:Ch1InterPulseInterval>0</p1:Ch1InterPulseInterval>
+          <p1:Ch1InterBurstInterval>0</p1:Ch1InterBurstInterval>
+          <p1:Ch1BurstPulseCount>0</p1:Ch1BurstPulseCount>
+          <p1:Ch1TrainBurstCount>0</p1:Ch1TrainBurstCount>
+          <p1:Ch1BiPhasic>false</p1:Ch1BiPhasic>
+          <p1:Ch2Enable>false</p1:Ch2Enable>
+          <p1:Ch2StimulateChannel>0</p1:Ch2StimulateChannel>
+          <p1:Ch2TriggerDelay>0</p1:Ch2TriggerDelay>
+          <p1:Ch2PhaseOneCurrent>0</p1:Ch2PhaseOneCurrent>
+          <p1:Ch2InterPhaseCurrent>0</p1:Ch2InterPhaseCurrent>
+          <p1:Ch2PhaseTwoCurrent>0</p1:Ch2PhaseTwoCurrent>
+          <p1:Ch2PhaseOneDuration>0</p1:Ch2PhaseOneDuration>
+          <p1:Ch2InterPhaseInterval>0</p1:Ch2InterPhaseInterval>
+          <p1:Ch2PhaseTwoDuration>0</p1:Ch2PhaseTwoDuration>
+          <p1:Ch2InterPulseInterval>0</p1:Ch2InterPulseInterval>
+          <p1:Ch2InterBurstInterval>0</p1:Ch2InterBurstInterval>
+          <p1:Ch2BurstPulseCount>0</p1:Ch2BurstPulseCount>
+          <p1:Ch2TrainBurstCount>0</p1:Ch2TrainBurstCount>
+          <p1:Ch2BiPhasic>false</p1:Ch2BiPhasic>
+          <p1:Ch3Enable>false</p1:Ch3Enable>
+          <p1:Ch3StimulateChannel>0</p1:Ch3StimulateChannel>
+          <p1:Ch3TriggerDelay>0</p1:Ch3TriggerDelay>
+          <p1:Ch3PhaseOneCurrent>0</p1:Ch3PhaseOneCurrent>
+          <p1:Ch3InterPhaseCurrent>0</p1:Ch3InterPhaseCurrent>
+          <p1:Ch3PhaseTwoCurrent>0</p1:Ch3PhaseTwoCurrent>
+          <p1:Ch3PhaseOneDuration>0</p1:Ch3PhaseOneDuration>
+          <p1:Ch3InterPhaseInterval>0</p1:Ch3InterPhaseInterval>
+          <p1:Ch3PhaseTwoDuration>0</p1:Ch3PhaseTwoDuration>
+          <p1:Ch3InterPulseInterval>0</p1:Ch3InterPulseInterval>
+          <p1:Ch3InterBurstInterval>0</p1:Ch3InterBurstInterval>
+          <p1:Ch3BurstPulseCount>0</p1:Ch3BurstPulseCount>
+          <p1:Ch3TrainBurstCount>0</p1:Ch3TrainBurstCount>
+          <p1:Ch3BiPhasic>false</p1:Ch3BiPhasic>
+          <p1:Ch4Enable>false</p1:Ch4Enable>
+          <p1:Ch4StimulateChannel>0</p1:Ch4StimulateChannel>
+          <p1:Ch4TriggerDelay>0</p1:Ch4TriggerDelay>
+          <p1:Ch4PhaseOneCurrent>0</p1:Ch4PhaseOneCurrent>
+          <p1:Ch4InterPhaseCurrent>0</p1:Ch4InterPhaseCurrent>
+          <p1:Ch4PhaseTwoCurrent>0</p1:Ch4PhaseTwoCurrent>
+          <p1:Ch4PhaseOneDuration>0</p1:Ch4PhaseOneDuration>
+          <p1:Ch4InterPhaseInterval>0</p1:Ch4InterPhaseInterval>
+          <p1:Ch4PhaseTwoDuration>0</p1:Ch4PhaseTwoDuration>
+          <p1:Ch4InterPulseInterval>0</p1:Ch4InterPulseInterval>
+          <p1:Ch4InterBurstInterval>0</p1:Ch4InterBurstInterval>
+          <p1:Ch4BurstPulseCount>0</p1:Ch4BurstPulseCount>
+          <p1:Ch4TrainBurstCount>0</p1:Ch4TrainBurstCount>
+          <p1:Ch4BiPhasic>false</p1:Ch4BiPhasic>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>LButton RButton Cancel ShiftKey ControlKey Menu Pause Space Prior PageUp Next PageDown End D0 D1 D2 D3 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="HasFlag">
+        <Operand xsi:type="WorkflowProperty" TypeArguments="p2:Keys">
+          <Value>LButton RButton Cancel ShiftKey ControlKey Menu Pause Space Prior PageUp Next PageDown End D0 D1 D2 D3 Control</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleImpedanceMode">
+          <p1:HubName>HubA</p1:HubName>
+          <p1:ChannelIndex>0</p1:ChannelIndex>
+        </Combinator>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+      <Edge From="3" To="5" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="10" To="11" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="14" To="15" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
