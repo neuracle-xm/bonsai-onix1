@@ -8,7 +8,7 @@ namespace OpenEphys.Onix1
     /// </summary>
     /// <remarks>
     /// This configuration operator can be linked to a data IO operator, such as <see
-    /// cref="Rhd2164Data"/>, using a shared <c>DeviceName</c>.
+    /// cref="SimulationData"/>, using a shared <c>DeviceName</c>.
     /// </remarks>
     [Description("Configures a Rhd2164 device.")]
     public class ConfigureRhd2164 : SingleDeviceFactory
@@ -25,7 +25,7 @@ namespace OpenEphys.Onix1
         /// Gets or sets the device enable state.
         /// </summary>
         /// <remarks>
-        /// If set to true, a <see cref="Rhd2164Data"/> instance that is linked to this configuration will produce data.
+        /// If set to true, a <see cref="SimulationData"/> instance that is linked to this configuration will produce data.
         /// If set to false, it will not produce data.
         /// </remarks>
         [Category(ConfigurationCategory)]

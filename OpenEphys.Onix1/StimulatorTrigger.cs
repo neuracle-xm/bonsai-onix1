@@ -1,13 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Bonsai;
-using oni;
 using System.Drawing.Design;
 
 
@@ -33,7 +30,6 @@ namespace OpenEphys.Onix1
         readonly BehaviorSubject<bool> powerEnable = new(false);
 
         /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
-        [TypeConverter(typeof(Headstage64ElectricalStimulator.NameConverter))]
         [Description(SingleDeviceFactory.DeviceNameDescription)]
         [Category(DeviceFactory.ConfigurationCategory)]
         public string DeviceName { get; set; }
@@ -86,7 +82,6 @@ namespace OpenEphys.Onix1
         /// Gets or sets the amplitude of the first phase of each pulse in μA.
         /// </summary>
         [Description("Amplitude of the first phase of each pulse (uA).")]
-        [Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.AcquisitionCategory)]
@@ -100,7 +95,6 @@ namespace OpenEphys.Onix1
         /// Gets or sets the amplitude of the interphase current of each pulse in μA.
         /// </summary>
         [Description("The amplitude of the inter-phase current of each pulse (uA).")]
-        [Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.AcquisitionCategory)]
@@ -114,7 +108,6 @@ namespace OpenEphys.Onix1
         /// Gets or sets the amplitude of the second phase of each pulse in μA.
         /// </summary>
         [Description("The amplitude of the second phase of each pulse (uA).")]
-        [Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.AcquisitionCategory)]

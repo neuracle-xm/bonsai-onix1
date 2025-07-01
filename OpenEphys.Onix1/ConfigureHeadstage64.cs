@@ -70,10 +70,10 @@ namespace OpenEphys.Onix1
         /// Gets or sets onboard electrical stimulator configuration.
         /// </summary>
         /// <inheritdoc cref="ConfigureHeadstage64ElectricalStimulator"/>
-        [Category(DevicesCategory)]
-        [TypeConverter(typeof(SingleDeviceFactoryConverter))]
-        [Description("Specifies the configuration for the ElectricalStimulator device in the headstage-64.")]
-        public ConfigureHeadstage64ElectricalStimulator ElectricalStimulator { get; set; } = new();
+        //[Category(DevicesCategory)]
+        //[TypeConverter(typeof(SingleDeviceFactoryConverter))]
+        //[Description("Specifies the configuration for the ElectricalStimulator device in the headstage-64.")]
+        //public ConfigureHeadstage64ElectricalStimulator ElectricalStimulator { get; set; } = new();
 
         /// <summary>
         /// Gets or sets onboard optical stimulator configuration.
@@ -104,7 +104,7 @@ namespace OpenEphys.Onix1
                 Rhd2164.DeviceAddress = offset + 0;
                 Bno055.DeviceAddress = offset + 1;
                 TS4231.DeviceAddress = offset + 2;
-                ElectricalStimulator.DeviceAddress = offset + 3;
+                //ElectricalStimulator.DeviceAddress = offset + 3;
                 OpticalStimulator.DeviceAddress = offset + 4;
             }
         }
@@ -141,7 +141,7 @@ namespace OpenEphys.Onix1
             yield return Rhd2164;
             yield return Bno055;
             yield return TS4231;
-            yield return ElectricalStimulator;
+            //yield return ElectricalStimulator;
             yield return OpticalStimulator;
         }
 

@@ -3,14 +3,15 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using Bonsai;
+using OpenEphys.Onix1;
 
-namespace OpenEphys.Onix1;
+namespace NeuracleExtension;
 
-[Description("停止刺激")]
-public class StopStimulate : Sink<bool>
+[Description("停止刺激(内部测试用)")]
+public class NeuracleStopStimulate : Sink<bool>
 {
     /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
-    [TypeConverter(typeof(Headstage64ElectricalStimulator.NameConverter))]
+    [TypeConverter(typeof(ElectricalStimulator.NameConverter))]
     [Description(SingleDeviceFactory.DeviceNameDescription)]
     [Category(DeviceFactory.ConfigurationCategory)]
     public string DeviceName { get; set; }
@@ -25,7 +26,7 @@ public class StopStimulate : Sink<bool>
         return DeviceManager.GetDevice(DeviceName).SelectMany(
             deviceInfo => Observable.Create<bool>(observer =>
             {
-                var device = deviceInfo.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
+                var device = deviceInfo.GetDeviceContext(typeof(ElectricalStimulator));
                 var triggerObserver = Observer.Create<bool>(
                     value =>
                     {
@@ -33,7 +34,7 @@ public class StopStimulate : Sink<bool>
                         {
                             return;
                         }
-                        device.WriteRegister(1, value ? 1u : 0u);
+                        //device.WriteRegister(1, value ? 1u : 0u);
                         observer.OnNext(value);
                     },
                     observer.OnError,

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Reactive.Linq;
 using Bonsai;
 using OpenCV.Net;
 
+namespace NeuracleExtension;
+
 [Combinator]
-[Description("A custom transform that transform python sorting result to C# Mat type.")]
+[Description("把Python的Sorting结果转换成C#的Mat类型")]
 [WorkflowElementCategory(ElementCategory.Transform)]
-public class PythonSortingResultToMat
+public class NeuracleSortingResult
 {
     //private static float[] _testSinData = new float[30000];
 
@@ -88,7 +89,5 @@ public class PythonSortingResultToMat
             );
         });
     }
-
-
 }
 

@@ -1,6 +1,7 @@
 ﻿using System;
+using OpenEphys.Onix1;
 
-namespace OpenEphys.Onix1;
+namespace NeuracleExtension;
 
 /// <summary>
 /// 模拟开关的一些扩展方法
@@ -109,9 +110,9 @@ public static class SwitchWriteRegisterFunctions
     /// <param name="deviceContext"></param>
     public static void StartStimulate(this DeviceContext deviceContext)
     {
-        deviceContext.WriteRegister(Headstage64ElectricalStimulator.STIM_START, 0);
-        deviceContext.WriteRegister(Headstage64ElectricalStimulator.STIM_START, 1);
-        deviceContext.WriteRegister(Headstage64ElectricalStimulator.STIM_START, 0);
+        deviceContext.WriteRegister(ElectricalStimulator.STIM_START, 0);
+        deviceContext.WriteRegister(ElectricalStimulator.STIM_START, 1);
+        deviceContext.WriteRegister(ElectricalStimulator.STIM_START, 0);
     }
 
     /// <summary>
@@ -206,7 +207,8 @@ public static class SwitchWriteRegisterFunctions
             if (stiChIdx == 0 || stiChIdx == 2)
             {
                 stiChIdx++;
-            } else if (stiChIdx == 1 || stiChIdx == 3)
+            }
+            else if (stiChIdx == 1 || stiChIdx == 3)
             {
                 stiChIdx--;
             }

@@ -1,4 +1,4 @@
-﻿namespace OpenEphys.Onix1;
+﻿namespace NeuracleExtension;
 
 /// <summary>
 /// 头盒的状态
@@ -20,4 +20,3 @@ public enum HubState
     /// </summary>
     Stimulation
 }
-

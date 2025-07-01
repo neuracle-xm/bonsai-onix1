@@ -38,7 +38,7 @@ namespace OpenEphys.Onix1
         readonly BehaviorSubject<bool> powerEnable = new(false);
 
         /// <inheritdoc cref = "SingleDeviceFactory.DeviceName"/>
-        [TypeConverter(typeof(Headstage64ElectricalStimulator.NameConverter))]
+        //[TypeConverter(typeof(Headstage64ElectricalStimulator.NameConverter))]
         [Description(SingleDeviceFactory.DeviceNameDescription)]
         [Category(DeviceFactory.ConfigurationCategory)]
         public string DeviceName { get; set; }
@@ -91,7 +91,7 @@ namespace OpenEphys.Onix1
         /// Gets or sets the amplitude of the first phase of each pulse in μA.
         /// </summary>
         [Description("Amplitude of the first phase of each pulse (uA).")]
-        [Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
+        //[Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.AcquisitionCategory)]
@@ -105,7 +105,7 @@ namespace OpenEphys.Onix1
         /// Gets or sets the amplitude of the interphase current of each pulse in μA.
         /// </summary>
         [Description("The amplitude of the inter-phase current of each pulse (uA).")]
-        [Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
+        //[Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.AcquisitionCategory)]
@@ -119,7 +119,7 @@ namespace OpenEphys.Onix1
         /// Gets or sets the amplitude of the second phase of each pulse in μA.
         /// </summary>
         [Description("The amplitude of the second phase of each pulse (uA).")]
-        [Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
+        //[Range(-Headstage64ElectricalStimulator.AbsMaxMicroAmps, Headstage64ElectricalStimulator.AbsMaxMicroAmps)]
         [Editor(DesignTypes.SliderEditor, typeof(UITypeEditor))]
         [Precision(3, 1)]
         [Category(DeviceFactory.AcquisitionCategory)]
@@ -223,7 +223,7 @@ namespace OpenEphys.Onix1
             return DeviceManager.GetDevice(DeviceName).SelectMany(
                 deviceInfo => Observable.Create<bool>(observer =>
                 {
-                    var device = deviceInfo.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
+                    //var device = deviceInfo.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
                     var triggerObserver = Observer.Create<bool>(
                         value =>
                         {
@@ -233,11 +233,11 @@ namespace OpenEphys.Onix1
                         observer.OnError,
                         observer.OnCompleted);
 
-                    static uint uAToCode(double currentuA)
-                    {
-                        var k = 1 / (2 * Headstage64ElectricalStimulator.AbsMaxMicroAmps / (Math.Pow(2, Headstage64ElectricalStimulator.DacBitDepth) - 1)); // static
-                        return (uint)(k * (currentuA + Headstage64ElectricalStimulator.AbsMaxMicroAmps));
-                    }
+                    //static uint uAToCode(double currentuA)
+                    //{
+                    //    var k = 1 / (2 * Headstage64ElectricalStimulator.AbsMaxMicroAmps / (Math.Pow(2, Headstage64ElectricalStimulator.DacBitDepth) - 1)); // static
+                    //    return (uint)(k * (currentuA + Headstage64ElectricalStimulator.AbsMaxMicroAmps));
+                    //}
 
                     return new CompositeDisposable(
                         //enable.SubscribeSafe(observer, value => device.WriteRegister(Headstage64ElectricalStimulator.ENABLE, value ? 1u : 0u)),

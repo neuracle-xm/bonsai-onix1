@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.8.5"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:p1="clr-namespace:OpenEphys.Sockets.Bonsai;assembly=OpenEphys.Sockets.Bonsai"
+                 xmlns:py="clr-namespace:Bonsai.Scripting.Python;assembly=Bonsai.Scripting.Python"
+                 xmlns:p2="clr-namespace:NeuracleExtension;assembly=OpenEphys.Onix1"
+                 xmlns:onix1="clr-namespace:OpenEphys.Onix1;assembly=OpenEphys.Onix1"
+                 xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns:p3="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:TcpServer">
+          <p1:Name>Tcp1</p1:Name>
+          <p1:Port>9001</p1:Port>
+          <p1:Address>localhost</p1:Address>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:TcpServer">
+          <p1:Name>Tcp2</p1:Name>
+          <p1:Port>9002</p1:Port>
+          <p1:Address>localhost</p1:Address>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:CreateRuntime">
+          <py:PythonHome>python</py:PythonHome>
+          <py:ScriptPath>python\main.py</py:ScriptPath>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:Eval">
+          <py:Expression>set_channel(0)</py:Expression>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleReadDataCache">
+          <p2:CacheName>A</p2:CacheName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:ObserveOnGIL" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:Set">
+          <py:VariableName>data</py:VariableName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:Eval">
+          <py:Expression>run(data)</py:Expression>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:ObserveOnGIL" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="py:Get">
+          <py:VariableName>result</py:VariableName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleSortingResult" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:SendMatOverSocket">
+          <p1:Connection>Tcp1</p1:Connection>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:CreateContext">
+          <onix1:Driver>riffa</onix1:Driver>
+          <onix1:Index>0</onix1:Index>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleConfigureHub">
+          <p2:Name>HubA</p2:Name>
+          <p2:Data>
+            <p2:DeviceName>HubA/NeuracleData</p2:DeviceName>
+            <p2:DeviceAddress>4352</p2:DeviceAddress>
+          </p2:Data>
+          <p2:ElectricalStimulator>
+            <p2:DeviceName>HubA/ElectricalStimulator</p2:DeviceName>
+            <p2:DeviceAddress>4353</p2:DeviceAddress>
+          </p2:ElectricalStimulator>
+          <p2:SwitchDevice>
+            <p2:DeviceName>HubA/SwitchDevice</p2:DeviceName>
+            <p2:DeviceAddress>4354</p2:DeviceAddress>
+          </p2:SwitchDevice>
+          <p2:Hub>HubA</p2:Hub>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:StartAcquisition">
+          <onix1:ReadSize>2048</onix1:ReadSize>
+          <onix1:WriteSize>2048</onix1:WriteSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleHubData">
+          <p2:DeviceName>HubA/NeuracleData</p2:DeviceName>
+          <p2:BufferSize>3200</p2:BufferSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>AmplifierData</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:SendMatOverSocket">
+          <p1:Connection>Tcp2</p1:Connection>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>ImpedanceValue</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleWriteToDataCache">
+          <p2:CacheName>A</p2:CacheName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>LButton ShiftKey ControlKey Space Prior PageUp D0 D1 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="HasFlag">
+        <Operand xsi:type="WorkflowProperty" TypeArguments="p3:Keys">
+          <Value>LButton ShiftKey ControlKey Space Prior PageUp D0 D1 Control</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleDataMode">
+          <p2:HubName>HubA</p2:HubName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>RButton ShiftKey Menu Space Next PageDown D0 D2 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="HasFlag">
+        <Operand xsi:type="WorkflowProperty" TypeArguments="p3:Keys">
+          <Value>RButton ShiftKey Menu Space Next PageDown D0 D2 Control</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleStimulateMode">
+          <p2:HubName>HubA</p2:HubName>
+          <p2:Ch1Enable>false</p2:Ch1Enable>
+          <p2:Ch1StimulateChannel>0</p2:Ch1StimulateChannel>
+          <p2:Ch1TriggerDelay>0</p2:Ch1TriggerDelay>
+          <p2:Ch1PhaseOneCurrent>0</p2:Ch1PhaseOneCurrent>
+          <p2:Ch1InterPhaseCurrent>0</p2:Ch1InterPhaseCurrent>
+          <p2:Ch1PhaseTwoCurrent>0</p2:Ch1PhaseTwoCurrent>
+          <p2:Ch1PhaseOneDuration>0</p2:Ch1PhaseOneDuration>
+          <p2:Ch1InterPhaseInterval>0</p2:Ch1InterPhaseInterval>
+          <p2:Ch1PhaseTwoDuration>0</p2:Ch1PhaseTwoDuration>
+          <p2:Ch1InterPulseInterval>0</p2:Ch1InterPulseInterval>
+          <p2:Ch1InterBurstInterval>0</p2:Ch1InterBurstInterval>
+          <p2:Ch1BurstPulseCount>0</p2:Ch1BurstPulseCount>
+          <p2:Ch1TrainBurstCount>0</p2:Ch1TrainBurstCount>
+          <p2:Ch1BiPhasic>false</p2:Ch1BiPhasic>
+          <p2:Ch2Enable>false</p2:Ch2Enable>
+          <p2:Ch2StimulateChannel>0</p2:Ch2StimulateChannel>
+          <p2:Ch2TriggerDelay>0</p2:Ch2TriggerDelay>
+          <p2:Ch2PhaseOneCurrent>0</p2:Ch2PhaseOneCurrent>
+          <p2:Ch2InterPhaseCurrent>0</p2:Ch2InterPhaseCurrent>
+          <p2:Ch2PhaseTwoCurrent>0</p2:Ch2PhaseTwoCurrent>
+          <p2:Ch2PhaseOneDuration>0</p2:Ch2PhaseOneDuration>
+          <p2:Ch2InterPhaseInterval>0</p2:Ch2InterPhaseInterval>
+          <p2:Ch2PhaseTwoDuration>0</p2:Ch2PhaseTwoDuration>
+          <p2:Ch2InterPulseInterval>0</p2:Ch2InterPulseInterval>
+          <p2:Ch2InterBurstInterval>0</p2:Ch2InterBurstInterval>
+          <p2:Ch2BurstPulseCount>0</p2:Ch2BurstPulseCount>
+          <p2:Ch2TrainBurstCount>0</p2:Ch2TrainBurstCount>
+          <p2:Ch2BiPhasic>false</p2:Ch2BiPhasic>
+          <p2:Ch3Enable>false</p2:Ch3Enable>
+          <p2:Ch3StimulateChannel>0</p2:Ch3StimulateChannel>
+          <p2:Ch3TriggerDelay>0</p2:Ch3TriggerDelay>
+          <p2:Ch3PhaseOneCurrent>0</p2:Ch3PhaseOneCurrent>
+          <p2:Ch3InterPhaseCurrent>0</p2:Ch3InterPhaseCurrent>
+          <p2:Ch3PhaseTwoCurrent>0</p2:Ch3PhaseTwoCurrent>
+          <p2:Ch3PhaseOneDuration>0</p2:Ch3PhaseOneDuration>
+          <p2:Ch3InterPhaseInterval>0</p2:Ch3InterPhaseInterval>
+          <p2:Ch3PhaseTwoDuration>0</p2:Ch3PhaseTwoDuration>
+          <p2:Ch3InterPulseInterval>0</p2:Ch3InterPulseInterval>
+          <p2:Ch3InterBurstInterval>0</p2:Ch3InterBurstInterval>
+          <p2:Ch3BurstPulseCount>0</p2:Ch3BurstPulseCount>
+          <p2:Ch3TrainBurstCount>0</p2:Ch3TrainBurstCount>
+          <p2:Ch3BiPhasic>false</p2:Ch3BiPhasic>
+          <p2:Ch4Enable>false</p2:Ch4Enable>
+          <p2:Ch4StimulateChannel>0</p2:Ch4StimulateChannel>
+          <p2:Ch4TriggerDelay>0</p2:Ch4TriggerDelay>
+          <p2:Ch4PhaseOneCurrent>0</p2:Ch4PhaseOneCurrent>
+          <p2:Ch4InterPhaseCurrent>0</p2:Ch4InterPhaseCurrent>
+          <p2:Ch4PhaseTwoCurrent>0</p2:Ch4PhaseTwoCurrent>
+          <p2:Ch4PhaseOneDuration>0</p2:Ch4PhaseOneDuration>
+          <p2:Ch4InterPhaseInterval>0</p2:Ch4InterPhaseInterval>
+          <p2:Ch4PhaseTwoDuration>0</p2:Ch4PhaseTwoDuration>
+          <p2:Ch4InterPulseInterval>0</p2:Ch4InterPulseInterval>
+          <p2:Ch4InterBurstInterval>0</p2:Ch4InterBurstInterval>
+          <p2:Ch4BurstPulseCount>0</p2:Ch4BurstPulseCount>
+          <p2:Ch4TrainBurstCount>0</p2:Ch4TrainBurstCount>
+          <p2:Ch4BiPhasic>false</p2:Ch4BiPhasic>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>LButton RButton Cancel ShiftKey ControlKey Menu Pause Space Prior PageUp Next PageDown End D0 D1 D2 D3 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="HasFlag">
+        <Operand xsi:type="WorkflowProperty" TypeArguments="p3:Keys">
+          <Value>LButton RButton Cancel ShiftKey ControlKey Menu Pause Space Prior PageUp Next PageDown End D0 D1 D2 D3 Control</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleImpedanceMode">
+          <p2:HubName>HubA</p2:HubName>
+          <p2:ChannelIndex>0</p2:ChannelIndex>
+        </Combinator>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="4" To="5" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="9" To="10" Label="Source1" />
+      <Edge From="10" To="11" Label="Source1" />
+      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="15" To="16" Label="Source1" />
+      <Edge From="15" To="18" Label="Source1" />
+      <Edge From="16" To="17" Label="Source1" />
+      <Edge From="16" To="19" Label="Source1" />
+      <Edge From="20" To="21" Label="Source1" />
+      <Edge From="21" To="22" Label="Source1" />
+      <Edge From="23" To="24" Label="Source1" />
+      <Edge From="24" To="25" Label="Source1" />
+      <Edge From="26" To="27" Label="Source1" />
+      <Edge From="27" To="28" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>

@@ -3,12 +3,12 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using Bonsai;
-using static OpenEphys.Onix1.ConfigureHeadstage64NoAux;
+using OpenEphys.Onix1;
 
-namespace OpenEphys.Onix1;
+namespace NeuracleExtension;
 
 [Description("切换成阻抗模式")]
-public class SwitchToImpedanceMode : Sink<bool>
+public class NeuracleImpedanceMode : Sink<bool>
 {
     private HubName _hubName;
     [Description("选择的头盒")]
@@ -40,6 +40,7 @@ public class SwitchToImpedanceMode : Sink<bool>
     /// <summary>
     /// 选择哪个通道进行阻抗测量
     /// </summary>
+    [Description("选择哪个通道查看阻抗")]
     [Category(DeviceFactory.ConfigurationCategory)]
     public uint ChannelIndex { get; set; } = 0;
 
@@ -75,15 +76,15 @@ public class SwitchToImpedanceMode : Sink<bool>
                     });
                     DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(deviceInfo =>
                     {   // TODO: 待完善公式
-                        var stimulationDevice = deviceInfo.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
+                        var stimulationDevice = deviceInfo.GetDeviceContext(typeof(ElectricalStimulator));
                         //刺激参数中Channel_enable置为0
-                        stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CHANNEL_ENABLE, 15);
+                        stimulationDevice.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, 15);
                         //刺激参数中Ch1current1置为1mA(暂定)
-                        stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, 37768);
+                        stimulationDevice.WriteRegister(ElectricalStimulator.CH1CURRENT1, 37768);
                         //刺激参数中Ch2current1置为0
-                        stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, 32768);
+                        stimulationDevice.WriteRegister(ElectricalStimulator.CH2CURRENT1, 32768);
                         //刺激参数中resistor_mode置为1
-                        stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.RESISTOR_MODE, 1);
+                        stimulationDevice.WriteRegister(ElectricalStimulator.RESISTOR_MODE, 1);
                     });
                     ////内部测Cref(Cref1,Cref2)
                     //DeviceManager.GetDevice(SwitchDeviceName).Subscribe(deviceInfo =>

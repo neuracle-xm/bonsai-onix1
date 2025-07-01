@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using static OpenEphys.Onix1.ConfigureHeadstage64NoAux;
 
-namespace OpenEphys.Onix1;
+namespace NeuracleExtension;
 
 public class GlobalState
 {

@@ -3,12 +3,12 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using Bonsai;
-using static OpenEphys.Onix1.ConfigureHeadstage64NoAux;
+using OpenEphys.Onix1;
 
-namespace OpenEphys.Onix1;
+namespace NeuracleExtension;
 
 [Description("切换成采集模式")]
-public class SwitchToData : Sink<bool>
+public class NeuracleDataMode : Sink<bool>
 {
     private HubName _hubName;
     [Description("选择的头盒")]

@@ -3,8 +3,7 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:p1="clr-namespace:OpenEphys.Sockets.Bonsai;assembly=OpenEphys.Sockets.Bonsai"
                  xmlns:py="clr-namespace:Bonsai.Scripting.Python;assembly=Bonsai.Scripting.Python"
-                 xmlns:onix1="clr-namespace:OpenEphys.Onix1;assembly=OpenEphys.Onix1"
-                 xmlns:p2="clr-namespace:;assembly=OpenEphys.Onix1"
+                 xmlns:p2="clr-namespace:NeuracleExtension;assembly=OpenEphys.Onix1"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
@@ -34,8 +33,8 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="onix1:ReadDataCache">
-          <onix1:DeviceName>A</onix1:DeviceName>
+        <Combinator xsi:type="p2:NeuracleReadDataCache">
+          <p2:CacheName>A</p2:CacheName>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -60,7 +59,7 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:PythonSortingResultToMat" />
+        <Combinator xsi:type="p2:NeuracleSortingResult" />
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:SendMatOverSocket">
@@ -68,22 +67,22 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="onix1:Rhd2164Data">
-          <onix1:DeviceName>test</onix1:DeviceName>
-          <onix1:BufferSize>3200</onix1:BufferSize>
+        <Combinator xsi:type="p2:NeuracleSimulationData">
+          <p2:DeviceName>test</p2:DeviceName>
+          <p2:BufferSize>3200</p2:BufferSize>
         </Combinator>
       </Expression>
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:SendMatOverSocket">
-          <p1:Connection>Tcp2</p1:Connection>
+        <Combinator xsi:type="p2:NeuracleWriteToDataCache">
+          <p2:CacheName>A</p2:CacheName>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="onix1:WriteToDataCache">
-          <onix1:DeviceName>A</onix1:DeviceName>
+        <Combinator xsi:type="p1:SendMatOverSocket">
+          <p1:Connection>Tcp2</p1:Connection>
         </Combinator>
       </Expression>
     </Nodes>
