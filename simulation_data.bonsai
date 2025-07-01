@@ -34,7 +34,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p2:NeuracleReadDataCache">
-          <p2:CacheName>A</p2:CacheName>
+          <p2:CacheName>test</p2:CacheName>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -68,17 +68,14 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p2:NeuracleSimulationData">
-          <p2:DeviceName>test</p2:DeviceName>
           <p2:BufferSize>3200</p2:BufferSize>
         </Combinator>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      </Expression>
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache">
-          <p2:CacheName>A</p2:CacheName>
-        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:SendMatOverSocket">
@@ -96,8 +93,8 @@
       <Edge From="9" To="10" Label="Source1" />
       <Edge From="10" To="11" Label="Source1" />
       <Edge From="12" To="13" Label="Source1" />
-      <Edge From="13" To="14" Label="Source1" />
-      <Edge From="13" To="15" Label="Source1" />
+      <Edge From="12" To="14" Label="Source1" />
+      <Edge From="14" To="15" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

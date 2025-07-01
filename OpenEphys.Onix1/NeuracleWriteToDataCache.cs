@@ -12,16 +12,12 @@ namespace NeuracleExtension;
 [WorkflowElementCategory(ElementCategory.Transform)]
 public class NeuracleWriteToDataCache
 {
-    [Description("写入的缓存名称")]
-    [Category(DeviceFactory.ConfigurationCategory)]
-    public string CacheName { get; set; }
-
-    public IObservable<Mat> Process(IObservable<Mat> sources)
+    public IObservable<NeuracleHubDataFrame> Process(IObservable<NeuracleHubDataFrame> sources)
     {
         return sources.Do(
-            data =>
+            neuracleHubDataFrame =>
             {
-                MatCache<Mat>.AddToQueue(CacheName, data);
+                MatCache<Mat>.AddToQueue(neuracleHubDataFrame.DeviceName, neuracleHubDataFrame.AmplifierData);
             }
         );
     }

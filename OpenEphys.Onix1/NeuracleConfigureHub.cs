@@ -35,6 +35,7 @@ public class NeuracleConfigureHub : MultiDeviceFactory
         set
         {
             _hub = value;
+            Name = Hub.ToString();
             Data.DeviceAddress = (uint)value;
             ElectricalStimulator.DeviceAddress = (uint)value + 1;
             SwitchDevice.DeviceAddress = (uint)value + 2;

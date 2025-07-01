@@ -38,7 +38,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p2:NeuracleReadDataCache">
-          <p2:CacheName>A</p2:CacheName>
+          <p2:CacheName>HubA/NeuracleData</p2:CacheName>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -96,8 +96,8 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:StartAcquisition">
-          <onix1:ReadSize>2048</onix1:ReadSize>
-          <onix1:WriteSize>2048</onix1:WriteSize>
+          <onix1:ReadSize>393216</onix1:ReadSize>
+          <onix1:WriteSize>65536</onix1:WriteSize>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -118,16 +118,14 @@
         <Selector>ImpedanceValue</Selector>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache">
-          <p2:CacheName>A</p2:CacheName>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
         <Combinator xsi:type="dsp:MatrixWriter">
           <dsp:Suffix>None</dsp:Suffix>
           <dsp:Overwrite>false</dsp:Overwrite>
           <dsp:Layout>ColumnMajor</dsp:Layout>
         </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="wie:KeyDown">
@@ -248,9 +246,9 @@
       <Edge From="13" To="14" Label="Source1" />
       <Edge From="15" To="16" Label="Source1" />
       <Edge From="15" To="18" Label="Source1" />
+      <Edge From="15" To="20" Label="Source1" />
       <Edge From="16" To="17" Label="Source1" />
       <Edge From="16" To="19" Label="Source1" />
-      <Edge From="16" To="20" Label="Source1" />
       <Edge From="21" To="22" Label="Source1" />
       <Edge From="22" To="23" Label="Source1" />
       <Edge From="24" To="25" Label="Source1" />

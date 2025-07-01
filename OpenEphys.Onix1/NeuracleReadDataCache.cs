@@ -11,7 +11,8 @@ namespace NeuracleExtension;
 [WorkflowElementCategory(ElementCategory.Source)]
 public class NeuracleReadDataCache : Source<Mat>
 {
-    [Description("需要读取的缓存的名称，和某个NeuracleWriteToDataCache对应")]
+    [TypeConverter(typeof(NeuracleData.NameConverter))]
+    [Description("需要读取的设备的名称")]
     [Category(DeviceFactory.ConfigurationCategory)]
     public string CacheName { get; set; }
 
@@ -26,7 +27,7 @@ public class NeuracleReadDataCache : Source<Mat>
                     return item;
                 }
             }
-            return Mat.Zeros(64, 3200, Depth.S32, 1);
+            return Mat.Zeros(GlobalState.ChannelNumberPerHub, GlobalState.BufferSize, Depth.F32, 1);
         });
     }
 }

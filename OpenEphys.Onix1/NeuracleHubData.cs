@@ -11,7 +11,7 @@ using OpenEphys.Onix1;
 namespace NeuracleExtension;
 
 [Description("输出Neuracle头盒的数据")]
-public class NeuracleHubData : Source<Rhd2164DataFrameNoAux>
+public class NeuracleHubData : Source<NeuracleHubDataFrame>
 {
     [TypeConverter(typeof(NeuracleData.NameConverter))]
     [Description(SingleDeviceFactory.DeviceNameDescription)]
@@ -20,7 +20,7 @@ public class NeuracleHubData : Source<Rhd2164DataFrameNoAux>
 
     [Description("缓存的帧大小")]
     [Category(DeviceFactory.ConfigurationCategory)]
-    public int BufferSize { get; set; } = 3200;
+    public int BufferSize { get; set; } = GlobalState.BufferSize;
 
     /// <summary>
     /// 生成测试用方波
@@ -59,12 +59,12 @@ public class NeuracleHubData : Source<Rhd2164DataFrameNoAux>
     /// </summary>
     public static float CurrentScale = (float)(4096 / Math.Pow(2, 23) / 200 * 10);
 
-    public unsafe override IObservable<Rhd2164DataFrameNoAux> Generate()
+    public unsafe override IObservable<NeuracleHubDataFrame> Generate()
     {
         var bufferSize = BufferSize;
         if (DeviceName == "test")
         {
-            return Observable.Create<Rhd2164DataFrameNoAux>(observer =>
+            return Observable.Create<NeuracleHubDataFrame>(observer =>
             {
                 return Observable.Interval(TimeSpan.FromSeconds(1.0 / 200))
                     .Subscribe(_ =>
@@ -72,7 +72,8 @@ public class NeuracleHubData : Source<Rhd2164DataFrameNoAux>
                         var ampliferArray = GenerateSquareWave();
                         var hubClockBuffer = new ulong[bufferSize];
                         var clockBuffer = new ulong[bufferSize];
-                        observer.OnNext(new Rhd2164DataFrameNoAux(
+                        observer.OnNext(new NeuracleHubDataFrame(
+                            DeviceName,
                             (ulong[])clockBuffer.Clone(),
                             (ulong[])hubClockBuffer.Clone(),
                             Mat.FromArray(ampliferArray),
@@ -84,7 +85,7 @@ public class NeuracleHubData : Source<Rhd2164DataFrameNoAux>
         else
         {
             return DeviceManager.GetDevice(DeviceName).SelectMany(
-                deviceInfo => Observable.Create<Rhd2164DataFrameNoAux>(observer =>
+                deviceInfo => Observable.Create<NeuracleHubDataFrame>(observer =>
                 {
                     var device = deviceInfo.GetDeviceContext(typeof(NeuracleData));
                     var hubClockBuffer = new ulong[bufferSize];
@@ -96,7 +97,7 @@ public class NeuracleHubData : Source<Rhd2164DataFrameNoAux>
                         frame =>
                         {
                             var dataSize = frame.DataSize;
-                            var payload = (Rhd2164NoAuxPayload*)frame.Data.ToPointer();
+                            var payload = (NeuracleHubDataPayload*)frame.Data.ToPointer();
                             hubClockBuffer[sampleIndex] = payload->HubClock;
                             clockBuffer[sampleIndex] = frame.Clock;
                             Marshal.Copy(new IntPtr(payload->AmplifierData), amplifierBuffer, sampleIndex * NeuracleData.AmplifierChannelCount, NeuracleData.AmplifierChannelCount);
@@ -106,8 +107,10 @@ public class NeuracleHubData : Source<Rhd2164DataFrameNoAux>
                             {
                                 if (++sampleIndex >= bufferSize)
                                 {
-                                    var amplifierData = DataScale * BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, NeuracleData.AmplifierChannelCount, Depth.S32);
-                                    observer.OnNext(new Rhd2164DataFrameNoAux(clockBuffer, hubClockBuffer, amplifierData, 0, 0));
+                                    var digitalMat = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, NeuracleData.AmplifierChannelCount, Depth.S32);
+                                    Mat analogMat = new(digitalMat.Rows, digitalMat.Cols, Depth.F32, digitalMat.Channels);
+                                    CV.ConvertScale(digitalMat, analogMat, DataScale);
+                                    observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, analogMat, 0, 0));
                                     sampleIndex = 0;
                                 }
                             }
@@ -149,7 +152,7 @@ public class NeuracleHubData : Source<Rhd2164DataFrameNoAux>
                                         r1 = (v1_mean - v2_mean) / i1_mean;
                                         r2 = v2_mean / i1_mean;
                                     }
-                                    observer.OnNext(new Rhd2164DataFrameNoAux(clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.S32, 1), r1, r2));
+                                    observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), r1, r2));
                                     sampleIndex = 0;
                                 }
                             }

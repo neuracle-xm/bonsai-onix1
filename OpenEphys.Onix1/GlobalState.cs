@@ -6,6 +6,16 @@ namespace NeuracleExtension;
 public class GlobalState
 {
     /// <summary>
+    /// 每个头盒的通道数
+    /// </summary>
+    public const int ChannelNumberPerHub = 64;
+
+    /// <summary>
+    /// 默认的帧BufferSize
+    /// </summary>
+    public const int BufferSize = 3200;
+
+    /// <summary>
     /// 头盒的状态，初始为采集状态
     /// </summary>
     public static Dictionary<HubName, HubState> HubStates { get; set; } = new();
