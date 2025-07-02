@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Bonsai;
 using OpenEphys.Onix1;
 
@@ -24,8 +25,11 @@ public class NeuracleStimulateMode : Sink<bool>
         set
         {
             _hubName = value;
-            _stimulationDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item2;
-            _switchDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item3;
+            if (GlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
+            {
+                _stimulationDeviceName = deviceTuple.Item2;
+                _switchDeviceName = deviceTuple.Item3;
+            }
         }
     }
 
@@ -38,6 +42,24 @@ public class NeuracleStimulateMode : Sink<bool>
     /// 刺激设备的DeviceName
     /// </summary>
     private string _stimulationDeviceName;
+
+    /// <summary>
+    /// 返回限制过后的电流大小
+    /// </summary>
+    /// <param name="current"></param>
+    /// <returns></returns>
+    private int LimitedCurrent(int current)
+    {
+        if (current < -4000)
+        {
+            return -4000;
+        }
+        if (current > 4000)
+        {
+            return 4000;
+        }
+        return current;
+    }
 
     /// <summary>
     /// Gets or sets the device enable state.
@@ -68,26 +90,35 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh1)]
     public uint Ch1TriggerDelay { get; set; }
 
+    private int _ch1PhaseOneCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the first phase of each pulse in μA.
     /// </summary>
     [Description("双相波的第一相电流(uA)")]
     [Category(DeviceFactory.StimulatorCh1)]
-    public int Ch1PhaseOneCurrent { get; set; }
+    public int Ch1PhaseOneCurrent
+    {
+        get => _ch1PhaseOneCurrent;
+        set => _ch1PhaseOneCurrent = LimitedCurrent(value);
+    }
 
-    /// <summary>
-    /// Gets or sets the amplitude of the interphase current of each pulse in μA.
-    /// </summary>
+    private int _ch1InterPhaseCurrent;
     [Description("双相波的相间电流(uA)")]
     [Category(DeviceFactory.StimulatorCh1)]
-    public int Ch1InterPhaseCurrent { get; set; }
+    public int Ch1InterPhaseCurrent
+    {
+        get => _ch1InterPhaseCurrent;
+        set => _ch1InterPhaseCurrent = LimitedCurrent(value);
+    }
 
-    /// <summary>
-    /// Gets or sets the amplitude of the second phase of each pulse in μA.
-    /// </summary>
+    private int _ch1PhaseTwoCurrent;
     [Description("双相波的第二相电流(uA)")]
     [Category(DeviceFactory.StimulatorCh1)]
-    public int Ch1PhaseTwoCurrent { get; set; }
+    public int Ch1PhaseTwoCurrent
+    {
+        get => _ch1PhaseTwoCurrent;
+        set => _ch1PhaseTwoCurrent = LimitedCurrent(value);
+    }
 
     /// <summary>
     /// Gets or sets the duration of the first phase of each pulse in μsec.
@@ -124,19 +155,29 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh1)]
     public uint Ch1InterBurstInterval { get; set; }
 
+    private uint _ch1BurstPulseCount = 1;
     /// <summary>
     /// Gets or sets the number of pulses per burst.
     /// </summary>
     [Description("每个Burst的脉冲个数")]
     [Category(DeviceFactory.StimulatorCh1)]
-    public uint Ch1BurstPulseCount { get; set; }
+    public uint Ch1BurstPulseCount
+    {
+        get => _ch1BurstPulseCount;
+        set => _ch1BurstPulseCount = value < 1 ? 1 : value;
+    }
 
+    private uint _ch1TrainBurstCount = 1;
     /// <summary>
     /// Gets or sets the number of bursts in a stimulus train.
     /// </summary>
     [Description("每个Train的Burst的个数")]
     [Category(DeviceFactory.StimulatorCh1)]
-    public uint Ch1TrainBurstCount { get; set; }
+    public uint Ch1TrainBurstCount
+    {
+        get => _ch1TrainBurstCount;
+        set => _ch1TrainBurstCount = value < 1 ? 1 : value;
+    }
 
     /// <summary>
     /// Gets or set Ch1BiPhasic.
@@ -174,26 +215,41 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh2)]
     public uint Ch2TriggerDelay { get; set; }
 
+    private int _ch2PhaseOneCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the first phase of each pulse in μA.
     /// </summary>
     [Description("双相波的第一相电流(uA)")]
     [Category(DeviceFactory.StimulatorCh2)]
-    public int Ch2PhaseOneCurrent { get; set; }
+    public int Ch2PhaseOneCurrent
+    {
+        get => _ch2PhaseOneCurrent;
+        set => _ch2PhaseOneCurrent = LimitedCurrent(value);
+    }
 
+    private int _ch2InterPhaseCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the interphase current of each pulse in μA.
     /// </summary>
     [Description("双相波的相间电流(uA)")]
     [Category(DeviceFactory.StimulatorCh2)]
-    public int Ch2InterPhaseCurrent { get; set; }
+    public int Ch2InterPhaseCurrent
+    {
+        get => _ch2InterPhaseCurrent;
+        set => _ch2InterPhaseCurrent = LimitedCurrent(value);
+    }
 
+    private int _ch2PhaseTwoCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the second phase of each pulse in μA.
     /// </summary>
     [Description("双相波的第二相电流(uA)")]
     [Category(DeviceFactory.StimulatorCh2)]
-    public int Ch2PhaseTwoCurrent { get; set; }
+    public int Ch2PhaseTwoCurrent
+    {
+        get => _ch2PhaseTwoCurrent;
+        set => _ch2PhaseTwoCurrent = LimitedCurrent(value);
+    }
 
     /// <summary>
     /// Gets or sets the duration of the first phase of each pulse in μsec.
@@ -230,19 +286,29 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh2)]
     public uint Ch2InterBurstInterval { get; set; }
 
+    private uint _ch2BurstPulseCount = 1;
     /// <summary>
     /// Gets or sets the number of pulses per burst.
     /// </summary>
     [Description("每个Burst的脉冲个数")]
     [Category(DeviceFactory.StimulatorCh2)]
-    public uint Ch2BurstPulseCount { get; set; }
+    public uint Ch2BurstPulseCount
+    {
+        get => _ch2BurstPulseCount;
+        set => _ch2BurstPulseCount = value < 1 ? 1 : value;
+    }
 
+    private uint _ch2TrainBurstCount = 1;
     /// <summary>
     /// Gets or sets the number of bursts in a stimulus train.
     /// </summary>
     [Description("每个Train的Burst的个数")]
     [Category(DeviceFactory.StimulatorCh2)]
-    public uint Ch2TrainBurstCount { get; set; }
+    public uint Ch2TrainBurstCount
+    {
+        get => _ch2TrainBurstCount;
+        set => _ch2TrainBurstCount = value < 1 ? 1 : value;
+    }
 
     /// <summary>
     /// Gets or set Ch2BiPhasic.
@@ -280,26 +346,41 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh3)]
     public uint Ch3TriggerDelay { get; set; }
 
+    private int _ch3PhaseOneCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the first phase of each pulse in μA.
     /// </summary>
     [Description("双相波的第一相电流(uA)")]
     [Category(DeviceFactory.StimulatorCh3)]
-    public int Ch3PhaseOneCurrent { get; set; }
+    public int Ch3PhaseOneCurrent
+    {
+        get => _ch3PhaseOneCurrent;
+        set => _ch3PhaseOneCurrent = LimitedCurrent(value);
+    }
 
+    private int _ch3InterPhaseCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the interphase current of each pulse in μA.
     /// </summary>
     [Description("双相波的相间电流(uA)")]
     [Category(DeviceFactory.StimulatorCh3)]
-    public int Ch3InterPhaseCurrent { get; set; }
+    public int Ch3InterPhaseCurrent
+    {
+        get => _ch3InterPhaseCurrent;
+        set => _ch3InterPhaseCurrent = LimitedCurrent(value);
+    }
 
+    private int _ch3PhaseTwoCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the second phase of each pulse in μA.
     /// </summary>
     [Description("双相波的第二相电流(uA)")]
     [Category(DeviceFactory.StimulatorCh3)]
-    public int Ch3PhaseTwoCurrent { get; set; }
+    public int Ch3PhaseTwoCurrent
+    {
+        get => _ch3PhaseTwoCurrent;
+        set => _ch3PhaseTwoCurrent = LimitedCurrent(value);
+    }
 
     /// <summary>
     /// Gets or sets the duration of the first phase of each pulse in μsec.
@@ -336,19 +417,29 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh3)]
     public uint Ch3InterBurstInterval { get; set; }
 
+    private uint _ch3BurstPulseCount = 1;
     /// <summary>
     /// Gets or sets the number of pulses per burst.
     /// </summary>
     [Description("每个Burst的脉冲个数")]
     [Category(DeviceFactory.StimulatorCh3)]
-    public uint Ch3BurstPulseCount { get; set; }
+    public uint Ch3BurstPulseCount
+    {
+        get => _ch3BurstPulseCount;
+        set => _ch3BurstPulseCount = value < 1 ? 1 : value;
+    }
 
+    private uint _ch3TrainBurstCount = 1;
     /// <summary>
     /// Gets or sets the number of bursts in a stimulus train.
     /// </summary>
     [Description("每个Train的Burst的个数")]
     [Category(DeviceFactory.StimulatorCh3)]
-    public uint Ch3TrainBurstCount { get; set; }
+    public uint Ch3TrainBurstCount
+    {
+        get => _ch3TrainBurstCount;
+        set => _ch3TrainBurstCount = value < 1 ? 1 : value;
+    }
 
     /// <summary>
     /// Gets or set Ch3BiPhasic.
@@ -386,26 +477,41 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh4)]
     public uint Ch4TriggerDelay { get; set; }
 
+    private int _ch4PhaseOneCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the first phase of each pulse in μA.
     /// </summary>
     [Description("双相波的第一相电流(uA)")]
     [Category(DeviceFactory.StimulatorCh4)]
-    public int Ch4PhaseOneCurrent { get; set; }
+    public int Ch4PhaseOneCurrent
+    {
+        get => _ch4PhaseOneCurrent;
+        set => _ch4PhaseOneCurrent = LimitedCurrent(value);
+    }
 
+    private int _ch4InterPhaseCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the interphase current of each pulse in μA.
     /// </summary>
     [Description("双相波的相间电流(uA)")]
     [Category(DeviceFactory.StimulatorCh4)]
-    public int Ch4InterPhaseCurrent { get; set; }
+    public int Ch4InterPhaseCurrent
+    {
+        get => _ch4InterPhaseCurrent;
+        set => _ch4InterPhaseCurrent = LimitedCurrent(value);
+    }
 
+    private int _ch4PhaseTwoCurrent;
     /// <summary>
     /// Gets or sets the amplitude of the second phase of each pulse in μA.
     /// </summary>
     [Description("双相波的第二相电流(uA)")]
     [Category(DeviceFactory.StimulatorCh4)]
-    public int Ch4PhaseTwoCurrent { get; set; }
+    public int Ch4PhaseTwoCurrent
+    {
+        get => _ch4PhaseTwoCurrent;
+        set => _ch4PhaseTwoCurrent = LimitedCurrent(value);
+    }
 
     /// <summary>
     /// Gets or sets the duration of the first phase of each pulse in μsec.
@@ -442,19 +548,29 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh4)]
     public uint Ch4InterBurstInterval { get; set; }
 
+    private uint _ch4BurstPulseCount = 1;
     /// <summary>
     /// Gets or sets the number of pulses per burst.
     /// </summary>
     [Description("每个Burst的脉冲个数")]
     [Category(DeviceFactory.StimulatorCh4)]
-    public uint Ch4BurstPulseCount { get; set; }
+    public uint Ch4BurstPulseCount
+    {
+        get => _ch4BurstPulseCount;
+        set => _ch4BurstPulseCount = value < 1 ? 1 : value;
+    }
 
+    private uint _ch4TrainBurstCount = 1;
     /// <summary>
     /// Gets or sets the number of bursts in a stimulus train.
     /// </summary>
     [Description("每个Train的Burst的个数")]
     [Category(DeviceFactory.StimulatorCh4)]
-    public uint Ch4TrainBurstCount { get; set; }
+    public uint Ch4TrainBurstCount
+    {
+        get => _ch4TrainBurstCount;
+        set => _ch4TrainBurstCount = value < 1 ? 1 : value;
+    }
 
     /// <summary>
     /// Gets or set Ch4BiPhasic.
@@ -545,13 +661,11 @@ public class NeuracleStimulateMode : Sink<bool>
     {
         if (CurrentUA > 0)
         {
-            uint CurrentUAValidated = (uint)Math.Min(CurrentUA, 4000);
-            return (uint)(CurrentUAValidated / 4000.0f * 32767);
+            return (uint)(CurrentUA / 4000.0f * 32767);
         }
         else
         {
-            uint CurrentUAValidated = (uint)Math.Max(CurrentUA, -4000);
-            return (uint)((4000 + CurrentUAValidated) * 32767.0f / 4000 + 32768);
+            return (uint)((4000 + CurrentUA) * 32767.0f / 4000 + 32768);
         }
     }
 
@@ -566,7 +680,10 @@ public class NeuracleStimulateMode : Sink<bool>
                     {
                         return;
                     }
-                    GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Stimulation;
+                    if (GlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
+                    {
+                        GlobalState.HubStates[hubName] = HubState.Stimulation;
+                    }
                     DeviceManager.GetDevice(_switchDeviceName).Subscribe(x =>
                     {
                         var device = x.GetDeviceContext(typeof(SwitchDevice));
@@ -641,7 +758,6 @@ public class NeuracleStimulateMode : Sink<bool>
                         }
                         device.StartSwitch();
                     });
-
                     uint channelEnable = 0;
                     int maxDuration = 0;
                     DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(x =>
@@ -743,20 +859,27 @@ public class NeuracleStimulateMode : Sink<bool>
                             device.WriteRegister(ElectricalStimulator.CH4TRAINCNT, Ch4TrainBurstCount);
                             device.WriteRegister(ElectricalStimulator.CH4RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
                         }
-
                         // 将设置的寄存器值写入设备
                         device.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, channelEnable);
                         device.WriteRegister(ElectricalStimulator.RESISTOR_MODE, 0);
                         device.StartStimulate();
-                        Thread.Sleep(maxDuration / 1000); // 等待刺激完成
-                        GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Data;
-                        DeviceManager.GetDevice(_switchDeviceName).Subscribe(x =>
+                        Task.Run(() =>
                         {
-                            var device = x.GetDeviceContext(typeof(SwitchDevice));
-                            device.WriteRegister(SwitchDevice.SwitchCref, 4);
-                            device.OpenAllAdc();
-                            device.CloseAllDac();
-                            device.StartSwitch();
+                            var switchDeviceName = _switchDeviceName;
+                            // 等待刺激完成
+                            Thread.Sleep(maxDuration / 1000);
+                            if (GlobalState.DeviceNameToHubName.TryGetValue(switchDeviceName, out var hubName))
+                            {
+                                GlobalState.HubStates[hubName] = HubState.Data;
+                            }
+                            DeviceManager.GetDevice(switchDeviceName).Subscribe(x =>
+                            {
+                                var device = x.GetDeviceContext(typeof(SwitchDevice));
+                                device.WriteRegister(SwitchDevice.SwitchCref, 4);
+                                device.OpenAllAdc();
+                                device.CloseAllDac();
+                                device.StartSwitch();
+                            });
                         });
                     });
                     observer.OnNext(value);

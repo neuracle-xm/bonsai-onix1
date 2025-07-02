@@ -22,8 +22,11 @@ public class NeuracleImpedanceMode : Sink<bool>
         set
         {
             _hubName = value;
-            _stimulationDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item2;
-            _switchDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item3;
+            if (GlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
+            {
+                _stimulationDeviceName = deviceTuple.Item2;
+                _switchDeviceName = deviceTuple.Item3;
+            }
         }
     }
 
@@ -60,7 +63,10 @@ public class NeuracleImpedanceMode : Sink<bool>
                     {
                         return;
                     }
-                    GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Impedance;
+                    if (GlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
+                    {
+                        GlobalState.HubStates[hubName] = HubState.Impedance;
+                    }
                     //测(0 - 63通道)
                     DeviceManager.GetDevice(_switchDeviceName).Subscribe(deviceInfo =>
                     {
@@ -75,7 +81,8 @@ public class NeuracleImpedanceMode : Sink<bool>
                         switchDevice.StartSwitch();
                     });
                     DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(deviceInfo =>
-                    {   // TODO: 待完善公式
+                    {
+                        // TODO: 待完善公式
                         var stimulationDevice = deviceInfo.GetDeviceContext(typeof(ElectricalStimulator));
                         //刺激参数中Channel_enable置为0
                         stimulationDevice.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, 15);

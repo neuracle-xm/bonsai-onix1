@@ -98,8 +98,8 @@
           <p1:Ch1PhaseTwoDuration>0</p1:Ch1PhaseTwoDuration>
           <p1:Ch1InterPulseInterval>0</p1:Ch1InterPulseInterval>
           <p1:Ch1InterBurstInterval>0</p1:Ch1InterBurstInterval>
-          <p1:Ch1BurstPulseCount>0</p1:Ch1BurstPulseCount>
-          <p1:Ch1TrainBurstCount>0</p1:Ch1TrainBurstCount>
+          <p1:Ch1BurstPulseCount>1</p1:Ch1BurstPulseCount>
+          <p1:Ch1TrainBurstCount>1</p1:Ch1TrainBurstCount>
           <p1:Ch1BiPhasic>false</p1:Ch1BiPhasic>
           <p1:Ch2Enable>false</p1:Ch2Enable>
           <p1:Ch2StimulateChannel>0</p1:Ch2StimulateChannel>
@@ -112,8 +112,8 @@
           <p1:Ch2PhaseTwoDuration>0</p1:Ch2PhaseTwoDuration>
           <p1:Ch2InterPulseInterval>0</p1:Ch2InterPulseInterval>
           <p1:Ch2InterBurstInterval>0</p1:Ch2InterBurstInterval>
-          <p1:Ch2BurstPulseCount>0</p1:Ch2BurstPulseCount>
-          <p1:Ch2TrainBurstCount>0</p1:Ch2TrainBurstCount>
+          <p1:Ch2BurstPulseCount>1</p1:Ch2BurstPulseCount>
+          <p1:Ch2TrainBurstCount>1</p1:Ch2TrainBurstCount>
           <p1:Ch2BiPhasic>false</p1:Ch2BiPhasic>
           <p1:Ch3Enable>false</p1:Ch3Enable>
           <p1:Ch3StimulateChannel>0</p1:Ch3StimulateChannel>
@@ -126,8 +126,8 @@
           <p1:Ch3PhaseTwoDuration>0</p1:Ch3PhaseTwoDuration>
           <p1:Ch3InterPulseInterval>0</p1:Ch3InterPulseInterval>
           <p1:Ch3InterBurstInterval>0</p1:Ch3InterBurstInterval>
-          <p1:Ch3BurstPulseCount>0</p1:Ch3BurstPulseCount>
-          <p1:Ch3TrainBurstCount>0</p1:Ch3TrainBurstCount>
+          <p1:Ch3BurstPulseCount>1</p1:Ch3BurstPulseCount>
+          <p1:Ch3TrainBurstCount>1</p1:Ch3TrainBurstCount>
           <p1:Ch3BiPhasic>false</p1:Ch3BiPhasic>
           <p1:Ch4Enable>false</p1:Ch4Enable>
           <p1:Ch4StimulateChannel>0</p1:Ch4StimulateChannel>
@@ -140,8 +140,8 @@
           <p1:Ch4PhaseTwoDuration>0</p1:Ch4PhaseTwoDuration>
           <p1:Ch4InterPulseInterval>0</p1:Ch4InterPulseInterval>
           <p1:Ch4InterBurstInterval>0</p1:Ch4InterBurstInterval>
-          <p1:Ch4BurstPulseCount>0</p1:Ch4BurstPulseCount>
-          <p1:Ch4TrainBurstCount>0</p1:Ch4TrainBurstCount>
+          <p1:Ch4BurstPulseCount>1</p1:Ch4BurstPulseCount>
+          <p1:Ch4TrainBurstCount>1</p1:Ch4TrainBurstCount>
           <p1:Ch4BiPhasic>false</p1:Ch4BiPhasic>
         </Combinator>
       </Expression>

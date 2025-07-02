@@ -22,7 +22,10 @@ public class NeuracleDataMode : Sink<bool>
         set
         {
             _hubName = value;
-            _switchDeviceName = GlobalState.HubNameToDeviceName[_hubName].Item3;
+            if (GlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
+            {
+                _switchDeviceName = deviceTuple.Item3;
+            }
         }
     }
 
