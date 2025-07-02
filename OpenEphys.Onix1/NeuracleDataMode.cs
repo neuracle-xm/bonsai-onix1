@@ -72,7 +72,7 @@ public class NeuracleDataMode : Sink<bool>
                         //device.TestChannel9Stimc();
                         //device.TestChannel9Stimd();
                         //下面的是正式切换到采集流程
-                        device.WriteRegister(SwitchDevice.SwitchCref, 4);
+                        device.WriteRegister(SwitchDevice.SwitchCref, 1028);
                         device.OpenAllAdc();
                         device.CloseAllDac();
                         device.StartSwitch();

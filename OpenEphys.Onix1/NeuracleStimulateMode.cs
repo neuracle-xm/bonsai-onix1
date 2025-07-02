@@ -875,7 +875,7 @@ public class NeuracleStimulateMode : Sink<bool>
                             DeviceManager.GetDevice(switchDeviceName).Subscribe(x =>
                             {
                                 var device = x.GetDeviceContext(typeof(SwitchDevice));
-                                device.WriteRegister(SwitchDevice.SwitchCref, 4);
+                                device.WriteRegister(SwitchDevice.SwitchCref, 1028);
                                 device.OpenAllAdc();
                                 device.CloseAllDac();
                                 device.StartSwitch();
