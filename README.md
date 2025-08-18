@@ -36,3 +36,6 @@ Acquisition System](https://open-ephys.github.io/onix-docs).
 
 ![Enable native code debugging](./images/native-code-debugging.webp)
 
+### 备注
+1. 打包后创建一个指向bonsai/Bonsai.exe的快捷方式
+2. 然后打开属性，修改目标一栏，增加--editor-scale 1.0参数。意思是默认缩放是1.0，用户可以修改1.0为其他缩放
