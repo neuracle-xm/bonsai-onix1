@@ -117,12 +117,13 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                     }
                                 }
                                 var i1_mean = (float)(i1_sum / bufferSize * 4096 / Math.Pow(2, 23) - 1024) / 200;
-                                var v1_mean = v1_sum * VoltageScale / bufferSize;
-                                var v2_mean = v2_sum * VoltageScale / bufferSize;
-                                float r1 = 0;
-                                float r2 = 0;
-                                if (i1_mean != 0)
+                                float r1 = float.PositiveInfinity;
+                                float r2 = float.PositiveInfinity;
+                                //现在阻抗模式下发的电流是610uA，只有接收到的电流值大于30%才认为是有阻抗的
+                                if (i1_mean > 183)
                                 {
+                                    var v1_mean = v1_sum * VoltageScale / bufferSize;
+                                    var v2_mean = v2_sum * VoltageScale / bufferSize;
                                     r1 = (v1_mean - v2_mean) / i1_mean;
                                     r2 = v2_mean / i1_mean;
                                 }
