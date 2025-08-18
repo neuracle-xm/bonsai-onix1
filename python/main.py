@@ -42,6 +42,8 @@ u = None
 k_means_cluster_centers = None
 # 空结果
 empty_data = np.zeros((max_cluster_num, sample_number), dtype=np.float32)
+# sorting的结果，用一个固定的变量，防止地址一直改变
+sorting_data = np.zeros((max_cluster_num, sample_number), dtype=np.float32)
 
 def set_channel(selected_channel_index):
     """选择哪一个通道进行sorting
@@ -143,12 +145,12 @@ def run(mat):
     #     u,
     #     sample_number,
     # )
-    raster_data = k_means_classify_spike(
+    k_means_classify_spike(
         spike_indices,
         spike_waveforms,
     )
     # print(f"raster_data:{raster_data}")
-    result = construct_result(raster_data)
+    result = construct_result(sorting_data)
     # print(f"result:{result}")
     # print("Done")
 
@@ -305,15 +307,17 @@ def pca(spike_waveforms: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
 
 
 def k_means_classify_spike(spike_indices: np.ndarray, spike_waveforms: np.ndarray):
-    raster_data = np.zeros((max_cluster_num, sample_number), dtype=np.float32)
+    # raster_data = np.zeros((max_cluster_num, sample_number), dtype=np.float32)
+    sorting_data[:] = 0
     pca_data = np.dot(spike_waveforms, u)
     # 计算这些数据和各个中心之间的距离，把他们分到距离最近的那个中心所属的类中
     all_distance = distance_matrix(pca_data, k_means_cluster_centers)
     cluster_indices = all_distance.argmin(axis=1)
     for index, cluster_index in enumerate(cluster_indices):
         spike_index = spike_indices[index]
-        raster_data[cluster_index, spike_index] = -150
-    return raster_data
+        # raster_data[cluster_index, spike_index] = -150
+        sorting_data[cluster_index, spike_index] = -150
+    # return raster_data
 
 
 def construct_result(raster_data: np.ndarray):
