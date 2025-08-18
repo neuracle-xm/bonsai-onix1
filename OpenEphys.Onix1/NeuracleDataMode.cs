@@ -77,6 +77,8 @@ public class NeuracleDataMode : Sink<bool>
                         device.CloseAllDac();
                         device.StartSwitch();
                         observer.OnNext(value);
+                        var messageBox = new NeuracleMessageBox("切换到采集模式");
+                        messageBox.Show();
                     },
                     observer.OnError,
                     observer.OnCompleted);

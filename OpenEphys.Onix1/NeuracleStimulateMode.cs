@@ -866,6 +866,8 @@ public class NeuracleStimulateMode : Sink<bool>
                         Task.Run(() =>
                         {
                             var switchDeviceName = _switchDeviceName;
+                            var messageBox = new NeuracleMessageBox("下发刺激成功");
+                            messageBox.Show();
                             // 等待刺激完成
                             Thread.Sleep(maxDuration / 1000);
                             if (GlobalState.DeviceNameToHubName.TryGetValue(switchDeviceName, out var hubName))
