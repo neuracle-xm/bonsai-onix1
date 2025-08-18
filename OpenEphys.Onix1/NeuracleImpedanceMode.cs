@@ -134,6 +134,8 @@ public class NeuracleImpedanceMode : Sink<bool>
                     //    //刺激参数中resistor_mode置为1
                     //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.RESISTOR_MODE, 1);
                     //});
+                    var messageBox = new NeuracleMessageBox("切换到阻抗模式");
+                    messageBox.Show();
                     observer.OnNext(value);
                 },
                 observer.OnError,
