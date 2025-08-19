@@ -40,12 +40,21 @@ public class NeuracleImpedanceMode : Sink<bool>
     /// </summary>
     private string _stimulationDeviceName;
 
+    private uint _channelIndex = 0;
     /// <summary>
     /// 选择哪个通道进行阻抗测量
     /// </summary>
     [Description("选择哪个通道查看阻抗")]
     [Category(DeviceFactory.ConfigurationCategory)]
-    public uint ChannelIndex { get; set; } = 0;
+    public uint ChannelIndex
+    {
+        get { return _channelIndex; }
+        set
+        {
+            _channelIndex = value;
+            GlobalState.ImpedanceChannelIndex = value;
+        }
+    }
 
     /// <summary>
     /// Start an electrical stimulus sequence.

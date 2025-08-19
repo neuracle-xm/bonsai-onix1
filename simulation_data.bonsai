@@ -82,6 +82,9 @@
           <p1:Connection>Tcp2</p1:Connection>
         </Combinator>
       </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>ImpedanceValue</Selector>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge From="2" To="3" Label="Source1" />
@@ -94,6 +97,7 @@
       <Edge From="10" To="11" Label="Source1" />
       <Edge From="12" To="13" Label="Source1" />
       <Edge From="12" To="14" Label="Source1" />
+      <Edge From="12" To="16" Label="Source1" />
       <Edge From="14" To="15" Label="Source1" />
     </Edges>
   </Workflow>
