@@ -32,5 +32,10 @@ public class GlobalState
     /// 第三个是SwitchDevice
     /// </summary>
     public static Dictionary<HubName, Tuple<string, string, string>> HubNameToDeviceName { get; set; } = new();
+
+    /// <summary>
+    /// 当前查看哪个阻抗通道
+    /// </summary>
+    public static uint ImpedanceChannelIndex { get; set; } = 0;
 }
 

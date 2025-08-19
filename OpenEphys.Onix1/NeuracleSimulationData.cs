@@ -121,6 +121,7 @@ public class NeuracleSimulationData : Source<NeuracleHubDataFrame>
                         clockBuffer,
                         hubClockBuffer,
                         Mat.FromArray(ampliferArray),
+                        GlobalState.ImpedanceChannelIndex,
                         float.PositiveInfinity, float.PositiveInfinity));
                 }, observer.OnError, observer.OnCompleted);
         });

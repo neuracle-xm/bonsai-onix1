@@ -19,11 +19,11 @@ public class NeuracleHubDataFrame : BufferedDataFrame
     /// <param name="amplifierData">Rhd2164多通道电生理数据。</param>
     /// <param name="r1">阻抗R1</param>
     /// <param name="r2">阻抗R2</param>
-    public NeuracleHubDataFrame(string deviceName, ulong[] clock, ulong[] hubClock, Mat amplifierData, float r1, float r2) : base(clock, hubClock)
+    public NeuracleHubDataFrame(string deviceName, ulong[] clock, ulong[] hubClock, Mat amplifierData, uint channelIndex, float r1, float r2) : base(clock, hubClock)
     {
         DeviceName = deviceName;
         AmplifierData = amplifierData;
-        ImpedanceValue = new Tuple<float, float>(r1, r2);
+        ImpedanceValue = new Tuple<string, float, float>($"通道{channelIndex}", r1, r2);
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ public class NeuracleHubDataFrame : BufferedDataFrame
     /// <summary>
     /// 阻抗
     /// </summary>
-    public Tuple<float, float> ImpedanceValue { get; }
+    public Tuple<string, float, float> ImpedanceValue { get; }
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]

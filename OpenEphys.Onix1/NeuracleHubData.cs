@@ -84,7 +84,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                 var digitalMat = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, NeuracleData.AmplifierChannelCount, Depth.S32);
                                 Mat analogMat = new(digitalMat.Rows, digitalMat.Cols, Depth.F32, digitalMat.Channels);
                                 CV.ConvertScale(digitalMat, analogMat, DataScale);
-                                observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, analogMat, 0, 0));
+                                observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, analogMat, GlobalState.ImpedanceChannelIndex, 0, 0));
                                 sampleIndex = 0;
                             }
                         }
@@ -127,7 +127,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                     r1 = (v1_mean - v2_mean) / i1_mean;
                                     r2 = v2_mean / i1_mean;
                                 }
-                                observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), r1, r2));
+                                observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), GlobalState.ImpedanceChannelIndex, r1, r2));
                                 sampleIndex = 0;
                             }
                         }
