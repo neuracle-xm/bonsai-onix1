@@ -60,15 +60,22 @@ namespace OpenEphys.Onix1
             {
                 var driver = Driver;
                 var index = Index;
-                var context = new ContextTask(driver, index);
                 try
                 {
-                    observer.OnNext(context);
-                    return context;
+                    var context = new ContextTask(driver, index);
+                    try
+                    {
+                        observer.OnNext(context);
+                        return context;
+                    }
+                    catch
+                    {
+                        context.Dispose();
+                        throw;
+                    }
                 }
-                catch
+                catch (TimeoutException)
                 {
-                    context.Dispose();
                     throw;
                 }
             });
