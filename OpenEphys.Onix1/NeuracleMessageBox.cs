@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace NeuracleExtension;
 
@@ -7,12 +9,13 @@ namespace NeuracleExtension;
 /// </summary>
 public class NeuracleMessageBox : Form
 {
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
+
     public NeuracleMessageBox(string message, int durationMilliseconds = 1000)
     {
         this.StartPosition = FormStartPosition.CenterScreen;
         this.Size = new System.Drawing.Size(300, 150);
-        // 默认置顶
-        this.TopMost = true;
         Label label = new()
         {
             Text = message,
@@ -31,5 +34,11 @@ public class NeuracleMessageBox : Form
             this.Close();
         };
         timer.Start();
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        SetForegroundWindow(this.Handle);
     }
 }

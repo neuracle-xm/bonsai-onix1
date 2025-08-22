@@ -863,11 +863,11 @@ public class NeuracleStimulateMode : Sink<bool>
                         device.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, channelEnable);
                         device.WriteRegister(ElectricalStimulator.RESISTOR_MODE, 0);
                         device.StartStimulate();
+                        var messageBox = new NeuracleMessageBox("下发刺激成功");
+                        messageBox.Show();
                         Task.Run(() =>
                         {
                             var switchDeviceName = _switchDeviceName;
-                            var messageBox = new NeuracleMessageBox("下发刺激成功");
-                            messageBox.Show();
                             // 等待刺激完成
                             Thread.Sleep(maxDuration / 1000);
                             if (GlobalState.DeviceNameToHubName.TryGetValue(switchDeviceName, out var hubName))
