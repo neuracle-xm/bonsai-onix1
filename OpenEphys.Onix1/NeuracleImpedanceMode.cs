@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using Bonsai;
 using OpenEphys.Onix1;
 
@@ -57,6 +58,38 @@ public class NeuracleImpedanceMode : Sink<bool>
     }
 
     /// <summary>
+    /// 阻抗下发命令的过程
+    /// </summary>
+    /// <param name="channelIndex">需要测的那个通道</param>
+    private void ImpedanceProcedure(uint channelIndex)
+    {
+        //测(0 - 63通道)
+        DeviceManager.GetDevice(_switchDeviceName).Subscribe(deviceInfo =>
+        {
+            var switchDevice = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
+            //Switch_cref置为0
+            switchDevice.WriteRegister(SwitchDevice.SwitchCref, 0);
+            //Switch_adc全部关闭，全置0
+            switchDevice.CloseAllAdc();
+            switchDevice.SetImpedanceChannel(channelIndex);
+            //开始切换
+            switchDevice.StartSwitch();
+        });
+        DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(deviceInfo =>
+        {
+            var stimulationDevice = deviceInfo.GetDeviceContext(typeof(ElectricalStimulator));
+            //刺激参数中Channel_enable置为0
+            stimulationDevice.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, 15);
+            //刺激参数中Ch1current1置为0.61mA
+            stimulationDevice.WriteRegister(ElectricalStimulator.CH1CURRENT1, 37768);
+            //刺激参数中Ch2current1置为0
+            stimulationDevice.WriteRegister(ElectricalStimulator.CH2CURRENT1, 32768);
+            //刺激参数中resistor_mode置为1
+            stimulationDevice.WriteRegister(ElectricalStimulator.RESISTOR_MODE, 1);
+        });
+    }
+
+    /// <summary>
     /// Start an electrical stimulus sequence.
     /// </summary>
     /// <param name="source">A sequence of boolean values indicating the start of a stimulus sequence when true.</param>
@@ -72,36 +105,22 @@ public class NeuracleImpedanceMode : Sink<bool>
                     {
                         return;
                     }
+                    //先测的是配对通道的阻抗
+                    GlobalState.IsPairImpedanceComplete = false;
+                    //设置需要检测的那个阻抗通道的配对通道
+                    var pairChannelIndex = SwitchWriteRegisterFunctions.GetPairChannelIndex(ChannelIndex);
+                    ImpedanceProcedure(pairChannelIndex);
                     if (GlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
                     {
                         GlobalState.HubStates[hubName] = HubState.Impedance;
                     }
-                    //测(0 - 63通道)
-                    DeviceManager.GetDevice(_switchDeviceName).Subscribe(deviceInfo =>
+                    //等配对通道的阻抗计算完毕
+                    while (!GlobalState.IsPairImpedanceComplete)
                     {
-                        var switchDevice = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
-                        //Switch_cref置为0
-                        switchDevice.WriteRegister(SwitchDevice.SwitchCref, 0);
-                        //Switch_adc全部关闭，全置0
-                        switchDevice.CloseAllAdc();
-                        //设置需要检测的那个阻抗通道
-                        switchDevice.SetImpedanceChannel(ChannelIndex);
-                        //开始切换
-                        switchDevice.StartSwitch();
-                    });
-                    DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(deviceInfo =>
-                    {
-                        // TODO: 待完善公式
-                        var stimulationDevice = deviceInfo.GetDeviceContext(typeof(ElectricalStimulator));
-                        //刺激参数中Channel_enable置为0
-                        stimulationDevice.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, 15);
-                        //刺激参数中Ch1current1置为1mA(暂定)
-                        stimulationDevice.WriteRegister(ElectricalStimulator.CH1CURRENT1, 37768);
-                        //刺激参数中Ch2current1置为0
-                        stimulationDevice.WriteRegister(ElectricalStimulator.CH2CURRENT1, 32768);
-                        //刺激参数中resistor_mode置为1
-                        stimulationDevice.WriteRegister(ElectricalStimulator.RESISTOR_MODE, 1);
-                    });
+                        Thread.Sleep(1);
+                    }
+                    //再测真正的阻抗
+                    ImpedanceProcedure(ChannelIndex);
                     ////内部测Cref(Cref1,Cref2)
                     //DeviceManager.GetDevice(SwitchDeviceName).Subscribe(deviceInfo =>
                     //{

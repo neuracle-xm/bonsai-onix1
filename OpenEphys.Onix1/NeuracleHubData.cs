@@ -54,6 +54,16 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
     /// </summary>
     public static float VoltageScale = (float)(4096 / Math.Pow(2, 23) * 11);
 
+    /// <summary>
+    /// 配对通道的r1阻抗
+    /// </summary>
+    public float PairR1 { get; set; } = float.PositiveInfinity;
+
+    /// <summary>
+    /// 配对通道的r2阻抗
+    /// </summary>
+    public float PairR2 { get; set; } = float.PositiveInfinity;
+
 
     public unsafe override IObservable<NeuracleHubDataFrame> Generate()
     {
@@ -84,7 +94,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                 var digitalMat = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, NeuracleData.AmplifierChannelCount, Depth.S32);
                                 Mat analogMat = new(digitalMat.Rows, digitalMat.Cols, Depth.F32, digitalMat.Channels);
                                 CV.ConvertScale(digitalMat, analogMat, DataScale);
-                                observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, analogMat, GlobalState.ImpedanceChannelIndex, 0, 0));
+                                observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, analogMat, GlobalState.ImpedanceChannelIndex, float.PositiveInfinity, float.PositiveInfinity));
                                 sampleIndex = 0;
                             }
                         }
@@ -116,18 +126,41 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                         v2_sum += value;
                                     }
                                 }
+                                // 最终交付时用这一行
                                 var i1_mean = (float)(i1_sum / bufferSize * 4096 / Math.Pow(2, 23) - 1024) / 200;
+                                // 测试第一版硬件时用
+                                //var i1_mean = (float)(i1_sum / bufferSize * 4096 / Math.Pow(2, 23)) / 200;
                                 float r1 = float.PositiveInfinity;
                                 float r2 = float.PositiveInfinity;
-                                //现在阻抗模式下发的电流是610uA，只有接收到的电流值大于30%才认为是有阻抗的
-                                if (i1_mean > 183)
+                                //现在阻抗模式下发的电流是0.61mA，只有接收到的电流值大于30%才认为是有阻抗的
+                                if (i1_mean > 0.183)
                                 {
                                     var v1_mean = v1_sum * VoltageScale / bufferSize;
                                     var v2_mean = v2_sum * VoltageScale / bufferSize;
                                     r1 = (v1_mean - v2_mean) / i1_mean;
                                     r2 = v2_mean / i1_mean;
                                 }
-                                observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), GlobalState.ImpedanceChannelIndex, r1, r2));
+                                //还没计算过配对阻抗
+                                if (!GlobalState.IsPairImpedanceComplete)
+                                {
+                                    PairR1 = r1;
+                                    PairR2 = r2;
+                                    GlobalState.IsPairImpedanceComplete = true;
+                                    //这时候还没测真正的阻抗，就直接显示为无穷
+                                    observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), GlobalState.ImpedanceChannelIndex, float.PositiveInfinity, float.PositiveInfinity));
+                                }
+                                //已经算过配对通道的阻抗了，那就先看这些阻抗是不是无穷大
+                                else
+                                {
+                                    //如果之前算出来的配对通道的阻抗是无穷大，那真正需要计算的通道的阻抗就直接视为无穷大
+                                    //PairR1和PairR2只可能同时为无穷
+                                    if (PairR1 == float.PositiveInfinity)
+                                    {
+                                        r1 = float.PositiveInfinity;
+                                        r2 = float.PositiveInfinity;
+                                    }
+                                    observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), GlobalState.ImpedanceChannelIndex, r1, r2));
+                                }
                                 sampleIndex = 0;
                             }
                         }

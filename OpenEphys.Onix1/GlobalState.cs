@@ -37,5 +37,9 @@ public class GlobalState
     /// 当前查看哪个阻抗通道
     /// </summary>
     public static uint ImpedanceChannelIndex { get; set; } = 0;
-}
 
+    /// <summary>
+    /// 是否已经计算完了配对通道的阻抗
+    /// </summary>
+    public static bool IsPairImpedanceComplete { get; set; }
+}
