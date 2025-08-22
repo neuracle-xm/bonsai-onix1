@@ -92,8 +92,24 @@ namespace OpenEphys.Onix1
             groupedFrames.Connect();
             contextDriver = driver;
             contextIndex = index;
-            ctx = new oni.Context(contextDriver, contextIndex);
-            Initialize();
+            // 超时时间 5 秒
+            int timeoutMs = 5000;
+            // Task 执行同步方法
+            Task<oni.Context> task = Task.Run(() =>
+            {
+                return new oni.Context(contextDriver, contextIndex);
+            });
+            // 等待任务完成或超时
+            if (task.Wait(timeoutMs))
+            {
+                // 成功创建 Context
+                ctx = task.Result;
+                Initialize();
+            }
+            else
+            {
+                throw new TimeoutException("初始化设备超时，请检查设备连接并重启软件");
+            }
         }
 
         private void Initialize()
@@ -375,7 +391,8 @@ namespace OpenEphys.Onix1
                             // while loop context and will be disposed.
                             Console.WriteLine("Frame collection task has been cancelled by " + this.GetType());
 #endif
-                        };
+                        }
+                        ;
                     },
                     collectFramesToken,
                     TaskCreationOptions.LongRunning,
