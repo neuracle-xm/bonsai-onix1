@@ -78,11 +78,14 @@ NeuracleEphys/
 
 8. 将 项目根目录/.bonsai/release_net472和release_netstandard2.0替换NeuracleEphys/bonsai/Packages/Bonsai.Scripting.Python.0.3.0/lib内的同名文件
 
-9. 创建指向NeuracleEphys/bonsai/Bonsai.exe的快捷方式并移动至NeuracleEphys/Bonsai.exe，右键打开属性修改目标一栏，增加--editor-scale 1.0参数。意思是默认缩放是1.0，用户可以修改1.0为其他缩放
+9. 将 项目根目录/.bonsai/Bonsai.Editor.dll替换NeuracleEphys/bonsai/Packages/Bonsai.Editor.2.8.5/lib/net472内的同名文件
 
 10. 可选：将重新编译好(解除采样率上限)的Open Ephys Gui移动至 NeuracleEphys/Recompile-GUI
 
-11. 压缩NeuracleEphys文件夹
+11. 在目标电脑上创建指向NeuracleEphys/bonsai/Bonsai.exe的快捷方式并移动至NeuracleEphys/Bonsai.exe，右键打开属性修改目标一栏，增加--editor-scale 1.0参数。意思是默认缩放是1.0，用户可以修改1.0为其他缩放
+
+12. 压缩NeuracleEphys文件夹
+
 
     
 
