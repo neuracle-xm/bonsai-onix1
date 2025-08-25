@@ -1,4 +1,4 @@
-# Onix1 Bonsai Library
+ï»¿# Onix1 Bonsai Library
 [Bonsai](https://bonsai-rx.org/) library for the [Open Ephys Onix
 Acquisition System](https://open-ephys.github.io/onix-docs).
 
@@ -36,64 +36,58 @@ Acquisition System](https://open-ephys.github.io/onix-docs).
 
 ![Enable native code debugging](./images/native-code-debugging.webp)
 
-## ·¢²¼ĞÎÊ½
+## å‘å¸ƒå½¢å¼
 
-¸ñÊ½£ºÑ¹ËõÎÄ¼ş
+æ ¼å¼ï¼šå‹ç¼©æ–‡ä»¶
 
-ÄÚ²¿ÎÄ¼ş½á¹¹£º
+å†…éƒ¨æ–‡ä»¶ç»“æ„ï¼š
 
 ```
-# ÎÄ¼ş½á¹¹
+# æ–‡ä»¶ç»“æ„
 NeuracleEphys/
-©À©¤©¤ bonsai/  # ÏîÄ¿Ö÷Èë¿Ú
-©¦   ©À©¤©¤ ...
-©¦   ©À©¤©¤ Extensions/  # ´ò°üºódll´æ·ÅÎ»ÖÃ
-©¦   ©¸©¤©¤ Bonsai.exe
-©À©¤©¤ python/  # python»·¾³
-©¦   ©À©¤©¤ ...
-©¦   ©¸©¤©¤ main.py  # sortingÈë¿Ú
-©À©¤©¤ Recompile-GUI/ # ÖØĞÂ±àÒëºóµÄOpen Ephys Gui
-©À©¤©¤ xxx.layout  # Í¬xxx.bonsai³É¶ÔÊ¹ÓÃ£¬workflow²¼¾ÖÎÄ¼ş
-©À©¤©¤ xxx.bonsai  # Í¬ÉÏ
-©¸©¤©¤ README.md
+â”œâ”€â”€ bonsai/  # é¡¹ç›®ä¸»å…¥å£
+â”‚   â”œâ”€â”€ ...
+â”‚   â”œâ”€â”€ Extensions/  # æ‰“åŒ…ådllå­˜æ”¾ä½ç½®
+â”‚   â””â”€â”€ Bonsai.exe
+â”œâ”€â”€ python/  # pythonç¯å¢ƒ
+â”‚   â”œâ”€â”€ ...
+â”‚   â””â”€â”€ main.py  # sortingå…¥å£
+â”œâ”€â”€ Recompile-GUI/ # é‡æ–°ç¼–è¯‘åçš„Open Ephys Gui
+â”œâ”€â”€ xxx.layout  # åŒxxx.bonsaiæˆå¯¹ä½¿ç”¨ï¼Œworkflowå¸ƒå±€æ–‡ä»¶
+â”œâ”€â”€ xxx.bonsai  # åŒä¸Š
+â””â”€â”€ README.md
 ```
 
+## å½“å‰æ‰“åŒ…æµç¨‹
+
+1. æ–°å»ºæ–‡ä»¶å¤¹NeuracleEphys
+
+2. å¤åˆ¶é¡¹ç›®æ ¹ç›®å½•.bonsaiæ–‡ä»¶å¤¹è‡³ NeuracleEphys/bonsai
+
+3. vsé¡¹ç›®å†…å³é”®OpenEphys.Onix1ç‚¹å‡»ç”Ÿæˆ
+
+4. å°†ç”Ÿæˆçš„dll(é¡¹ç›®æ ¹ç›®å½•/artifacts/bin/OpenEphys.Onix1/release/)æ‹·è´è‡³NeuracleEphys/bonsai/Extensions/ 
+
+5. å°†é¡¹ç›®æ ¹ç›®å½•workflowå¸ƒå±€æ–‡ä»¶(xxx.layout xxx.bonsai)å’Œæµ‹è¯•æ•°æ®(xxx.csv) å¤åˆ¶è‡³NeuracleEphys/
+
+6. å‚è€ƒ é¡¹ç›®æ ¹ç›®å½•/python/pythonç¯å¢ƒæ­å»º.mdæ­å»º pythonç¯å¢ƒ å¹¶ç§»åŠ¨è‡³ NeuracleEphys/python
+
+7. å°† é¡¹ç›®æ ¹ç›®å½•/python/main.py æ‹·è´è‡³ NeuracleEphys/python/
+
+8. å°† é¡¹ç›®æ ¹ç›®å½•/.bonsai/release_net472å’Œrelease_netstandard2.0æ›¿æ¢NeuracleEphys/bonsai/Packages/Bonsai.Scripting.Python.0.3.0/libå†…çš„åŒåæ–‡ä»¶
+
+9. å°† é¡¹ç›®æ ¹ç›®å½•/.bonsai/Bonsai.Editor.dllæ›¿æ¢NeuracleEphys/bonsai/Packages/Bonsai.Editor.2.8.5/lib/net472å†…çš„åŒåæ–‡ä»¶(åŸºäºbonsaiçš„2.8.5ç‰ˆæœ¬çš„9089b6eæäº¤ä¿®æ”¹)
+
+10. å¯é€‰ï¼šå°†é‡æ–°ç¼–è¯‘å¥½(è§£é™¤é‡‡æ ·ç‡ä¸Šé™)çš„Open Ephys Guiç§»åŠ¨è‡³ NeuracleEphys/Recompile-GUI
+
+11. åœ¨ç›®æ ‡ç”µè„‘ä¸Šåˆ›å»ºæŒ‡å‘NeuracleEphys/bonsai/Bonsai.exeçš„å¿«æ·æ–¹å¼å¹¶ç§»åŠ¨è‡³NeuracleEphys/Bonsai.exeï¼Œå³é”®æ‰“å¼€å±æ€§ä¿®æ”¹ç›®æ ‡ä¸€æ ï¼Œå¢åŠ --editor-scale 1.0å‚æ•°ã€‚æ„æ€æ˜¯é»˜è®¤ç¼©æ”¾æ˜¯1.0ï¼Œç”¨æˆ·å¯ä»¥ä¿®æ”¹1.0ä¸ºå…¶ä»–ç¼©æ”¾
+
+12. å‹ç¼©NeuracleEphysæ–‡ä»¶å¤¹
 
 
-## µ±Ç°´ò°üÁ÷³Ì
+### å¤‡æ³¨
 
-1. ĞÂ½¨ÎÄ¼ş¼ĞNeuracleEphys
+#### è°ƒæ•´ç•Œé¢ç¼©æ”¾æ¯”ä¾‹
 
-2. ¸´ÖÆÏîÄ¿¸ùÄ¿Â¼.bonsaiÎÄ¼ş¼ĞÖÁ NeuracleEphys/bonsai
-
-3. vsÏîÄ¿ÄÚÓÒ¼üOpenEphys.Onix1µã»÷Éú³É
-
-4. ½«Éú³ÉµÄdll(ÏîÄ¿¸ùÄ¿Â¼/artifacts/bin/OpenEphys.Onix1/release/)¿½±´ÖÁNeuracleEphys/bonsai/Extensions/ 
-
-5. ½«ÏîÄ¿¸ùÄ¿Â¼workflow²¼¾ÖÎÄ¼ş(xxx.layout xxx.bonsai)ºÍ²âÊÔÊı¾İ(xxx.csv) ¸´ÖÆÖÁNeuracleEphys/
-
-6. ²Î¿¼ ÏîÄ¿¸ùÄ¿Â¼/python/python»·¾³´î½¨.md´î½¨ python»·¾³ ²¢ÒÆ¶¯ÖÁ NeuracleEphys/python
-
-7. ½« ÏîÄ¿¸ùÄ¿Â¼/python/main.py ¿½±´ÖÁ NeuracleEphys/python/
-
-8. ½« ÏîÄ¿¸ùÄ¿Â¼/.bonsai/release_net472ºÍrelease_netstandard2.0Ìæ»»NeuracleEphys/bonsai/Packages/Bonsai.Scripting.Python.0.3.0/libÄÚµÄÍ¬ÃûÎÄ¼ş
-
-9. ½« ÏîÄ¿¸ùÄ¿Â¼/.bonsai/Bonsai.Editor.dllÌæ»»NeuracleEphys/bonsai/Packages/Bonsai.Editor.2.8.5/lib/net472ÄÚµÄÍ¬ÃûÎÄ¼ş
-
-10. ¿ÉÑ¡£º½«ÖØĞÂ±àÒëºÃ(½â³ı²ÉÑùÂÊÉÏÏŞ)µÄOpen Ephys GuiÒÆ¶¯ÖÁ NeuracleEphys/Recompile-GUI
-
-11. ÔÚÄ¿±êµçÄÔÉÏ´´½¨Ö¸ÏòNeuracleEphys/bonsai/Bonsai.exeµÄ¿ì½İ·½Ê½²¢ÒÆ¶¯ÖÁNeuracleEphys/Bonsai.exe£¬ÓÒ¼ü´ò¿ªÊôĞÔĞŞ¸ÄÄ¿±êÒ»À¸£¬Ôö¼Ó--editor-scale 1.0²ÎÊı¡£ÒâË¼ÊÇÄ¬ÈÏËõ·ÅÊÇ1.0£¬ÓÃ»§¿ÉÒÔĞŞ¸Ä1.0ÎªÆäËûËõ·Å
-
-12. Ñ¹ËõNeuracleEphysÎÄ¼ş¼Ğ
-
-
-    
-
-
-
-### ±¸×¢
-
-#### µ÷Õû½çÃæËõ·Å±ÈÀı
-
-1. ´ò°üºó´´½¨Ò»¸öÖ¸Ïòbonsai/Bonsai.exeµÄ¿ì½İ·½Ê½
-2. È»ºó´ò¿ªÊôĞÔ£¬ĞŞ¸ÄÄ¿±êÒ»À¸£¬Ôö¼Ó--editor-scale 1.0²ÎÊı¡£ÒâË¼ÊÇÄ¬ÈÏËõ·ÅÊÇ1.0£¬ÓÃ»§¿ÉÒÔĞŞ¸Ä1.0ÎªÆäËûËõ·Å
+1. æ‰“åŒ…ååˆ›å»ºä¸€ä¸ªæŒ‡å‘bonsai/Bonsai.exeçš„å¿«æ·æ–¹å¼
+2. ç„¶åæ‰“å¼€å±æ€§ï¼Œä¿®æ”¹ç›®æ ‡ä¸€æ ï¼Œå¢åŠ --editor-scale 1.0å‚æ•°ã€‚æ„æ€æ˜¯é»˜è®¤ç¼©æ”¾æ˜¯1.0ï¼Œç”¨æˆ·å¯ä»¥ä¿®æ”¹1.0ä¸ºå…¶ä»–ç¼©æ”¾
