@@ -34,7 +34,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:StartAcquisition">
-          <onix1:ReadSize>2048</onix1:ReadSize>
+          <onix1:ReadSize>393216</onix1:ReadSize>
           <onix1:WriteSize>2048</onix1:WriteSize>
         </Combinator>
       </Expression>
@@ -42,6 +42,8 @@
         <Combinator xsi:type="p1:NeuracleHubData">
           <p1:DeviceName>HubA/NeuracleData</p1:DeviceName>
           <p1:BufferSize>3200</p1:BufferSize>
+          <p1:PairR1>INF</p1:PairR1>
+          <p1:PairR2>INF</p1:PairR2>
         </Combinator>
       </Expression>
       <Expression xsi:type="MemberSelector">
