@@ -10,3 +10,4 @@ python/*
 !python/python环境搭建.md
 !python/requirements.txt
 !python/get-pip.py
+*.csv
