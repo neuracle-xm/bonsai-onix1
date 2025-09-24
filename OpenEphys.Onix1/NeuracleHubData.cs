@@ -57,13 +57,12 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
     /// <summary>
     /// 配对通道的r1阻抗
     /// </summary>
-    public float PairR1 { get; set; } = float.PositiveInfinity;
+    private float _pairR1 = float.PositiveInfinity;
 
     /// <summary>
     /// 配对通道的r2阻抗
     /// </summary>
-    public float PairR2 { get; set; } = float.PositiveInfinity;
-
+    private float _pairR2 = float.PositiveInfinity;
 
     public unsafe override IObservable<NeuracleHubDataFrame> Generate()
     {
@@ -80,7 +79,6 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                 var frameObserver = Observer.Create<oni.Frame>(
                     frame =>
                     {
-                        var dataSize = frame.DataSize;
                         var payload = (NeuracleHubDataPayload*)frame.Data.ToPointer();
                         hubClockBuffer[sampleIndex] = payload->HubClock;
                         clockBuffer[sampleIndex] = frame.Clock;
@@ -143,8 +141,8 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                 //还没计算过配对阻抗
                                 if (!GlobalState.IsPairImpedanceComplete)
                                 {
-                                    PairR1 = r1;
-                                    PairR2 = r2;
+                                    _pairR1 = r1;
+                                    _pairR2 = r2;
                                     GlobalState.IsPairImpedanceComplete = true;
                                     //这时候还没测真正的阻抗，就直接显示为无穷
                                     observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), GlobalState.ImpedanceChannelIndex, float.PositiveInfinity, float.PositiveInfinity));
@@ -154,7 +152,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                 {
                                     //如果之前算出来的配对通道的阻抗是无穷大，那真正需要计算的通道的阻抗就直接视为无穷大
                                     //PairR1和PairR2只可能同时为无穷
-                                    if (PairR1 == float.PositiveInfinity)
+                                    if (_pairR1 == float.PositiveInfinity)
                                     {
                                         r1 = float.PositiveInfinity;
                                         r2 = float.PositiveInfinity;

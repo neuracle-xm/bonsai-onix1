@@ -23,6 +23,36 @@ namespace OpenEphys.Onix1
     public class Bno055DataFrame : DataFrame
     {
         /// <summary>
+        /// 从bno055的全通道数组转换成Bno055DataFrame，方便后续直接使用ONIX自带的节点
+        /// </summary>
+        /// <param name="clock"></param>
+        /// <param name="hubClock"></param>
+        /// <param name="bno055Buffer"></param>
+        public Bno055DataFrame(ulong clock, ulong hubClock, Int16[] bno055Buffer) : base(clock, hubClock)
+        {
+            EulerAngle = new Vector3(
+                   x: Bno055.EulerAngleScale * bno055Buffer[0],
+                   y: Bno055.EulerAngleScale * bno055Buffer[1],
+                   z: Bno055.EulerAngleScale * bno055Buffer[2]);
+            Quaternion = new Quaternion(
+                w: Bno055.QuaternionScale * bno055Buffer[3],
+                x: Bno055.QuaternionScale * bno055Buffer[4],
+                y: Bno055.QuaternionScale * bno055Buffer[5],
+                z: Bno055.QuaternionScale * bno055Buffer[6]);
+            Acceleration = new Vector3(
+                x: Bno055.AccelerationScale * bno055Buffer[7],
+                y: Bno055.AccelerationScale * bno055Buffer[8],
+                z: Bno055.AccelerationScale * bno055Buffer[9]);
+            Gravity = new Vector3(
+                x: Bno055.AccelerationScale * bno055Buffer[10],
+                y: Bno055.AccelerationScale * bno055Buffer[11],
+                z: Bno055.AccelerationScale * bno055Buffer[12]);
+            var bytes = BitConverter.GetBytes(bno055Buffer[13]);
+            Temperature = bytes[1];
+            Calibration = (Bno055CalibrationFlags)bytes[0];
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Bno055DataFrame"/> class.
         /// </summary>
         /// <param name="frame">An ONI data frame containing Bno055 data.</param>

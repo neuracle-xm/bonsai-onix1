@@ -6,7 +6,7 @@ using OpenEphys.Onix1;
 namespace NeuracleExtension;
 
 /// <summary>
-/// 只包含amplifier数据的Rhd2164DataFrame，不包含aux数据。
+/// 包含amplifier和阻抗数据的NeuracleHubDataFrame
 /// </summary>
 public class NeuracleHubDataFrame : BufferedDataFrame
 {
