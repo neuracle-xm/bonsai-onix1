@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace OpenEphys.Onix1
 {
@@ -7,6 +8,10 @@ namespace OpenEphys.Onix1
     /// </summary>
     public class TS4231V1DataFrame : DataFrame
     {
+        /// <summary>
+        /// 硬件的时钟周期，事先约定好，单位ns
+        /// </summary>
+        public const double HubClockPeriod = 20;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TS4231V1DataFrame"/> class.
@@ -23,6 +28,20 @@ namespace OpenEphys.Onix1
             EnvelopeType = payload->EnvelopeType;
         }
 
+        public TS4231V1DataFrame(ulong clock, ulong hubClock, int sensorIndex, Span<Int16> ts4231Buffer) : base(clock)
+        {
+            HubClock = hubClock;
+            SensorIndex = sensorIndex;
+            // 高16位和低16位拼起来组成EnvelopeWidth
+            var high16Bytes = BitConverter.GetBytes(ts4231Buffer[3]);
+            var low16Bytes = BitConverter.GetBytes(ts4231Buffer[4]);
+            var bytes = new byte[] { low16Bytes[0], low16Bytes[1], high16Bytes[0], high16Bytes[1] };
+            var envelopeWidth = BitConverter.ToInt32(bytes, 0);
+            // EnvelopeWidth单位是μs
+            EnvelopeWidth = envelopeWidth * HubClockPeriod / 1000.0;
+            EnvelopeType = EnvelopeWidthToEnvelopeType(EnvelopeWidth);
+        }
+
         /// <summary>
         /// Gets the index of the TS4231 sensor that produced this data.
         /// </summary>
@@ -37,6 +56,57 @@ namespace OpenEphys.Onix1
         /// Gets the pulse or sweep classification.
         /// </summary>
         public TS4231V1Envelope EnvelopeType { get; }
+
+        /// <summary>
+        /// 根据EnvelopeWidth转换成TS4231V1Envelope这个枚举
+        /// </summary>
+        /// <param name="envelopeWidth">单位μs</param>
+        /// <returns></returns>
+        private static TS4231V1Envelope EnvelopeWidthToEnvelopeType(double envelopeWidth)
+        {
+            TS4231V1Envelope result;
+            if (envelopeWidth <= 50.0)
+            {
+                result = TS4231V1Envelope.Sweep;
+            }
+            else if (envelopeWidth <= 62.5)
+            {
+                result = TS4231V1Envelope.J0;
+            }
+            else if (envelopeWidth <= 72.9)
+            {
+                result = TS4231V1Envelope.K0;
+            }
+            else if (envelopeWidth <= 83.3)
+            {
+                result = TS4231V1Envelope.J1;
+            }
+            else if (envelopeWidth <= 93.8)
+            {
+                result = TS4231V1Envelope.K1;
+            }
+            else if (envelopeWidth <= 104.0)
+            {
+                result = TS4231V1Envelope.J2;
+            }
+            else if (envelopeWidth <= 115.0)
+            {
+                result = TS4231V1Envelope.K2;
+            }
+            else if (envelopeWidth <= 125.0)
+            {
+                result = TS4231V1Envelope.J3;
+            }
+            else if (envelopeWidth <= 135.0)
+            {
+                result = TS4231V1Envelope.K3;
+            }
+            else
+            {
+                result = TS4231V1Envelope.Bad;
+            }
+            return result;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
