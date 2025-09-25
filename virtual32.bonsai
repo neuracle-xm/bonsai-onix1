@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.8.5"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:onix1="clr-namespace:OpenEphys.Onix1;assembly=OpenEphys.Onix1"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:CreateContext">
+          <onix1:Driver>riffa</onix1:Driver>
+          <onix1:Index>0</onix1:Index>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:ConfigureVirtual32Bit">
+          <onix1:DeviceName>A</onix1:DeviceName>
+          <onix1:DeviceAddress>39168</onix1:DeviceAddress>
+          <onix1:Enable>true</onix1:Enable>
+          <onix1:DspCutoff>Dsp146mHz</onix1:DspCutoff>
+          <onix1:AnalogLowCutoff>Low100mHz</onix1:AnalogLowCutoff>
+          <onix1:AnalogHighCutoff>High10000Hz</onix1:AnalogHighCutoff>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:StartAcquisition">
+          <onix1:ReadSize>393216</onix1:ReadSize>
+          <onix1:WriteSize>2048</onix1:WriteSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:Virtual32BitData">
+          <onix1:DeviceName>A</onix1:DeviceName>
+          <onix1:BufferSize>30</onix1:BufferSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>AmplifierData</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>AuxData</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Bno055Data</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>TS4231Data</Selector>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+      <Edge From="3" To="5" Label="Source1" />
+      <Edge From="3" To="6" Label="Source1" />
+      <Edge From="3" To="7" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>

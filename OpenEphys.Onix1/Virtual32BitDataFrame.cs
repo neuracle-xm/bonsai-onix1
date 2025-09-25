@@ -1,5 +1,4 @@
-// filepath: d:\Bonsai-onix1\OpenEphys.Onix1\Virtual32BitDataFrame.cs
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using OpenCV.Net; // Assuming OpenCV Mat is still desired for data structure
 
 namespace OpenEphys.Onix1
@@ -16,7 +15,7 @@ namespace OpenEphys.Onix1
         /// <param name="hubClock"> An array of hub clock counter values.</param>
         /// <param name="amplifierData">A matrix of virtual 32-bit multi-channel amplifier data.</param>
         /// <param name="auxData">A matrix of virtual 32-bit auxiliary channel data.</param>
-        public Virtual32BitDataFrame(ulong[] clock, ulong[] hubClock, Mat amplifierData, Mat auxData)
+        public Virtual32BitDataFrame(ulong[] clock, ulong[] hubClock, Mat amplifierData, Mat auxData, Mat bno055Data, Mat ts4231Data)
             : base(clock, hubClock)
         {
             // Ensure the input Mats have the correct depth (e.g., S32 for signed 32-bit int)
@@ -26,6 +25,8 @@ namespace OpenEphys.Onix1
 
             AmplifierData = amplifierData;
             AuxData = auxData;
+            Bno055Data = bno055Data;
+            TS4231Data = ts4231Data;
         }
 
         /// <summary>
@@ -48,6 +49,8 @@ namespace OpenEphys.Onix1
         /// Define conversion to physical units (e.g., volts) if applicable.
         /// </remarks>
         public Mat AuxData { get; }
+        public Mat Bno055Data { get; }
+        public Mat TS4231Data { get; }
     }
 
     // Payload structure matching the expected data layout from the hardware/simulation
@@ -58,6 +61,8 @@ namespace OpenEphys.Onix1
         // Use 'int' for signed 32-bit data. Use 'float' if 32-bit floating point is needed.
         public fixed int AmplifierData[Virtual32Bit.AmplifierChannelCount];
         public fixed int AuxData[Virtual32Bit.AuxChannelCount];
+        public fixed int Bno055Data[Virtual32Bit.Bno055ChannelCount];
+        public fixed int TS4231Data[Virtual32Bit.TS4231ChannelCount];
         // Ensure total size matches the device frame data size
     }
 }

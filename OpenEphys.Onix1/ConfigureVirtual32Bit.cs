@@ -1,5 +1,4 @@
-﻿// filepath: d:\Bonsai-onix1\OpenEphys.Onix1\ConfigureVirtual32Bit.cs
-using System;
+﻿using System;
 using System.ComponentModel;
 
 namespace OpenEphys.Onix1
@@ -82,7 +81,7 @@ namespace OpenEphys.Onix1
 
                 // Example: Set the enable state (might control data generation in Virtual32BitData)
                 // This uses a convention similar to Rhd2164's ENABLE register.
-                device.WriteRegister(Virtual32Bit.ENABLE, enable ? 1u : 0);
+                //device.WriteRegister(Virtual32Bit.ENABLE, enable ? 1u : 0);
 
                 // Configure other virtual parameters if needed using device.WriteRegister or custom methods
 
@@ -98,8 +97,10 @@ namespace OpenEphys.Onix1
         public const int ID = 2; // Example ID
 
         // Define constants - adjust channel counts if needed for the virtual device
-        public const int AmplifierChannelCount = 64;
+        public const int AmplifierChannelCount = 32;
         public const int AuxChannelCount = 3;
+        public const int Bno055ChannelCount = 14;
+        public const int TS4231ChannelCount = 21;
 
         // Define virtual registers (optional, but maintains structure)
         public const uint ENABLE = 0x8000; // Enable/disable stream
