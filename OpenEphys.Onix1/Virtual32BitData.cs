@@ -1,5 +1,4 @@
-// filepath: d:\Bonsai-onix1\OpenEphys.Onix1\Virtual32BitData.cs
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
@@ -46,11 +45,14 @@ namespace OpenEphys.Onix1
                     var sampleIndex = 0;
                     var device = deviceInfo.GetDeviceContext(typeof(Virtual32Bit)); // Use the virtual device type
 
+                    var hubClockBuffer = new ulong[bufferSize];
+                    var clockBuffer = new ulong[bufferSize];
+
                     // Buffers using 'int' for 32-bit signed data
                     var amplifierBuffer = new int[Virtual32Bit.AmplifierChannelCount * bufferSize];
                     var auxBuffer = new int[Virtual32Bit.AuxChannelCount * bufferSize];
-                    var hubClockBuffer = new ulong[bufferSize];
-                    var clockBuffer = new ulong[bufferSize];
+                    var bno055Buffer = new int[Virtual32Bit.Bno055ChannelCount * bufferSize];
+                    var ts4231Buffer = new int[Virtual32Bit.TS4231ChannelCount * bufferSize];
 
                     var frameObserver = Observer.Create<oni.Frame>(
                         frame =>
@@ -62,7 +64,8 @@ namespace OpenEphys.Onix1
                             // Ensure the source IntPtr points correctly within the payload struct
                             Marshal.Copy(new IntPtr(payload->AmplifierData), amplifierBuffer, sampleIndex * Virtual32Bit.AmplifierChannelCount, Virtual32Bit.AmplifierChannelCount);
                             Marshal.Copy(new IntPtr(payload->AuxData), auxBuffer, sampleIndex * Virtual32Bit.AuxChannelCount, Virtual32Bit.AuxChannelCount);
-
+                            Marshal.Copy(new IntPtr(payload->Bno055Data), bno055Buffer, sampleIndex * Virtual32Bit.Bno055ChannelCount, Virtual32Bit.Bno055ChannelCount);
+                            Marshal.Copy(new IntPtr(payload->TS4231Data), ts4231Buffer, sampleIndex * Virtual32Bit.TS4231ChannelCount, Virtual32Bit.TS4231ChannelCount);
                             hubClockBuffer[sampleIndex] = payload->HubClock;
                             clockBuffer[sampleIndex] = frame.Clock;
 
@@ -71,9 +74,11 @@ namespace OpenEphys.Onix1
                                 // Copy and transpose buffers into Mat objects with Depth.S32
                                 var amplifierData = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, Virtual32Bit.AmplifierChannelCount, Depth.S32);
                                 var auxData = BufferHelper.CopyTranspose(auxBuffer, bufferSize, Virtual32Bit.AuxChannelCount, Depth.S32);
+                                var bno055Data = BufferHelper.CopyTranspose(bno055Buffer, bufferSize, Virtual32Bit.Bno055ChannelCount, Depth.S32);
+                                var ts4231Data = BufferHelper.CopyTranspose(ts4231Buffer, bufferSize, Virtual32Bit.TS4231ChannelCount, Depth.S32);
 
                                 // Create and publish the 32-bit data frame
-                                observer.OnNext(new Virtual32BitDataFrame(clockBuffer, hubClockBuffer, amplifierData, auxData));
+                                observer.OnNext(new Virtual32BitDataFrame(clockBuffer, hubClockBuffer, amplifierData, auxData, bno055Data, ts4231Data));
 
                                 // Reset buffers for the next frame
                                 hubClockBuffer = new ulong[bufferSize];
