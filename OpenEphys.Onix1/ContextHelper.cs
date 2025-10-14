@@ -68,5 +68,25 @@ namespace OpenEphys.Onix1
         {
             throw new InvalidOperationException($"Invalid device ID. The device found at address {address} is not a '{expectedType.Name}' device.");
         }
+
+        /// <summary>
+        /// 遍历context中的DeviceTable,自动根据ID来找到DeviceAddress
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="deviceID"></param>
+        /// <returns></returns>
+        public static uint? GetAddressByID(this ContextTask context, int deviceID)
+        {
+            uint? deviceAddress = null;
+            foreach (var item in context.DeviceTable)
+            {
+                if (item.Value.ID == deviceID)
+                {
+                    deviceAddress = item.Key;
+                    break;
+                }
+            }
+            return deviceAddress;
+        }
     }
 }

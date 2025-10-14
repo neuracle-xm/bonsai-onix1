@@ -44,24 +44,6 @@ public class NeuracleStimulateMode : Sink<bool>
     private string _stimulationDeviceName;
 
     /// <summary>
-    /// 返回限制过后的电流大小
-    /// </summary>
-    /// <param name="current"></param>
-    /// <returns></returns>
-    private int LimitedCurrent(int current)
-    {
-        if (current < -4000)
-        {
-            return -4000;
-        }
-        if (current > 4000)
-        {
-            return 4000;
-        }
-        return current;
-    }
-
-    /// <summary>
     /// Gets or sets the device enable state.
     /// </summary>
     /// <remarks>
@@ -99,7 +81,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch1PhaseOneCurrent
     {
         get => _ch1PhaseOneCurrent;
-        set => _ch1PhaseOneCurrent = LimitedCurrent(value);
+        set => _ch1PhaseOneCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     private int _ch1InterPhaseCurrent;
@@ -108,7 +90,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch1InterPhaseCurrent
     {
         get => _ch1InterPhaseCurrent;
-        set => _ch1InterPhaseCurrent = LimitedCurrent(value);
+        set => _ch1InterPhaseCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     private int _ch1PhaseTwoCurrent;
@@ -117,7 +99,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch1PhaseTwoCurrent
     {
         get => _ch1PhaseTwoCurrent;
-        set => _ch1PhaseTwoCurrent = LimitedCurrent(value);
+        set => _ch1PhaseTwoCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     /// <summary>
@@ -224,7 +206,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch2PhaseOneCurrent
     {
         get => _ch2PhaseOneCurrent;
-        set => _ch2PhaseOneCurrent = LimitedCurrent(value);
+        set => _ch2PhaseOneCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     private int _ch2InterPhaseCurrent;
@@ -236,7 +218,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch2InterPhaseCurrent
     {
         get => _ch2InterPhaseCurrent;
-        set => _ch2InterPhaseCurrent = LimitedCurrent(value);
+        set => _ch2InterPhaseCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     private int _ch2PhaseTwoCurrent;
@@ -248,7 +230,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch2PhaseTwoCurrent
     {
         get => _ch2PhaseTwoCurrent;
-        set => _ch2PhaseTwoCurrent = LimitedCurrent(value);
+        set => _ch2PhaseTwoCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     /// <summary>
@@ -355,7 +337,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch3PhaseOneCurrent
     {
         get => _ch3PhaseOneCurrent;
-        set => _ch3PhaseOneCurrent = LimitedCurrent(value);
+        set => _ch3PhaseOneCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     private int _ch3InterPhaseCurrent;
@@ -367,7 +349,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch3InterPhaseCurrent
     {
         get => _ch3InterPhaseCurrent;
-        set => _ch3InterPhaseCurrent = LimitedCurrent(value);
+        set => _ch3InterPhaseCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     private int _ch3PhaseTwoCurrent;
@@ -379,7 +361,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch3PhaseTwoCurrent
     {
         get => _ch3PhaseTwoCurrent;
-        set => _ch3PhaseTwoCurrent = LimitedCurrent(value);
+        set => _ch3PhaseTwoCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     /// <summary>
@@ -486,7 +468,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch4PhaseOneCurrent
     {
         get => _ch4PhaseOneCurrent;
-        set => _ch4PhaseOneCurrent = LimitedCurrent(value);
+        set => _ch4PhaseOneCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     private int _ch4InterPhaseCurrent;
@@ -498,7 +480,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch4InterPhaseCurrent
     {
         get => _ch4InterPhaseCurrent;
-        set => _ch4InterPhaseCurrent = LimitedCurrent(value);
+        set => _ch4InterPhaseCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     private int _ch4PhaseTwoCurrent;
@@ -510,7 +492,7 @@ public class NeuracleStimulateMode : Sink<bool>
     public int Ch4PhaseTwoCurrent
     {
         get => _ch4PhaseTwoCurrent;
-        set => _ch4PhaseTwoCurrent = LimitedCurrent(value);
+        set => _ch4PhaseTwoCurrent = NeuracleUtils.LimitedCurrent(value);
     }
 
     /// <summary>
@@ -578,96 +560,6 @@ public class NeuracleStimulateMode : Sink<bool>
     [Description("是否使用双相波")]
     [Category(DeviceFactory.StimulatorCh4)]
     public bool Ch4BiPhasic { get; set; }
-
-    /// <summary>
-    /// 计算单个刺激通道的刺激时间
-    /// </summary>
-    /// <param name="trainDelay"></param>
-    /// <param name="trainCnt"></param>
-    /// <param name="burstCnt"></param>
-    /// <param name="interPulseInterval"></param>
-    /// <param name="interBurstInterval"></param>
-    /// <param name="pulseDur1"></param>
-    /// <param name="pulseDur2"></param>
-    /// <param name="interPhaseInterval"></param>
-    /// <returns></returns>
-    private int CalStimulationDuration(uint trainDelay, uint trainCnt, uint burstCnt, uint interPulseInterval, uint interBurstInterval, uint pulseDur1, uint pulseDur2, uint interPhaseInterval)
-    {
-        int CalPulseDuration(uint pulseDur1, uint pulseDur2, uint interPhaseInterval)
-        {
-            return (int)(pulseDur1 + interPhaseInterval + pulseDur2);
-        }
-
-        int CalBurstDuration(uint burstCnt, uint interPulseInterval, uint pulseDur1, uint pulseDur2, uint interPhaseInterval)
-        {
-            return (int)(burstCnt * CalPulseDuration(pulseDur1, pulseDur2, interPhaseInterval) + (burstCnt - 1) * interPulseInterval);
-        }
-
-        return (int)(CalBurstDuration(burstCnt, interPulseInterval, pulseDur1, pulseDur2, interPhaseInterval) * trainCnt + (trainCnt - 1) * interBurstInterval + trainDelay);
-    }
-
-    /// <summary>
-    /// 将参数转换成适配本设备的参数
-    /// 如果是单向波将对应的参数设置为0或1
-    /// </summary>
-    /// <param name="biPhasic"></param>
-    /// <param name="phaseTwoCurrent"></param>
-    /// <param name="interPhaseCurrent"></param>
-    /// <param name="phaseTwoDuration"></param>
-    /// <param name="interPhaseInterval"></param>
-    /// <param name="interPulseInterval"></param>
-    /// <returns></returns>
-    private Tuple<int, int, uint, uint, uint> ChangeParamByBiPhasic(bool biPhasic, int phaseTwoCurrent, int interPhaseCurrent, uint phaseTwoDuration, uint interPhaseInterval, uint interPulseInterval)
-    {
-        // 单向波参数适配
-        if (!biPhasic)
-        {
-            phaseTwoCurrent = 0;
-            interPhaseCurrent = 0;
-            phaseTwoDuration = 1;
-            interPhaseInterval = 1;
-            interPulseInterval -= 2;
-        }
-        return Tuple.Create(phaseTwoCurrent, interPhaseCurrent, phaseTwoDuration, interPhaseInterval, interPulseInterval);
-    }
-
-    /// <summary>
-    /// 验证刺激参数的有效性,将小于1的参数设置为1
-    /// </summary>
-    /// <param name="phaseOneDuration"></param>
-    /// <param name="phaseTwoDuration"></param>
-    /// <param name="interPhaseInterval"></param>
-    /// <param name="interPulseInterval"></param>
-    /// <param name="interBurstInterval"></param>
-    /// <param name="triggerDelay"></param>
-    /// <returns></returns>
-    private Tuple<uint, uint, uint, uint, uint, uint> ValidateDuration(uint phaseOneDuration, uint phaseTwoDuration, uint interPhaseInterval, uint interPulseInterval, uint interBurstInterval, uint triggerDelay)
-    {
-        uint phaseOneDurationValidated = Math.Max(phaseOneDuration, 1);
-        uint phaseTwoDurationValidated = Math.Max(phaseTwoDuration, 1);
-        uint interPhaseIntervalValidated = Math.Max(interPhaseInterval, 1);
-        uint interPulseIntervalValidated = Math.Max(interPulseInterval, 1);
-        uint interBurstIntervalValidated = Math.Max(interBurstInterval, 1);
-        uint triggerDelayValidated = Math.Max(triggerDelay, 1);
-        return Tuple.Create(phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated, interPulseIntervalValidated, interBurstIntervalValidated, triggerDelayValidated);
-    }
-
-    /// <summary>
-    /// 将微安转换为设备值
-    /// </summary>
-    /// <param name="CurrentUA"></param>
-    /// <returns></returns>
-    private uint ConvertUAToDeviceValue(int CurrentUA)
-    {
-        if (CurrentUA > 0)
-        {
-            return (uint)(CurrentUA / 4000.0f * 32767);
-        }
-        else
-        {
-            return (uint)((4000 + CurrentUA) * 32767.0f / 4000 + 32768);
-        }
-    }
 
     public override IObservable<bool> Process(IObservable<bool> source)
     {
@@ -766,10 +658,10 @@ public class NeuracleStimulateMode : Sink<bool>
                         if (Ch1Enable)
                         {
                             channelEnable += 0b0001;
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch1BiPhasic, Ch1PhaseTwoCurrent, Ch1InterPhaseCurrent, Ch1PhaseTwoDuration, Ch1InterPhaseInterval, Ch1InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = ValidateDuration(Ch1PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch1InterBurstInterval, Ch1TriggerDelay);
+                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch1BiPhasic, Ch1PhaseTwoCurrent, Ch1InterPhaseCurrent, Ch1PhaseTwoDuration, Ch1InterPhaseInterval, Ch1InterPulseInterval);
+                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch1PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch1InterBurstInterval, Ch1TriggerDelay);
 
-                            int ch1Duration = CalStimulationDuration(triggerDelayValidated, Ch1TrainBurstCount, Ch1BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                            int ch1Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch1TrainBurstCount, Ch1BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
                             if (ch1Duration > maxDuration)
                             {
                                 maxDuration = ch1Duration;
@@ -779,21 +671,21 @@ public class NeuracleStimulateMode : Sink<bool>
                             device.WriteRegister(ElectricalStimulator.CH1BURSTINTERVAL, interBurstIntervalValidated);
                             device.WriteRegister(ElectricalStimulator.CH1PHASEINTERVAL, interPhaseIntervalValidated);
                             device.WriteRegister(ElectricalStimulator.CH1PULSEINTERVAL, interPulseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH1CURRENT1, ConvertUAToDeviceValue(Ch1PhaseOneCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH1CURRENT2, ConvertUAToDeviceValue(phaseTwoCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH1CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(Ch1PhaseOneCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH1CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
                             device.WriteRegister(ElectricalStimulator.CH1PULSEDUR1, phaseOneDurationValidated);
                             device.WriteRegister(ElectricalStimulator.CH1PULSEDUR2, phaseTwoDurationValidated);
                             device.WriteRegister(ElectricalStimulator.CH1TRAINDELAY, triggerDelayValidated);
                             device.WriteRegister(ElectricalStimulator.CH1TRAINCNT, Ch1TrainBurstCount);
-                            device.WriteRegister(ElectricalStimulator.CH1RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH1RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
                         }
                         if (Ch2Enable)
                         {
                             channelEnable += 0b0010;
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch2BiPhasic, Ch2PhaseTwoCurrent, Ch2InterPhaseCurrent, Ch2PhaseTwoDuration, Ch2InterPhaseInterval, Ch2InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = ValidateDuration(Ch2PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch2InterBurstInterval, Ch2TriggerDelay);
+                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch2BiPhasic, Ch2PhaseTwoCurrent, Ch2InterPhaseCurrent, Ch2PhaseTwoDuration, Ch2InterPhaseInterval, Ch2InterPulseInterval);
+                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch2PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch2InterBurstInterval, Ch2TriggerDelay);
 
-                            int ch2Duration = CalStimulationDuration(triggerDelayValidated, Ch2TrainBurstCount, Ch2BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                            int ch2Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch2TrainBurstCount, Ch2BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
                             if (ch2Duration > maxDuration)
                             {
                                 maxDuration = ch2Duration;
@@ -803,21 +695,21 @@ public class NeuracleStimulateMode : Sink<bool>
                             device.WriteRegister(ElectricalStimulator.CH2BURSTINTERVAL, interBurstIntervalValidated);
                             device.WriteRegister(ElectricalStimulator.CH2PHASEINTERVAL, interPhaseIntervalValidated);
                             device.WriteRegister(ElectricalStimulator.CH2PULSEINTERVAL, interPulseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH2CURRENT1, ConvertUAToDeviceValue(Ch2PhaseOneCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH2CURRENT2, ConvertUAToDeviceValue(phaseTwoCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH2CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(Ch2PhaseOneCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH2CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
                             device.WriteRegister(ElectricalStimulator.CH2PULSEDUR1, phaseOneDurationValidated);
                             device.WriteRegister(ElectricalStimulator.CH2PULSEDUR2, phaseTwoDurationValidated);
                             device.WriteRegister(ElectricalStimulator.CH2TRAINDELAY, triggerDelayValidated);
                             device.WriteRegister(ElectricalStimulator.CH2TRAINCNT, Ch2TrainBurstCount);
-                            device.WriteRegister(ElectricalStimulator.CH2RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH2RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
                         }
                         if (Ch3Enable)
                         {
                             channelEnable += 0b0100;
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch3BiPhasic, Ch3PhaseTwoCurrent, Ch3InterPhaseCurrent, Ch3PhaseTwoDuration, Ch3InterPhaseInterval, Ch3InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = ValidateDuration(Ch3PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch3InterBurstInterval, Ch3TriggerDelay);
+                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch3BiPhasic, Ch3PhaseTwoCurrent, Ch3InterPhaseCurrent, Ch3PhaseTwoDuration, Ch3InterPhaseInterval, Ch3InterPulseInterval);
+                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch3PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch3InterBurstInterval, Ch3TriggerDelay);
 
-                            int ch3Duration = CalStimulationDuration(triggerDelayValidated, Ch3TrainBurstCount, Ch3BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                            int ch3Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch3TrainBurstCount, Ch3BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
                             if (ch3Duration > maxDuration)
                             {
                                 maxDuration = ch3Duration;
@@ -827,21 +719,21 @@ public class NeuracleStimulateMode : Sink<bool>
                             device.WriteRegister(ElectricalStimulator.CH3BURSTINTERVAL, interBurstIntervalValidated);
                             device.WriteRegister(ElectricalStimulator.CH3PHASEINTERVAL, interPhaseIntervalValidated);
                             device.WriteRegister(ElectricalStimulator.CH3PULSEINTERVAL, interPulseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH3CURRENT1, ConvertUAToDeviceValue(Ch3PhaseOneCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH3CURRENT2, ConvertUAToDeviceValue(phaseTwoCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH3CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(Ch3PhaseOneCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH3CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
                             device.WriteRegister(ElectricalStimulator.CH3PULSEDUR1, phaseOneDurationValidated);
                             device.WriteRegister(ElectricalStimulator.CH3PULSEDUR2, phaseTwoDurationValidated);
                             device.WriteRegister(ElectricalStimulator.CH3TRAINDELAY, triggerDelayValidated);
                             device.WriteRegister(ElectricalStimulator.CH3TRAINCNT, Ch3TrainBurstCount);
-                            device.WriteRegister(ElectricalStimulator.CH3RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH3RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
                         }
                         if (Ch4Enable)
                         {
                             channelEnable += 0b1000;
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = ChangeParamByBiPhasic(Ch4BiPhasic, Ch4PhaseTwoCurrent, Ch4InterPhaseCurrent, Ch4PhaseTwoDuration, Ch4InterPhaseInterval, Ch4InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = ValidateDuration(Ch4PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch4InterBurstInterval, Ch4TriggerDelay);
+                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch4BiPhasic, Ch4PhaseTwoCurrent, Ch4InterPhaseCurrent, Ch4PhaseTwoDuration, Ch4InterPhaseInterval, Ch4InterPulseInterval);
+                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch4PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch4InterBurstInterval, Ch4TriggerDelay);
 
-                            int ch4Duration = CalStimulationDuration(triggerDelayValidated, Ch4TrainBurstCount, Ch4BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                            int ch4Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch4TrainBurstCount, Ch4BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
                             if (ch4Duration > maxDuration)
                             {
                                 maxDuration = ch4Duration;
@@ -851,13 +743,13 @@ public class NeuracleStimulateMode : Sink<bool>
                             device.WriteRegister(ElectricalStimulator.CH4BURSTINTERVAL, interBurstIntervalValidated);
                             device.WriteRegister(ElectricalStimulator.CH4PHASEINTERVAL, interPhaseIntervalValidated);
                             device.WriteRegister(ElectricalStimulator.CH4PULSEINTERVAL, interPulseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH4CURRENT1, ConvertUAToDeviceValue(Ch4PhaseOneCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH4CURRENT2, ConvertUAToDeviceValue(phaseTwoCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH4CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(Ch4PhaseOneCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH4CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
                             device.WriteRegister(ElectricalStimulator.CH4PULSEDUR1, phaseOneDurationValidated);
                             device.WriteRegister(ElectricalStimulator.CH4PULSEDUR2, phaseTwoDurationValidated);
                             device.WriteRegister(ElectricalStimulator.CH4TRAINDELAY, triggerDelayValidated);
                             device.WriteRegister(ElectricalStimulator.CH4TRAINCNT, Ch4TrainBurstCount);
-                            device.WriteRegister(ElectricalStimulator.CH4RESTCURRENT, ConvertUAToDeviceValue(interPhaseCurrent));
+                            device.WriteRegister(ElectricalStimulator.CH4RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
                         }
                         // 将设置的寄存器值写入设备
                         device.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, channelEnable);

@@ -32,6 +32,9 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
                 //按照取低16位复制到最终使用的数组中
                 var bno055Buffer = new Int16[NeuracleHeadstageData.Bno055ChannelCount];
                 var ts4231Buffer = new Int16[NeuracleHeadstageData.TS4231ChannelCount];
+                //阻抗模式下要累计一定点数后算一次阻抗
+                var impedanceSampleIndex = 0;
+                var impedanceBuffer = new int[NeuracleHeadstageGlobalState.ImpedanceBufferSize];
                 var frameObserver = Observer.Create<oni.Frame>(
                     frame =>
                     {
@@ -60,9 +63,26 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
                         var ts4231V1DataFrame3 = new TS4231V1DataFrame(clock, hubClock, 3, group1);
                         Span<Int16> group4 = ts4231Buffer.AsSpan(16, 5);
                         var ts4231V1DataFrame4 = new TS4231V1DataFrame(clock, hubClock, 4, group1);
-                        var amplifierData = BufferHelper.CopyTranspose(amplifierBuffer, 1, NeuracleHeadstageData.AmplifierChannelCount, Depth.S32);
                         var auxData = BufferHelper.CopyTranspose(auxBuffer, 1, NeuracleHeadstageData.AuxChannelCount, Depth.S32);
-                        observer.OnNext(new NeuracleHeadstageDataFrame(clock, hubClock, amplifierData, auxData, bno055DataFrame, ts4231V1DataFrame1, ts4231V1DataFrame2, ts4231V1DataFrame3, ts4231V1DataFrame4));
+                        if (NeuracleHeadstageGlobalState.HeadstageState == HeadstageState.Data)
+                        {
+                            //换成采集模式时清掉阻抗数组累计的值
+                            impedanceSampleIndex = 0;
+                            var amplifierData = BufferHelper.CopyTranspose(amplifierBuffer, 1, NeuracleHeadstageData.AmplifierChannelCount, Depth.S32);
+                            observer.OnNext(new NeuracleHeadstageDataFrame(clock, hubClock, amplifierData, NeuracleHeadstageGlobalState.ImpedanceChannelIndex, float.PositiveInfinity, auxData, bno055DataFrame, ts4231V1DataFrame1, ts4231V1DataFrame2, ts4231V1DataFrame3, ts4231V1DataFrame4));
+                        }
+                        else if (NeuracleHeadstageGlobalState.HeadstageState == HeadstageState.Impedance)
+                        {
+                            //找到当前测的通道返回的电压值
+                            var currentImpedanceChannelVoltage = amplifierBuffer[NeuracleHeadstageGlobalState.ImpedanceChannelIndex];
+                            impedanceBuffer[impedanceSampleIndex] = currentImpedanceChannelVoltage;
+                            if (++impedanceSampleIndex >= NeuracleHeadstageGlobalState.ImpedanceBufferSize)
+                            {
+                                var impedanceValue = NeuracleHeadstageGlobalState.ComputeImpedance(impedanceBuffer);
+                                observer.OnNext(new NeuracleHeadstageDataFrame(clock, hubClock, Mat.Zeros(NeuracleHeadstageData.AmplifierChannelCount, 1, Depth.S32, 1), NeuracleHeadstageGlobalState.ImpedanceChannelIndex, impedanceValue, auxData, bno055DataFrame, ts4231V1DataFrame1, ts4231V1DataFrame2, ts4231V1DataFrame3, ts4231V1DataFrame4));
+                                impedanceSampleIndex = 0;
+                            }
+                        }
                     },
                     observer.OnError,
                     observer.OnCompleted);

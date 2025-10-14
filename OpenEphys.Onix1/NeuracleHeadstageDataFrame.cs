@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using OpenCV.Net;
 using OpenEphys.Onix1;
 
@@ -6,11 +7,12 @@ namespace NeuracleExtension;
 
 public class NeuracleHeadstageDataFrame : DataFrame
 {
-    public NeuracleHeadstageDataFrame(ulong clock, ulong hubClock, Mat amplifierData, Mat auxData, Bno055DataFrame bno055DataFrame,
+    public NeuracleHeadstageDataFrame(ulong clock, ulong hubClock, Mat amplifierData, uint impedanceIndex, float impedanceValue, Mat auxData, Bno055DataFrame bno055DataFrame,
                                       TS4231V1DataFrame ts4231V1DataFrame1, TS4231V1DataFrame ts4231V1DataFrame2,
                                       TS4231V1DataFrame ts4231V1DataFrame3, TS4231V1DataFrame ts4231V1DataFrame4) : base(clock, hubClock)
     {
         AmplifierData = amplifierData;
+        ImpedanceValue = new Tuple<string, float>($"通道{impedanceIndex}", impedanceValue);
         AuxData = auxData;
         Bno055DataFrame = bno055DataFrame;
         TS4231V1DataFrame1 = ts4231V1DataFrame1;
@@ -20,6 +22,7 @@ public class NeuracleHeadstageDataFrame : DataFrame
     }
 
     public Mat AmplifierData { get; set; }
+    public Tuple<string, float> ImpedanceValue { get; }
     public Mat AuxData { get; set; }
 
     public Bno055DataFrame Bno055DataFrame { get; set; }
