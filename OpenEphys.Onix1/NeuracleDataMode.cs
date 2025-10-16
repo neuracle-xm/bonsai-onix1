@@ -22,7 +22,7 @@ public class NeuracleDataMode : Sink<bool>
         set
         {
             _hubName = value;
-            if (GlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
+            if (NeuracleGlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
             {
                 _switchDeviceName = deviceTuple.Item3;
             }
@@ -52,7 +52,7 @@ public class NeuracleDataMode : Sink<bool>
                         {
                             return;
                         }
-                        GlobalState.HubStates[GlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Data;
+                        NeuracleGlobalState.HubStates[NeuracleGlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Data;
                         //这些是测试用的
                         //device.TestCref1();
                         //device.TestCref2();

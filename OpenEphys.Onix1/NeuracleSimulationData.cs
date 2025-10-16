@@ -38,7 +38,7 @@ public class NeuracleSimulationData : Source<NeuracleHubDataFrame>
 
     [Description("缓存的帧大小")]
     [Category(DeviceFactory.ConfigurationCategory)]
-    public int BufferSize { get; set; } = GlobalState.BufferSize;
+    public int BufferSize { get; set; } = NeuracleGlobalState.BufferSize;
 
     /// <summary>
     /// 生成测试用的方波
@@ -121,7 +121,7 @@ public class NeuracleSimulationData : Source<NeuracleHubDataFrame>
                         clockBuffer,
                         hubClockBuffer,
                         Mat.FromArray(ampliferArray),
-                        GlobalState.ImpedanceChannelIndex,
+                        NeuracleGlobalState.ImpedanceChannelIndex,
                         float.PositiveInfinity, float.PositiveInfinity));
                 }, observer.OnError, observer.OnCompleted);
         });

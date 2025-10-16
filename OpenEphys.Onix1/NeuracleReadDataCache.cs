@@ -27,7 +27,7 @@ public class NeuracleReadDataCache : Source<Mat>
                     return item;
                 }
             }
-            return Mat.Zeros(GlobalState.ChannelNumberPerHub, GlobalState.BufferSize, Depth.F32, 1);
+            return Mat.Zeros(NeuracleGlobalState.ChannelNumberPerHub, NeuracleGlobalState.BufferSize, Depth.F32, 1);
         });
     }
 }
