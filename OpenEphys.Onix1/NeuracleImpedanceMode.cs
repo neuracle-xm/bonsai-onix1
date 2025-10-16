@@ -23,7 +23,7 @@ public class NeuracleImpedanceMode : Sink<bool>
         set
         {
             _hubName = value;
-            if (GlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
+            if (NeuracleGlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
             {
                 _stimulationDeviceName = deviceTuple.Item2;
                 _switchDeviceName = deviceTuple.Item3;
@@ -53,7 +53,7 @@ public class NeuracleImpedanceMode : Sink<bool>
         set
         {
             _channelIndex = value;
-            GlobalState.ImpedanceChannelIndex = value;
+            NeuracleGlobalState.ImpedanceChannelIndex = value;
         }
     }
 
@@ -106,16 +106,16 @@ public class NeuracleImpedanceMode : Sink<bool>
                         return;
                     }
                     //先测的是配对通道的阻抗
-                    GlobalState.IsPairImpedanceComplete = false;
+                    NeuracleGlobalState.IsPairImpedanceComplete = false;
                     //设置需要检测的那个阻抗通道的配对通道
                     var pairChannelIndex = SwitchWriteRegisterFunctions.GetPairChannelIndex(ChannelIndex);
                     ImpedanceProcedure(pairChannelIndex);
-                    if (GlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
+                    if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
                     {
-                        GlobalState.HubStates[hubName] = HubState.Impedance;
+                        NeuracleGlobalState.HubStates[hubName] = HubState.Impedance;
                     }
                     //等配对通道的阻抗计算完毕
-                    while (!GlobalState.IsPairImpedanceComplete)
+                    while (!NeuracleGlobalState.IsPairImpedanceComplete)
                     {
                         Thread.Sleep(1);
                     }

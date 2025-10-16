@@ -25,7 +25,7 @@ public class NeuracleStimulateMode : Sink<bool>
         set
         {
             _hubName = value;
-            if (GlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
+            if (NeuracleGlobalState.HubNameToDeviceName.TryGetValue(_hubName, out var deviceTuple))
             {
                 _stimulationDeviceName = deviceTuple.Item2;
                 _switchDeviceName = deviceTuple.Item3;
@@ -680,9 +680,9 @@ public class NeuracleStimulateMode : Sink<bool>
                     {
                         return;
                     }
-                    if (GlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
+                    if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
                     {
-                        GlobalState.HubStates[hubName] = HubState.Stimulation;
+                        NeuracleGlobalState.HubStates[hubName] = HubState.Stimulation;
                     }
                     DeviceManager.GetDevice(_switchDeviceName).Subscribe(x =>
                     {
@@ -870,9 +870,9 @@ public class NeuracleStimulateMode : Sink<bool>
                             var switchDeviceName = _switchDeviceName;
                             // 等待刺激完成
                             Thread.Sleep(maxDuration / 1000);
-                            if (GlobalState.DeviceNameToHubName.TryGetValue(switchDeviceName, out var hubName))
+                            if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(switchDeviceName, out var hubName))
                             {
-                                GlobalState.HubStates[hubName] = HubState.Data;
+                                NeuracleGlobalState.HubStates[hubName] = HubState.Data;
                             }
                             DeviceManager.GetDevice(switchDeviceName).Subscribe(x =>
                             {

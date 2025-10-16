@@ -40,27 +40,27 @@ public class NeuracleConfigureHub : MultiDeviceFactory
             ElectricalStimulator.DeviceAddress = (uint)value + 1;
             SwitchDevice.DeviceAddress = (uint)value + 2;
             //每个头盒初始都是采集模式
-            if (!GlobalState.HubStates.ContainsKey(_hub))
+            if (!NeuracleGlobalState.HubStates.ContainsKey(_hub))
             {
-                GlobalState.HubStates[_hub] = HubState.Data;
+                NeuracleGlobalState.HubStates[_hub] = HubState.Data;
             }
             //把每个设备的DeviceName关联到HubName
-            if (!GlobalState.DeviceNameToHubName.ContainsKey(Data.DeviceName))
+            if (!NeuracleGlobalState.DeviceNameToHubName.ContainsKey(Data.DeviceName))
             {
-                GlobalState.DeviceNameToHubName[Data.DeviceName] = _hub;
+                NeuracleGlobalState.DeviceNameToHubName[Data.DeviceName] = _hub;
             }
-            if (!GlobalState.DeviceNameToHubName.ContainsKey(ElectricalStimulator.DeviceName))
+            if (!NeuracleGlobalState.DeviceNameToHubName.ContainsKey(ElectricalStimulator.DeviceName))
             {
-                GlobalState.DeviceNameToHubName[ElectricalStimulator.DeviceName] = _hub;
+                NeuracleGlobalState.DeviceNameToHubName[ElectricalStimulator.DeviceName] = _hub;
             }
-            if (!GlobalState.DeviceNameToHubName.ContainsKey(SwitchDevice.DeviceName))
+            if (!NeuracleGlobalState.DeviceNameToHubName.ContainsKey(SwitchDevice.DeviceName))
             {
-                GlobalState.DeviceNameToHubName[SwitchDevice.DeviceName] = _hub;
+                NeuracleGlobalState.DeviceNameToHubName[SwitchDevice.DeviceName] = _hub;
             }
             //记录当前hub下有哪些Device
-            if (!GlobalState.HubNameToDeviceName.ContainsKey(_hub))
+            if (!NeuracleGlobalState.HubNameToDeviceName.ContainsKey(_hub))
             {
-                GlobalState.HubNameToDeviceName[_hub] = Tuple.Create(Data.DeviceName, ElectricalStimulator.DeviceName, SwitchDevice.DeviceName);
+                NeuracleGlobalState.HubNameToDeviceName[_hub] = Tuple.Create(Data.DeviceName, ElectricalStimulator.DeviceName, SwitchDevice.DeviceName);
             }
         }
     }

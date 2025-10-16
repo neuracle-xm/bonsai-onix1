@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace NeuracleExtension;
 
-public class GlobalState
+/// <summary>
+/// 头盒相关的共享状态
+/// </summary>
+public class NeuracleGlobalState
 {
     /// <summary>
     /// 每个头盒的通道数
