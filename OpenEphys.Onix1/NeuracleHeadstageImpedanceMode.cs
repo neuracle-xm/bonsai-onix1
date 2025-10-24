@@ -61,9 +61,8 @@ public class NeuracleHeadstageImpedanceMode : Sink<bool>
                     {
                         return;
                     }
-                    NeuracleHeadstageGlobalState.HeadstageState = HeadstageState.Impedance;
+                    NeuracleHeadstageGlobalState.HeadstageState[DeviceName] = HeadstageState.Impedance;
                     Task task = Task.Run(() =>
-                    {
                         DeviceManager.GetDevice(DeviceName).Subscribe(x =>
                         {
                             var device = x.GetDeviceContext(typeof(NeuracleHeadstageData));
@@ -78,8 +77,7 @@ public class NeuracleHeadstageImpedanceMode : Sink<bool>
                             device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 1);
                             Thread.Sleep(_delay);
                             device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 0);
-                        });
-                    });
+                        }));
                     task.Wait();
                     var messageBox = new NeuracleMessageBox("Headstage切换到阻抗模式");
                     messageBox.Show();

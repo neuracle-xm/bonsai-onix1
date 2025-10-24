@@ -7,10 +7,11 @@ namespace NeuracleExtension;
 
 public class NeuracleHeadstageDataFrame : DataFrame
 {
-    public NeuracleHeadstageDataFrame(ulong clock, ulong hubClock, Mat amplifierData, uint impedanceIndex, float impedanceValue, Mat auxData, Bno055DataFrame bno055DataFrame,
+    public NeuracleHeadstageDataFrame(string deviceName, ulong clock, ulong hubClock, Mat amplifierData, uint impedanceIndex, float impedanceValue, Mat auxData, Bno055DataFrame bno055DataFrame,
                                       TS4231V1DataFrame ts4231V1DataFrame1, TS4231V1DataFrame ts4231V1DataFrame2,
                                       TS4231V1DataFrame ts4231V1DataFrame3, TS4231V1DataFrame ts4231V1DataFrame4) : base(clock, hubClock)
     {
+        DeviceName = deviceName;
         AmplifierData = amplifierData;
         ImpedanceValue = new Tuple<string, float>($"通道{impedanceIndex}", impedanceValue);
         AuxData = auxData;
@@ -21,6 +22,7 @@ public class NeuracleHeadstageDataFrame : DataFrame
         TS4231V1DataFrame4 = ts4231V1DataFrame4;
     }
 
+    public string DeviceName { get; set; }
     public Mat AmplifierData { get; set; }
     public Tuple<string, float> ImpedanceValue { get; }
     public Mat AuxData { get; set; }

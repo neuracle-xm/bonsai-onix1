@@ -23,14 +23,21 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
     /// </summary>
     public const float VoltageCoefficient = 0.0006f;
 
+    [Description("缓存的帧大小")]
+    [Category(DeviceFactory.ConfigurationCategory)]
+    public int BufferSize { get; set; } = 3000;
+
     public unsafe override IObservable<NeuracleHeadstageDataFrame> Generate()
     {
+        var bufferSize = BufferSize;
         return DeviceManager.GetDevice(DeviceName).SelectMany(
             deviceInfo => Observable.Create<NeuracleHeadstageDataFrame>(observer =>
             {
                 var device = deviceInfo.GetDeviceContext(typeof(NeuracleHeadstageData));
-                var rawAmplifierBuffer = new int[NeuracleHeadstageData.AmplifierChannelCount];
-                var amplifierBuffer = new float[NeuracleHeadstageData.AmplifierChannelCount];
+                //采集模式要累计满一定的帧
+                var dataSampleIndex = 0;
+                var rawAmplifierBuffer = new int[NeuracleHeadstageData.AmplifierChannelCount * bufferSize];
+                var amplifierBuffer = new float[NeuracleHeadstageData.AmplifierChannelCount * bufferSize];
                 var auxBuffer = new int[NeuracleHeadstageData.AuxChannelCount];
                 //这个是原始32位的数组
                 var rawBno055Buffer = new int[NeuracleHeadstageData.Bno055ChannelCount];
@@ -40,6 +47,7 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
                 var ts4231Buffer = new Int16[NeuracleHeadstageData.TS4231ChannelCount];
                 //阻抗模式下要累计一定点数后算一次阻抗
                 var impedanceSampleIndex = 0;
+                var rawImpedanceBuffer = new int[NeuracleHeadstageData.AmplifierChannelCount];
                 var impedanceBuffer = new int[NeuracleHeadstageGlobalState.ImpedanceBufferSize];
                 var frameObserver = Observer.Create<oni.Frame>(
                     frame =>
@@ -47,7 +55,6 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
                         var payload = (NeuracleHeadstageDataPayload*)frame.Data.ToPointer();
                         ulong clock = frame.Clock;
                         ulong hubClock = payload->HubClock;
-                        Marshal.Copy(new IntPtr(payload->AmplifierData), rawAmplifierBuffer, 0, NeuracleHeadstageData.AmplifierChannelCount);
                         Marshal.Copy(new IntPtr(payload->AuxData), auxBuffer, 0, NeuracleHeadstageData.AuxChannelCount);
                         Marshal.Copy(new IntPtr(payload->Bno055Data), rawBno055Buffer, 0, NeuracleHeadstageData.Bno055ChannelCount);
                         Marshal.Copy(new IntPtr(payload->TS4231Data), rawTS4231Buffer, 0, NeuracleHeadstageData.TS4231ChannelCount);
@@ -70,28 +77,35 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
                         Span<Int16> group4 = ts4231Buffer.AsSpan(16, 5);
                         var ts4231V1DataFrame4 = new TS4231V1DataFrame(clock, hubClock, 4, group4);
                         var auxData = BufferHelper.CopyTranspose(auxBuffer, 1, NeuracleHeadstageData.AuxChannelCount, Depth.S32);
-                        if (NeuracleHeadstageGlobalState.HeadstageState == HeadstageState.Data)
+                        if (NeuracleHeadstageGlobalState.HeadstageState[DeviceName] == HeadstageState.Data)
                         {
-                            //转换成实际的电压值，单位mV
-                            for (int i = 0; i < amplifierBuffer.Length; i++)
-                            {
-                                amplifierBuffer[i] = rawAmplifierBuffer[i] * VoltageCoefficient;
-                            }
                             //换成采集模式时清掉阻抗数组累计的值
                             impedanceSampleIndex = 0;
-                            var amplifierData = BufferHelper.CopyTranspose(amplifierBuffer, 1, NeuracleHeadstageData.AmplifierChannelCount, Depth.F32);
-                            observer.OnNext(new NeuracleHeadstageDataFrame(clock, hubClock, amplifierData, NeuracleHeadstageGlobalState.ImpedanceChannelIndex, float.PositiveInfinity, auxData, bno055DataFrame, ts4231V1DataFrame1, ts4231V1DataFrame2, ts4231V1DataFrame3, ts4231V1DataFrame4));
+                            Marshal.Copy(new IntPtr(payload->AmplifierData), rawAmplifierBuffer, dataSampleIndex * NeuracleHeadstageData.AmplifierChannelCount, NeuracleHeadstageData.AmplifierChannelCount);
+                            if (++dataSampleIndex >= bufferSize)
+                            {
+                                //转换成实际的电压值，单位mV
+                                for (int i = 0; i < rawAmplifierBuffer.Length; i++)
+                                {
+                                    amplifierBuffer[i] = rawAmplifierBuffer[i] * VoltageCoefficient;
+                                }
+                                var amplifierData = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, NeuracleHeadstageData.AmplifierChannelCount, Depth.F32);
+                                observer.OnNext(new NeuracleHeadstageDataFrame(DeviceName, clock, hubClock, amplifierData, NeuracleHeadstageGlobalState.ImpedanceChannelIndex, float.PositiveInfinity, auxData, bno055DataFrame, ts4231V1DataFrame1, ts4231V1DataFrame2, ts4231V1DataFrame3, ts4231V1DataFrame4));
+                                dataSampleIndex = 0;
+                            }
                         }
-                        else if (NeuracleHeadstageGlobalState.HeadstageState == HeadstageState.Impedance)
+                        else if (NeuracleHeadstageGlobalState.HeadstageState[DeviceName] == HeadstageState.Impedance)
                         {
+                            dataSampleIndex = 0;
                             //找到当前测的通道返回的电压值
-                            var currentImpedanceChannelVoltage = rawAmplifierBuffer[NeuracleHeadstageGlobalState.ImpedanceChannelIndex];
+                            Marshal.Copy(new IntPtr(payload->AmplifierData), rawImpedanceBuffer, 0, NeuracleHeadstageData.AmplifierChannelCount);
+                            var currentImpedanceChannelVoltage = rawImpedanceBuffer[NeuracleHeadstageGlobalState.ImpedanceChannelIndex];
                             impedanceBuffer[impedanceSampleIndex] = currentImpedanceChannelVoltage;
                             if (++impedanceSampleIndex >= NeuracleHeadstageGlobalState.ImpedanceBufferSize)
                             {
                                 var bandPassFilterdArray = NeuracleHeadstageGlobalState.FirFilt(impedanceBuffer, NeuracleHeadstageGlobalState.bandPassCoefficient);
                                 var impedanceValue = NeuracleHeadstageGlobalState.ComputeImpedance(bandPassFilterdArray);
-                                observer.OnNext(new NeuracleHeadstageDataFrame(clock, hubClock, Mat.Zeros(NeuracleHeadstageData.AmplifierChannelCount, 1, Depth.F32, 1), NeuracleHeadstageGlobalState.ImpedanceChannelIndex, impedanceValue, auxData, bno055DataFrame, ts4231V1DataFrame1, ts4231V1DataFrame2, ts4231V1DataFrame3, ts4231V1DataFrame4));
+                                observer.OnNext(new NeuracleHeadstageDataFrame(DeviceName, clock, hubClock, Mat.Zeros(NeuracleHeadstageData.AmplifierChannelCount, 1, Depth.F32, 1), NeuracleHeadstageGlobalState.ImpedanceChannelIndex, impedanceValue, auxData, bno055DataFrame, ts4231V1DataFrame1, ts4231V1DataFrame2, ts4231V1DataFrame3, ts4231V1DataFrame4));
                                 impedanceSampleIndex = 0;
                             }
                         }

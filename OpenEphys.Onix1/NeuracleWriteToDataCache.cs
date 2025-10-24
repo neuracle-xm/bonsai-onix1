@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Reactive.Linq;
 using Bonsai;
 using OpenCV.Net;
-using OpenEphys.Onix1;
 
 namespace NeuracleExtension;
 
