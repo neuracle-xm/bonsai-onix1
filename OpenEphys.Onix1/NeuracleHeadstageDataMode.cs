@@ -36,9 +36,8 @@ public class NeuracleHeadstageDataMode : Sink<bool>
                         {
                             return;
                         }
-                        NeuracleHeadstageGlobalState.HeadstageState = HeadstageState.Data;
+                        NeuracleHeadstageGlobalState.HeadstageState[DeviceName] = HeadstageState.Data;
                         Task task = Task.Run(() =>
-                        {
                             DeviceManager.GetDevice(DeviceName).Subscribe(x =>
                             {
                                 var device = x.GetDeviceContext(typeof(NeuracleHeadstageData));
@@ -52,8 +51,7 @@ public class NeuracleHeadstageDataMode : Sink<bool>
                                 device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 1);
                                 Thread.Sleep(_delay);
                                 device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 0);
-                            });
-                        });
+                            }));
                         task.Wait();
                         var messageBox = new NeuracleMessageBox("Headstage切换到采集模式");
                         messageBox.Show();

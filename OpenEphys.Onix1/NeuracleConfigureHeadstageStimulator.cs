@@ -14,11 +14,10 @@ public class NeuracleConfigureHeadstageStimulator : SingleDeviceFactory
     public override IObservable<ContextTask> Process(IObservable<ContextTask> source)
     {
         var deviceName = DeviceName;
+        var deviceAddress = DeviceAddress;
         return source.ConfigureDevice(context =>
         {
-            uint? deviceAddress = context.GetAddressByID(HeadstageStimulator.ID) ?? throw new Exception("没有找到HeadstageStimulator对应的地址");
-            DeviceAddress = deviceAddress.Value;
-            var device = context.GetDeviceContext(deviceAddress.Value, DeviceType);
+            var device = context.GetDeviceContext(deviceAddress, DeviceType);
             return DeviceManager.RegisterDevice(deviceName, device, DeviceType);
         });
     }

@@ -15,11 +15,12 @@ public class NeuracleConfigureHeadstageData : SingleDeviceFactory
     public override IObservable<ContextTask> Process(IObservable<ContextTask> source)
     {
         var deviceName = DeviceName;
+        var deviceAddress = DeviceAddress;
         return source.ConfigureDevice(context =>
         {
-            uint? deviceAddress = context.GetAddressByID(NeuracleHeadstageData.ID) ?? throw new Exception("没有找到NeuracleHeadstageData对应的地址");
-            DeviceAddress = deviceAddress.Value;
-            var device = context.GetDeviceContext(deviceAddress.Value, DeviceType);
+            var device = context.GetDeviceContext(deviceAddress, DeviceType);
+            //初始是采集模式
+            NeuracleHeadstageGlobalState.HeadstageState[deviceName] = HeadstageState.Data;
             return DeviceManager.RegisterDevice(deviceName, device, DeviceType);
         });
     }
