@@ -58,11 +58,11 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
                         Span<Int16> group1 = ts4231Buffer.AsSpan(1, 5);
                         var ts4231V1DataFrame1 = new TS4231V1DataFrame(clock, hubClock, 1, group1);
                         Span<Int16> group2 = ts4231Buffer.AsSpan(6, 5);
-                        var ts4231V1DataFrame2 = new TS4231V1DataFrame(clock, hubClock, 2, group1);
+                        var ts4231V1DataFrame2 = new TS4231V1DataFrame(clock, hubClock, 2, group2);
                         Span<Int16> group3 = ts4231Buffer.AsSpan(11, 5);
-                        var ts4231V1DataFrame3 = new TS4231V1DataFrame(clock, hubClock, 3, group1);
+                        var ts4231V1DataFrame3 = new TS4231V1DataFrame(clock, hubClock, 3, group3);
                         Span<Int16> group4 = ts4231Buffer.AsSpan(16, 5);
-                        var ts4231V1DataFrame4 = new TS4231V1DataFrame(clock, hubClock, 4, group1);
+                        var ts4231V1DataFrame4 = new TS4231V1DataFrame(clock, hubClock, 4, group4);
                         var auxData = BufferHelper.CopyTranspose(auxBuffer, 1, NeuracleHeadstageData.AuxChannelCount, Depth.S32);
                         if (NeuracleHeadstageGlobalState.HeadstageState == HeadstageState.Data)
                         {
