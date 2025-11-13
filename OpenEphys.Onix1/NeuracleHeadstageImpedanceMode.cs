@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Bonsai;
 using OpenEphys.Onix1;
 
@@ -43,6 +45,11 @@ public class NeuracleHeadstageImpedanceMode : Sink<bool>
         }
     }
 
+    /// <summary>
+    /// 写寄存器之间的延迟
+    /// </summary>
+    private readonly int _delay = 100;
+
     public override IObservable<bool> Process(IObservable<bool> source)
     {
         return Observable.Create<bool>(observer =>
@@ -55,19 +62,27 @@ public class NeuracleHeadstageImpedanceMode : Sink<bool>
                         return;
                     }
                     NeuracleHeadstageGlobalState.HeadstageState = HeadstageState.Impedance;
-                    DeviceManager.GetDevice(DeviceName).Subscribe(x =>
+                    Task task = Task.Run(() =>
                     {
-                        var device = x.GetDeviceContext(typeof(NeuracleHeadstageData));
-                        //切换到阻抗模式时，先写zcheck_ch和zcheck_mode寄存器，切换到阻抗模式并选择阻抗检测通道，
-                        //最后下发soft_rst寄存器，FPGA开始配置阻抗模式并获取对应通道电压值
-                        device.WriteRegister(NeuracleHeadstageData.ZCHECK_CH, NeuracleHeadstageGlobalState.ImpedanceChannelIndex);
-                        device.WriteRegister(NeuracleHeadstageData.ZCHECK_MODE, 1);
-                        device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 0);
-                        device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 1);
-                        device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 0);
-                        var messageBox = new NeuracleMessageBox("Headstage切换到阻抗模式");
-                        messageBox.Show();
+                        DeviceManager.GetDevice(DeviceName).Subscribe(x =>
+                        {
+                            var device = x.GetDeviceContext(typeof(NeuracleHeadstageData));
+                            //切换到阻抗模式时，先写zcheck_ch和zcheck_mode寄存器，切换到阻抗模式并选择阻抗检测通道，
+                            //最后下发soft_rst寄存器，FPGA开始配置阻抗模式并获取对应通道电压值
+                            device.WriteRegister(NeuracleHeadstageData.ZCHECK_CH, NeuracleHeadstageGlobalState.ImpedanceChannelIndex);
+                            Thread.Sleep(_delay);
+                            device.WriteRegister(NeuracleHeadstageData.ZCHECK_MODE, 1);
+                            Thread.Sleep(_delay);
+                            device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 0);
+                            Thread.Sleep(_delay);
+                            device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 1);
+                            Thread.Sleep(_delay);
+                            device.WriteRegister(NeuracleHeadstageData.SOFT_RST, 0);
+                        });
                     });
+                    task.Wait();
+                    var messageBox = new NeuracleMessageBox("Headstage切换到阻抗模式");
+                    messageBox.Show();
                     observer.OnNext(value);
                 },
                 observer.OnError,
