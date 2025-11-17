@@ -23,6 +23,11 @@ public class NeuracleConfigureHub : MultiDeviceFactory
     [Description("Neuracle模拟开关的配置")]
     public NeuracleSwitchDeviceConfigure SwitchDevice { get; set; } = new();
 
+    /// <summary>
+    /// 闭环反馈模式专用，不要放到UI上
+    /// </summary>
+    private readonly NeuracleFeedbackDeviceConfigure _feedbackDeviceConfigure = new();
+
     private HubName _hub = HubName.HubA;
     [Description("这个头盒的名称")]
     [Category(ConfigurationCategory)]
@@ -39,6 +44,7 @@ public class NeuracleConfigureHub : MultiDeviceFactory
             Data.DeviceAddress = (uint)value;
             ElectricalStimulator.DeviceAddress = (uint)value + 1;
             SwitchDevice.DeviceAddress = (uint)value + 2;
+            _feedbackDeviceConfigure.DeviceAddress = (uint)value + 3;
             //每个头盒初始都是采集模式
             if (!NeuracleGlobalState.HubStates.ContainsKey(_hub))
             {
@@ -70,6 +76,7 @@ public class NeuracleConfigureHub : MultiDeviceFactory
         yield return Data;
         yield return ElectricalStimulator;
         yield return SwitchDevice;
+        yield return _feedbackDeviceConfigure;
     }
 }
 

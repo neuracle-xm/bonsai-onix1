@@ -11,84 +11,114 @@
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:TcpServer">
-          <p1:Name>Tcp1</p1:Name>
-          <p1:Port>9001</p1:Port>
-          <p1:Address>localhost</p1:Address>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p1:TcpServer">
+            <p1:Name>Tcp1</p1:Name>
+            <p1:Port>9001</p1:Port>
+            <p1:Address>localhost</p1:Address>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:TcpServer">
-          <p1:Name>Tcp2</p1:Name>
-          <p1:Port>9002</p1:Port>
-          <p1:Address>localhost</p1:Address>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p1:TcpServer">
+            <p1:Name>Tcp2</p1:Name>
+            <p1:Port>9002</p1:Port>
+            <p1:Address>localhost</p1:Address>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:CreateRuntime">
-          <py:PythonHome>python</py:PythonHome>
-          <py:ScriptPath>python\main.py</py:ScriptPath>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:CreateRuntime">
+            <py:PythonHome>python</py:PythonHome>
+            <py:ScriptPath>python\main.py</py:ScriptPath>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:Eval">
-          <py:Expression>set_channel(0)</py:Expression>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:Eval">
+            <py:Expression>set_channel(0)</py:Expression>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleReadDataCache">
-          <p2:CacheName>HubA/NeuracleData</p2:CacheName>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleReadDataCache">
+            <p2:CacheName>HubA/NeuracleData</p2:CacheName>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:ObserveOnGIL" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:ObserveOnGIL" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:Set">
-          <py:VariableName>data</py:VariableName>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:Set">
+            <py:VariableName>data</py:VariableName>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:Eval">
-          <py:Expression>run(data)</py:Expression>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:Eval">
+            <py:Expression>run(data)</py:Expression>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:ObserveOnGIL" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:ObserveOnGIL" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:Get">
-          <py:VariableName>result</py:VariableName>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:Get">
+            <py:VariableName>result</py:VariableName>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleSortingResult" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleSortingResult" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="dsp:SelectChannels">
-          <dsp:Channels>
-            <dsp:int>0</dsp:int>
-          </dsp:Channels>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:SelectChannels">
+            <dsp:Channels>
+              <dsp:int>0</dsp:int>
+            </dsp:Channels>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="dsp:ConvertScale">
-          <dsp:Depth>F32</dsp:Depth>
-          <dsp:Scale>100</dsp:Scale>
-          <dsp:Shift>0</dsp:Shift>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:ConvertScale">
+            <dsp:Depth>F32</dsp:Depth>
+            <dsp:Scale>100</dsp:Scale>
+            <dsp:Shift>0</dsp:Shift>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="al:AudioPlayback">
-          <al:SampleRate>44100</al:SampleRate>
-          <al:State>Playing</al:State>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="al:AudioPlayback">
+            <al:SampleRate>44100</al:SampleRate>
+            <al:State>Playing</al:State>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:SendMatOverSocket">
-          <p1:Connection>Tcp1</p1:Connection>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p1:SendMatOverSocket">
+            <p1:Connection>Tcp1</p1:Connection>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:CreateContext">
@@ -132,113 +162,125 @@
           <p2:Hub>HubB</p2:Hub>
         </Combinator>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleConfigureHub">
-          <p2:Name>HubC</p2:Name>
-          <p2:Data>
-            <p2:DeviceName>HubC/NeuracleData</p2:DeviceName>
-            <p2:DeviceAddress>13056</p2:DeviceAddress>
-          </p2:Data>
-          <p2:ElectricalStimulator>
-            <p2:DeviceName>HubC/ElectricalStimulator</p2:DeviceName>
-            <p2:DeviceAddress>13057</p2:DeviceAddress>
-          </p2:ElectricalStimulator>
-          <p2:SwitchDevice>
-            <p2:DeviceName>HubC/SwitchDevice</p2:DeviceName>
-            <p2:DeviceAddress>13058</p2:DeviceAddress>
-          </p2:SwitchDevice>
-          <p2:Hub>HubC</p2:Hub>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleConfigureHub">
+            <p2:Name>HubC</p2:Name>
+            <p2:Data>
+              <p2:DeviceName>HubC/NeuracleData</p2:DeviceName>
+              <p2:DeviceAddress>13056</p2:DeviceAddress>
+            </p2:Data>
+            <p2:ElectricalStimulator>
+              <p2:DeviceName>HubC/ElectricalStimulator</p2:DeviceName>
+              <p2:DeviceAddress>13057</p2:DeviceAddress>
+            </p2:ElectricalStimulator>
+            <p2:SwitchDevice>
+              <p2:DeviceName>HubC/SwitchDevice</p2:DeviceName>
+              <p2:DeviceAddress>13058</p2:DeviceAddress>
+            </p2:SwitchDevice>
+            <p2:Hub>HubC</p2:Hub>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleConfigureHub">
-          <p2:Name>HubD</p2:Name>
-          <p2:Data>
-            <p2:DeviceName>HubD/NeuracleData</p2:DeviceName>
-            <p2:DeviceAddress>17408</p2:DeviceAddress>
-          </p2:Data>
-          <p2:ElectricalStimulator>
-            <p2:DeviceName>HubD/ElectricalStimulator</p2:DeviceName>
-            <p2:DeviceAddress>17409</p2:DeviceAddress>
-          </p2:ElectricalStimulator>
-          <p2:SwitchDevice>
-            <p2:DeviceName>HubD/SwitchDevice</p2:DeviceName>
-            <p2:DeviceAddress>17410</p2:DeviceAddress>
-          </p2:SwitchDevice>
-          <p2:Hub>HubD</p2:Hub>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleConfigureHub">
+            <p2:Name>HubD</p2:Name>
+            <p2:Data>
+              <p2:DeviceName>HubD/NeuracleData</p2:DeviceName>
+              <p2:DeviceAddress>17408</p2:DeviceAddress>
+            </p2:Data>
+            <p2:ElectricalStimulator>
+              <p2:DeviceName>HubD/ElectricalStimulator</p2:DeviceName>
+              <p2:DeviceAddress>17409</p2:DeviceAddress>
+            </p2:ElectricalStimulator>
+            <p2:SwitchDevice>
+              <p2:DeviceName>HubD/SwitchDevice</p2:DeviceName>
+              <p2:DeviceAddress>17410</p2:DeviceAddress>
+            </p2:SwitchDevice>
+            <p2:Hub>HubD</p2:Hub>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleConfigureHub">
-          <p2:Name>HubE</p2:Name>
-          <p2:Data>
-            <p2:DeviceName>HubE/NeuracleData</p2:DeviceName>
-            <p2:DeviceAddress>21760</p2:DeviceAddress>
-          </p2:Data>
-          <p2:ElectricalStimulator>
-            <p2:DeviceName>HubE/ElectricalStimulator</p2:DeviceName>
-            <p2:DeviceAddress>21761</p2:DeviceAddress>
-          </p2:ElectricalStimulator>
-          <p2:SwitchDevice>
-            <p2:DeviceName>HubE/SwitchDevice</p2:DeviceName>
-            <p2:DeviceAddress>21762</p2:DeviceAddress>
-          </p2:SwitchDevice>
-          <p2:Hub>HubE</p2:Hub>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleConfigureHub">
+            <p2:Name>HubE</p2:Name>
+            <p2:Data>
+              <p2:DeviceName>HubE/NeuracleData</p2:DeviceName>
+              <p2:DeviceAddress>21760</p2:DeviceAddress>
+            </p2:Data>
+            <p2:ElectricalStimulator>
+              <p2:DeviceName>HubE/ElectricalStimulator</p2:DeviceName>
+              <p2:DeviceAddress>21761</p2:DeviceAddress>
+            </p2:ElectricalStimulator>
+            <p2:SwitchDevice>
+              <p2:DeviceName>HubE/SwitchDevice</p2:DeviceName>
+              <p2:DeviceAddress>21762</p2:DeviceAddress>
+            </p2:SwitchDevice>
+            <p2:Hub>HubE</p2:Hub>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleConfigureHub">
-          <p2:Name>HubF</p2:Name>
-          <p2:Data>
-            <p2:DeviceName>HubF/NeuracleData</p2:DeviceName>
-            <p2:DeviceAddress>26112</p2:DeviceAddress>
-          </p2:Data>
-          <p2:ElectricalStimulator>
-            <p2:DeviceName>HubF/ElectricalStimulator</p2:DeviceName>
-            <p2:DeviceAddress>26113</p2:DeviceAddress>
-          </p2:ElectricalStimulator>
-          <p2:SwitchDevice>
-            <p2:DeviceName>HubF/SwitchDevice</p2:DeviceName>
-            <p2:DeviceAddress>26114</p2:DeviceAddress>
-          </p2:SwitchDevice>
-          <p2:Hub>HubF</p2:Hub>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleConfigureHub">
+            <p2:Name>HubF</p2:Name>
+            <p2:Data>
+              <p2:DeviceName>HubF/NeuracleData</p2:DeviceName>
+              <p2:DeviceAddress>26112</p2:DeviceAddress>
+            </p2:Data>
+            <p2:ElectricalStimulator>
+              <p2:DeviceName>HubF/ElectricalStimulator</p2:DeviceName>
+              <p2:DeviceAddress>26113</p2:DeviceAddress>
+            </p2:ElectricalStimulator>
+            <p2:SwitchDevice>
+              <p2:DeviceName>HubF/SwitchDevice</p2:DeviceName>
+              <p2:DeviceAddress>26114</p2:DeviceAddress>
+            </p2:SwitchDevice>
+            <p2:Hub>HubF</p2:Hub>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleConfigureHub">
-          <p2:Name>HubG</p2:Name>
-          <p2:Data>
-            <p2:DeviceName>HubG/NeuracleData</p2:DeviceName>
-            <p2:DeviceAddress>30464</p2:DeviceAddress>
-          </p2:Data>
-          <p2:ElectricalStimulator>
-            <p2:DeviceName>HubG/ElectricalStimulator</p2:DeviceName>
-            <p2:DeviceAddress>30465</p2:DeviceAddress>
-          </p2:ElectricalStimulator>
-          <p2:SwitchDevice>
-            <p2:DeviceName>HubG/SwitchDevice</p2:DeviceName>
-            <p2:DeviceAddress>30466</p2:DeviceAddress>
-          </p2:SwitchDevice>
-          <p2:Hub>HubG</p2:Hub>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleConfigureHub">
+            <p2:Name>HubG</p2:Name>
+            <p2:Data>
+              <p2:DeviceName>HubG/NeuracleData</p2:DeviceName>
+              <p2:DeviceAddress>30464</p2:DeviceAddress>
+            </p2:Data>
+            <p2:ElectricalStimulator>
+              <p2:DeviceName>HubG/ElectricalStimulator</p2:DeviceName>
+              <p2:DeviceAddress>30465</p2:DeviceAddress>
+            </p2:ElectricalStimulator>
+            <p2:SwitchDevice>
+              <p2:DeviceName>HubG/SwitchDevice</p2:DeviceName>
+              <p2:DeviceAddress>30466</p2:DeviceAddress>
+            </p2:SwitchDevice>
+            <p2:Hub>HubG</p2:Hub>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleConfigureHub">
-          <p2:Name>HubH</p2:Name>
-          <p2:Data>
-            <p2:DeviceName>HubH/NeuracleData</p2:DeviceName>
-            <p2:DeviceAddress>34816</p2:DeviceAddress>
-          </p2:Data>
-          <p2:ElectricalStimulator>
-            <p2:DeviceName>HubH/ElectricalStimulator</p2:DeviceName>
-            <p2:DeviceAddress>34817</p2:DeviceAddress>
-          </p2:ElectricalStimulator>
-          <p2:SwitchDevice>
-            <p2:DeviceName>HubH/SwitchDevice</p2:DeviceName>
-            <p2:DeviceAddress>34818</p2:DeviceAddress>
-          </p2:SwitchDevice>
-          <p2:Hub>HubH</p2:Hub>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleConfigureHub">
+            <p2:Name>HubH</p2:Name>
+            <p2:Data>
+              <p2:DeviceName>HubH/NeuracleData</p2:DeviceName>
+              <p2:DeviceAddress>34816</p2:DeviceAddress>
+            </p2:Data>
+            <p2:ElectricalStimulator>
+              <p2:DeviceName>HubH/ElectricalStimulator</p2:DeviceName>
+              <p2:DeviceAddress>34817</p2:DeviceAddress>
+            </p2:ElectricalStimulator>
+            <p2:SwitchDevice>
+              <p2:DeviceName>HubH/SwitchDevice</p2:DeviceName>
+              <p2:DeviceAddress>34818</p2:DeviceAddress>
+            </p2:SwitchDevice>
+            <p2:Hub>HubH</p2:Hub>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:StartAcquisition">
@@ -255,16 +297,20 @@
       <Expression xsi:type="MemberSelector">
         <Selector>AmplifierData</Selector>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:SendMatOverSocket">
-          <p1:Connection>Tcp2</p1:Connection>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p1:SendMatOverSocket">
+            <p1:Connection>Tcp2</p1:Connection>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="MemberSelector">
         <Selector>ImpedanceValue</Selector>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+        </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p2:NeuracleHubData">
@@ -278,98 +324,148 @@
       <Expression xsi:type="MemberSelector">
         <Selector>ImpedanceValue</Selector>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleHubData">
-          <p2:DeviceName>HubC/NeuracleData</p2:DeviceName>
-          <p2:BufferSize>3200</p2:BufferSize>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleHubData">
+            <p2:DeviceName>HubC/NeuracleData</p2:DeviceName>
+            <p2:BufferSize>3200</p2:BufferSize>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>AmplifierData</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>AmplifierData</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>ImpedanceValue</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>ImpedanceValue</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleHubData">
-          <p2:DeviceName>HubD/NeuracleData</p2:DeviceName>
-          <p2:BufferSize>3200</p2:BufferSize>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleHubData">
+            <p2:DeviceName>HubD/NeuracleData</p2:DeviceName>
+            <p2:BufferSize>3200</p2:BufferSize>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>AmplifierData</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>AmplifierData</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>ImpedanceValue</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>ImpedanceValue</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleHubData">
-          <p2:DeviceName>HubE/NeuracleData</p2:DeviceName>
-          <p2:BufferSize>3200</p2:BufferSize>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleHubData">
+            <p2:DeviceName>HubE/NeuracleData</p2:DeviceName>
+            <p2:BufferSize>3200</p2:BufferSize>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>AmplifierData</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>AmplifierData</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>ImpedanceValue</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>ImpedanceValue</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleHubData">
-          <p2:DeviceName>HubF/NeuracleData</p2:DeviceName>
-          <p2:BufferSize>3200</p2:BufferSize>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleHubData">
+            <p2:DeviceName>HubF/NeuracleData</p2:DeviceName>
+            <p2:BufferSize>3200</p2:BufferSize>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>AmplifierData</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>AmplifierData</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>ImpedanceValue</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>ImpedanceValue</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleHubData">
-          <p2:DeviceName>HubG/NeuracleData</p2:DeviceName>
-          <p2:BufferSize>3200</p2:BufferSize>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleHubData">
+            <p2:DeviceName>HubG/NeuracleData</p2:DeviceName>
+            <p2:BufferSize>3200</p2:BufferSize>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>AmplifierData</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>AmplifierData</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>ImpedanceValue</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>ImpedanceValue</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleHubData">
-          <p2:DeviceName>HubH/NeuracleData</p2:DeviceName>
-          <p2:BufferSize>3200</p2:BufferSize>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleHubData">
+            <p2:DeviceName>HubH/NeuracleData</p2:DeviceName>
+            <p2:BufferSize>3200</p2:BufferSize>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>AmplifierData</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>AmplifierData</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>ImpedanceValue</Selector>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="MemberSelector">
+          <Selector>ImpedanceValue</Selector>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleWriteToDataCache" />
+        </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="wie:KeyDown">
@@ -384,7 +480,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p2:NeuracleDataMode">
-          <p2:HubName>HubA</p2:HubName>
+          <p2:HubName>HubB</p2:HubName>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -472,7 +568,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p2:NeuracleImpedanceMode">
-          <p2:HubName>HubA</p2:HubName>
+          <p2:HubName>HubB</p2:HubName>
           <p2:ChannelIndex>0</p2:ChannelIndex>
         </Combinator>
       </Expression>

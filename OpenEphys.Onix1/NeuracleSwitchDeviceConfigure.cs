@@ -18,7 +18,11 @@ public class NeuracleSwitchDeviceConfigure : SingleDeviceFactory
         return source.ConfigureDevice(context =>
         {
             var device = context.GetDeviceContext(deviceAddress, DeviceType);
-            //device.WriteRegister(Headstage64ElectricalStimulator.ENABLE, 0);
+            //一开始就默认开始采集
+            device.WriteRegister(SwitchDevice.SwitchCref, 1028);
+            device.OpenAllAdc();
+            device.CloseAllDac();
+            device.StartSwitch();
             return DeviceManager.RegisterDevice(deviceName, device, DeviceType);
         });
     }
@@ -66,6 +70,15 @@ public static class SwitchDevice
     /// 开始切换
     /// </summary>
     public const int SwitchStart = 21;
+
+    /// <summary>
+    /// 新加的四路用于控制DAC的开关，每8位控制一路
+    /// 31~24 对应stimd 打开设置为 0b01000000,关闭设置为 0b00000000
+    /// 23~16 对应stimc 打开设置为 0b01000000,关闭设置为 0b00000000
+    /// 15~8 对应stimb  打开设置为 0b01000000,关闭设置为 0b00000000
+    /// 7~0 对应stima   打开设置为 0b01000000,关闭设置为 0b00000000
+    /// </summary>
+    public const int SwitchNewDac = 22;
 
     internal class NameConverter : DeviceNameConverter
     {

@@ -10,12 +10,14 @@
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:TcpServer">
-          <p1:Name>Tcp1</p1:Name>
-          <p1:Port>9001</p1:Port>
-          <p1:Address>localhost</p1:Address>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p1:TcpServer">
+            <p1:Name>Tcp1</p1:Name>
+            <p1:Port>9001</p1:Port>
+            <p1:Address>localhost</p1:Address>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:TcpServer">
@@ -24,50 +26,70 @@
           <p1:Address>localhost</p1:Address>
         </Combinator>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:CreateRuntime">
-          <py:PythonHome>python</py:PythonHome>
-          <py:ScriptPath>python\main.py</py:ScriptPath>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:CreateRuntime">
+            <py:PythonHome>python</py:PythonHome>
+            <py:ScriptPath>python\main.py</py:ScriptPath>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:Eval">
-          <py:Expression>set_channel(0)</py:Expression>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:Eval">
+            <py:Expression>set_channel(0)</py:Expression>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleReadDataCache">
-          <p2:CacheName>HubA/NeuracleData</p2:CacheName>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleReadDataCache">
+            <p2:CacheName>HubA/NeuracleData</p2:CacheName>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:ObserveOnGIL" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:ObserveOnGIL" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:Set">
-          <py:VariableName>data</py:VariableName>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:Set">
+            <py:VariableName>data</py:VariableName>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:Eval">
-          <py:Expression>run(data)</py:Expression>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:Eval">
+            <py:Expression>run(data)</py:Expression>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:ObserveOnGIL" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:ObserveOnGIL" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="py:Get">
-          <py:VariableName>result</py:VariableName>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="py:Get">
+            <py:VariableName>result</py:VariableName>
+          </Combinator>
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:NeuracleSortingResult" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:NeuracleSortingResult" />
+        </Builder>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:SendMatOverSocket">
-          <p1:Connection>Tcp1</p1:Connection>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p1:SendMatOverSocket">
+            <p1:Connection>Tcp1</p1:Connection>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="onix1:CreateContext">
@@ -116,12 +138,14 @@
       <Expression xsi:type="MemberSelector">
         <Selector>ImpedanceValue</Selector>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="dsp:MatrixWriter">
-          <dsp:Suffix>None</dsp:Suffix>
-          <dsp:Overwrite>false</dsp:Overwrite>
-          <dsp:Layout>ColumnMajor</dsp:Layout>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:MatrixWriter">
+            <dsp:Suffix>None</dsp:Suffix>
+            <dsp:Overwrite>false</dsp:Overwrite>
+            <dsp:Layout>ColumnMajor</dsp:Layout>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p2:NeuracleWriteToDataCache" />

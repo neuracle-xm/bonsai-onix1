@@ -561,6 +561,224 @@ public class NeuracleStimulateMode : Sink<bool>
     [Category(DeviceFactory.StimulatorCh4)]
     public bool Ch4BiPhasic { get; set; }
 
+    /// <summary>
+    /// 下发刺激
+    /// </summary>
+    /// <param name="stimulationDeviceName"></param>
+    /// <param name="switchDeviceName"></param>
+    /// <param name="ch1StimulateParameter"></param>
+    /// <param name="ch2StimulateParameter"></param>
+    /// <param name="ch3StimulateParameter"></param>
+    /// <param name="ch4StimulateParameter"></param>
+    public static void StimulateProcedure(string stimulationDeviceName, string switchDeviceName, StimulateParameter ch1StimulateParameter,
+                                          StimulateParameter ch2StimulateParameter, StimulateParameter ch3StimulateParameter, StimulateParameter ch4StimulateParameter)
+    {
+        if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(switchDeviceName, out var hubName))
+        {
+            NeuracleGlobalState.HubStates[hubName] = HubState.Stimulation;
+        }
+        DeviceManager.GetDevice(switchDeviceName).Subscribe(x =>
+        {
+            var device = x.GetDeviceContext(typeof(SwitchDevice));
+            device.WriteRegister(SwitchDevice.SwitchCref, 0);
+            device.CloseAllAdc();
+            //把所有使用的通道分成几个組
+            Dictionary<uint, List<uint>> addressWithChannels = new();
+            if (ch1StimulateParameter.ChEnable)
+            {
+                var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(ch1StimulateParameter.ChStimulateChannel);
+                if (!addressWithChannels.ContainsKey(chAddress))
+                {
+                    addressWithChannels[chAddress] = new List<uint>();
+                }
+                addressWithChannels[chAddress].Add(ch1StimulateParameter.ChStimulateChannel);
+            }
+            if (ch2StimulateParameter.ChEnable)
+            {
+                var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(ch2StimulateParameter.ChStimulateChannel);
+                if (!addressWithChannels.ContainsKey(chAddress))
+                {
+                    addressWithChannels[chAddress] = new List<uint>();
+                }
+                addressWithChannels[chAddress].Add(ch2StimulateParameter.ChStimulateChannel);
+            }
+            if (ch3StimulateParameter.ChEnable)
+            {
+                var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(ch3StimulateParameter.ChStimulateChannel);
+                if (!addressWithChannels.ContainsKey(chAddress))
+                {
+                    addressWithChannels[chAddress] = new List<uint>();
+                }
+                addressWithChannels[chAddress].Add(ch3StimulateParameter.ChStimulateChannel);
+            }
+            if (ch4StimulateParameter.ChEnable)
+            {
+                var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(ch4StimulateParameter.ChStimulateChannel);
+                if (!addressWithChannels.ContainsKey(chAddress))
+                {
+                    addressWithChannels[chAddress] = new List<uint>();
+                }
+                addressWithChannels[chAddress].Add(ch4StimulateParameter.ChStimulateChannel);
+            }
+            uint newDacValue = 0;
+            foreach (var item in addressWithChannels)
+            {
+                var address = item.Key;
+                var channels = item.Value;
+                uint totalWriteValue = 0;
+                foreach (var channel in channels)
+                {
+                    uint stimIndex = 0;
+                    //刺激通道1用stima
+                    if (channel == ch1StimulateParameter.ChStimulateChannel)
+                    {
+                        stimIndex = 0;
+                        newDacValue += 0b01000000;
+                    }
+                    //刺激通道2用stimb
+                    else if (channel == ch2StimulateParameter.ChStimulateChannel)
+                    {
+                        stimIndex = 1;
+                        newDacValue += 0b01000000_00000000;
+                    }
+                    //刺激通道3用stimc
+                    else if (channel == ch3StimulateParameter.ChStimulateChannel)
+                    {
+                        stimIndex = 2;
+                        newDacValue += 0b01000000_00000000_00000000;
+                    }
+                    //刺激通道4用stimd
+                    else
+                    {
+                        stimIndex = 3;
+                        newDacValue += 0b01000000_00000000_00000000_00000000;
+                    }
+                    var writeValue = SwitchWriteRegisterFunctions.GetWriteValue(channel, stimIndex);
+                    totalWriteValue += writeValue;
+                }
+                device.WriteRegister(address, totalWriteValue);
+            }
+            device.WriteRegister(SwitchDevice.SwitchNewDac, newDacValue);
+            device.StartSwitch();
+        });
+        uint channelEnable = 0;
+        int maxDuration = 0;
+        DeviceManager.GetDevice(stimulationDeviceName).Subscribe(x =>
+        {
+            var device = x.GetDeviceContext(typeof(ElectricalStimulator));
+            if (ch1StimulateParameter.ChEnable)
+            {
+                channelEnable += 0b0001;
+                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(ch1StimulateParameter.ChBiPhasic, ch1StimulateParameter.ChPhaseTwoCurrent, ch1StimulateParameter.ChInterPhaseCurrent, ch1StimulateParameter.ChPhaseTwoDuration, ch1StimulateParameter.ChInterPhaseInterval, ch1StimulateParameter.ChInterPulseInterval);
+                (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(ch1StimulateParameter.ChPhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, ch1StimulateParameter.ChInterBurstInterval, ch1StimulateParameter.ChTriggerDelay);
+                int ch1Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, ch1StimulateParameter.ChTrainBurstCount, ch1StimulateParameter.ChBurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                if (ch1Duration > maxDuration)
+                {
+                    maxDuration = ch1Duration;
+                }
+                device.WriteRegister(ElectricalStimulator.CH1BURSTCNT, ch1StimulateParameter.ChBurstPulseCount);
+                device.WriteRegister(ElectricalStimulator.CH1BURSTINTERVAL, interBurstIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH1PHASEINTERVAL, interPhaseIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH1PULSEINTERVAL, interPulseIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH1CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(ch1StimulateParameter.ChPhaseOneCurrent));
+                device.WriteRegister(ElectricalStimulator.CH1CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
+                device.WriteRegister(ElectricalStimulator.CH1PULSEDUR1, phaseOneDurationValidated);
+                device.WriteRegister(ElectricalStimulator.CH1PULSEDUR2, phaseTwoDurationValidated);
+                device.WriteRegister(ElectricalStimulator.CH1TRAINDELAY, triggerDelayValidated);
+                device.WriteRegister(ElectricalStimulator.CH1TRAINCNT, ch1StimulateParameter.ChTrainBurstCount);
+                device.WriteRegister(ElectricalStimulator.CH1RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
+            }
+            if (ch2StimulateParameter.ChEnable)
+            {
+                channelEnable += 0b0010;
+                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(ch2StimulateParameter.ChBiPhasic, ch2StimulateParameter.ChPhaseTwoCurrent, ch2StimulateParameter.ChInterPhaseCurrent, ch2StimulateParameter.ChPhaseTwoDuration, ch2StimulateParameter.ChInterPhaseInterval, ch2StimulateParameter.ChInterPulseInterval);
+                (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(ch2StimulateParameter.ChPhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, ch2StimulateParameter.ChInterBurstInterval, ch2StimulateParameter.ChTriggerDelay);
+                int ch2Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, ch2StimulateParameter.ChTrainBurstCount, ch2StimulateParameter.ChBurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                if (ch2Duration > maxDuration)
+                {
+                    maxDuration = ch2Duration;
+                }
+                device.WriteRegister(ElectricalStimulator.CH2BURSTCNT, ch2StimulateParameter.ChBurstPulseCount);
+                device.WriteRegister(ElectricalStimulator.CH2BURSTINTERVAL, interBurstIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH2PHASEINTERVAL, interPhaseIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH2PULSEINTERVAL, interPulseIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH2CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(ch2StimulateParameter.ChPhaseOneCurrent));
+                device.WriteRegister(ElectricalStimulator.CH2CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
+                device.WriteRegister(ElectricalStimulator.CH2PULSEDUR1, phaseOneDurationValidated);
+                device.WriteRegister(ElectricalStimulator.CH2PULSEDUR2, phaseTwoDurationValidated);
+                device.WriteRegister(ElectricalStimulator.CH2TRAINDELAY, triggerDelayValidated);
+                device.WriteRegister(ElectricalStimulator.CH2TRAINCNT, ch2StimulateParameter.ChTrainBurstCount);
+                device.WriteRegister(ElectricalStimulator.CH2RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
+            }
+            if (ch3StimulateParameter.ChEnable)
+            {
+                channelEnable += 0b0100;
+                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(ch3StimulateParameter.ChBiPhasic, ch3StimulateParameter.ChPhaseTwoCurrent, ch3StimulateParameter.ChInterPhaseCurrent, ch3StimulateParameter.ChPhaseTwoDuration, ch3StimulateParameter.ChInterPhaseInterval, ch3StimulateParameter.ChInterPulseInterval);
+                (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(ch3StimulateParameter.ChPhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, ch3StimulateParameter.ChInterBurstInterval, ch3StimulateParameter.ChTriggerDelay);
+                int ch3Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, ch3StimulateParameter.ChTrainBurstCount, ch3StimulateParameter.ChBurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                if (ch3Duration > maxDuration)
+                {
+                    maxDuration = ch3Duration;
+                }
+                device.WriteRegister(ElectricalStimulator.CH3BURSTCNT, ch3StimulateParameter.ChBurstPulseCount);
+                device.WriteRegister(ElectricalStimulator.CH3BURSTINTERVAL, interBurstIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH3PHASEINTERVAL, interPhaseIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH3PULSEINTERVAL, interPulseIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH3CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(ch3StimulateParameter.ChPhaseOneCurrent));
+                device.WriteRegister(ElectricalStimulator.CH3CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
+                device.WriteRegister(ElectricalStimulator.CH3PULSEDUR1, phaseOneDurationValidated);
+                device.WriteRegister(ElectricalStimulator.CH3PULSEDUR2, phaseTwoDurationValidated);
+                device.WriteRegister(ElectricalStimulator.CH3TRAINDELAY, triggerDelayValidated);
+                device.WriteRegister(ElectricalStimulator.CH3TRAINCNT, ch3StimulateParameter.ChTrainBurstCount);
+                device.WriteRegister(ElectricalStimulator.CH3RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
+            }
+            if (ch4StimulateParameter.ChEnable)
+            {
+                channelEnable += 0b1000;
+                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(ch4StimulateParameter.ChBiPhasic, ch4StimulateParameter.ChPhaseTwoCurrent, ch4StimulateParameter.ChInterPhaseCurrent, ch4StimulateParameter.ChPhaseTwoDuration, ch4StimulateParameter.ChInterPhaseInterval, ch4StimulateParameter.ChInterPulseInterval);
+                (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(ch4StimulateParameter.ChPhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, ch4StimulateParameter.ChInterBurstInterval, ch4StimulateParameter.ChTriggerDelay);
+                int ch4Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, ch4StimulateParameter.ChTrainBurstCount, ch4StimulateParameter.ChBurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                if (ch4Duration > maxDuration)
+                {
+                    maxDuration = ch4Duration;
+                }
+                device.WriteRegister(ElectricalStimulator.CH4BURSTCNT, ch4StimulateParameter.ChBurstPulseCount);
+                device.WriteRegister(ElectricalStimulator.CH4BURSTINTERVAL, interBurstIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH4PHASEINTERVAL, interPhaseIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH4PULSEINTERVAL, interPulseIntervalValidated);
+                device.WriteRegister(ElectricalStimulator.CH4CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(ch4StimulateParameter.ChPhaseOneCurrent));
+                device.WriteRegister(ElectricalStimulator.CH4CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
+                device.WriteRegister(ElectricalStimulator.CH4PULSEDUR1, phaseOneDurationValidated);
+                device.WriteRegister(ElectricalStimulator.CH4PULSEDUR2, phaseTwoDurationValidated);
+                device.WriteRegister(ElectricalStimulator.CH4TRAINDELAY, triggerDelayValidated);
+                device.WriteRegister(ElectricalStimulator.CH4TRAINCNT, ch4StimulateParameter.ChTrainBurstCount);
+                device.WriteRegister(ElectricalStimulator.CH4RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
+            }
+            // 将设置的寄存器值写入设备
+            device.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, channelEnable);
+            device.WriteRegister(ElectricalStimulator.RESISTOR_MODE, 0);
+            device.StartStimulate();
+            Task.Run((() =>
+            {
+                var _switchDeviceName = switchDeviceName;
+                // 等待刺激完成
+                Thread.Sleep(maxDuration / 1000);
+                if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
+                {
+                    NeuracleGlobalState.HubStates[hubName] = HubState.Data;
+                }
+                DeviceManager.GetDevice(_switchDeviceName).Subscribe(x =>
+                {
+                    var device = x.GetDeviceContext(typeof(SwitchDevice));
+                    device.WriteRegister(SwitchDevice.SwitchCref, 1028);
+                    device.OpenAllAdc();
+                    device.CloseAllDac();
+                    device.StartSwitch();
+                });
+            }));
+        });
+    }
+
     public override IObservable<bool> Process(IObservable<bool> source)
     {
         return Observable.Create<bool>(observer =>
@@ -572,210 +790,27 @@ public class NeuracleStimulateMode : Sink<bool>
                     {
                         return;
                     }
-                    if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
-                    {
-                        NeuracleGlobalState.HubStates[hubName] = HubState.Stimulation;
-                    }
-                    DeviceManager.GetDevice(_switchDeviceName).Subscribe(x =>
-                    {
-                        var device = x.GetDeviceContext(typeof(SwitchDevice));
-                        device.WriteRegister(SwitchDevice.SwitchCref, 0);
-                        device.CloseAllAdc();
-                        //把所有使用的通道分成几个組
-                        Dictionary<uint, List<uint>> addressWithChannels = new();
-                        if (Ch1Enable)
-                        {
-                            var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(Ch1StimulateChannel);
-                            if (!addressWithChannels.ContainsKey(chAddress))
-                            {
-                                addressWithChannels[chAddress] = new List<uint>();
-                            }
-                            addressWithChannels[chAddress].Add(Ch1StimulateChannel);
-                        }
-                        if (Ch2Enable)
-                        {
-                            var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(Ch2StimulateChannel);
-                            if (!addressWithChannels.ContainsKey(chAddress))
-                            {
-                                addressWithChannels[chAddress] = new List<uint>();
-                            }
-                            addressWithChannels[chAddress].Add(Ch2StimulateChannel);
-                        }
-                        if (Ch3Enable)
-                        {
-                            var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(Ch3StimulateChannel);
-                            if (!addressWithChannels.ContainsKey(chAddress))
-                            {
-                                addressWithChannels[chAddress] = new List<uint>();
-                            }
-                            addressWithChannels[chAddress].Add(Ch3StimulateChannel);
-                        }
-                        if (Ch4Enable)
-                        {
-                            var chAddress = SwitchWriteRegisterFunctions.SelectRegisterAddressWithChannel(Ch4StimulateChannel);
-                            if (!addressWithChannels.ContainsKey(chAddress))
-                            {
-                                addressWithChannels[chAddress] = new List<uint>();
-                            }
-                            addressWithChannels[chAddress].Add(Ch4StimulateChannel);
-                        }
-                        foreach (var item in addressWithChannels)
-                        {
-                            var address = item.Key;
-                            var channels = item.Value;
-                            uint totalWriteValue = 0;
-                            foreach (var channel in channels)
-                            {
-                                uint stimIndex = 0;
-                                if (channel == Ch1StimulateChannel)
-                                {
-                                    stimIndex = 0;
-                                }
-                                else if (channel == Ch2StimulateChannel)
-                                {
-                                    stimIndex = 1;
-                                }
-                                else if (channel == Ch3StimulateChannel)
-                                {
-                                    stimIndex = 2;
-                                }
-                                else
-                                {
-                                    stimIndex = 3;
-                                }
-                                var writeValue = SwitchWriteRegisterFunctions.GetWriteValue(channel, stimIndex);
-                                totalWriteValue += writeValue;
-                            }
-                            device.WriteRegister(address, totalWriteValue);
-                        }
-                        device.StartSwitch();
-                    });
-                    uint channelEnable = 0;
-                    int maxDuration = 0;
-                    DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(x =>
-                    {
-                        var device = x.GetDeviceContext(typeof(ElectricalStimulator));
-                        if (Ch1Enable)
-                        {
-                            channelEnable += 0b0001;
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch1BiPhasic, Ch1PhaseTwoCurrent, Ch1InterPhaseCurrent, Ch1PhaseTwoDuration, Ch1InterPhaseInterval, Ch1InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch1PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch1InterBurstInterval, Ch1TriggerDelay);
-
-                            int ch1Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch1TrainBurstCount, Ch1BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
-                            if (ch1Duration > maxDuration)
-                            {
-                                maxDuration = ch1Duration;
-                            }
-
-                            device.WriteRegister(ElectricalStimulator.CH1BURSTCNT, Ch1BurstPulseCount);
-                            device.WriteRegister(ElectricalStimulator.CH1BURSTINTERVAL, interBurstIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH1PHASEINTERVAL, interPhaseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH1PULSEINTERVAL, interPulseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH1CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(Ch1PhaseOneCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH1CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH1PULSEDUR1, phaseOneDurationValidated);
-                            device.WriteRegister(ElectricalStimulator.CH1PULSEDUR2, phaseTwoDurationValidated);
-                            device.WriteRegister(ElectricalStimulator.CH1TRAINDELAY, triggerDelayValidated);
-                            device.WriteRegister(ElectricalStimulator.CH1TRAINCNT, Ch1TrainBurstCount);
-                            device.WriteRegister(ElectricalStimulator.CH1RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
-                        }
-                        if (Ch2Enable)
-                        {
-                            channelEnable += 0b0010;
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch2BiPhasic, Ch2PhaseTwoCurrent, Ch2InterPhaseCurrent, Ch2PhaseTwoDuration, Ch2InterPhaseInterval, Ch2InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch2PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch2InterBurstInterval, Ch2TriggerDelay);
-
-                            int ch2Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch2TrainBurstCount, Ch2BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
-                            if (ch2Duration > maxDuration)
-                            {
-                                maxDuration = ch2Duration;
-                            }
-
-                            device.WriteRegister(ElectricalStimulator.CH2BURSTCNT, Ch2BurstPulseCount);
-                            device.WriteRegister(ElectricalStimulator.CH2BURSTINTERVAL, interBurstIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH2PHASEINTERVAL, interPhaseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH2PULSEINTERVAL, interPulseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH2CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(Ch2PhaseOneCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH2CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH2PULSEDUR1, phaseOneDurationValidated);
-                            device.WriteRegister(ElectricalStimulator.CH2PULSEDUR2, phaseTwoDurationValidated);
-                            device.WriteRegister(ElectricalStimulator.CH2TRAINDELAY, triggerDelayValidated);
-                            device.WriteRegister(ElectricalStimulator.CH2TRAINCNT, Ch2TrainBurstCount);
-                            device.WriteRegister(ElectricalStimulator.CH2RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
-                        }
-                        if (Ch3Enable)
-                        {
-                            channelEnable += 0b0100;
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch3BiPhasic, Ch3PhaseTwoCurrent, Ch3InterPhaseCurrent, Ch3PhaseTwoDuration, Ch3InterPhaseInterval, Ch3InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch3PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch3InterBurstInterval, Ch3TriggerDelay);
-
-                            int ch3Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch3TrainBurstCount, Ch3BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
-                            if (ch3Duration > maxDuration)
-                            {
-                                maxDuration = ch3Duration;
-                            }
-
-                            device.WriteRegister(ElectricalStimulator.CH3BURSTCNT, Ch3BurstPulseCount);
-                            device.WriteRegister(ElectricalStimulator.CH3BURSTINTERVAL, interBurstIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH3PHASEINTERVAL, interPhaseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH3PULSEINTERVAL, interPulseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH3CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(Ch3PhaseOneCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH3CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH3PULSEDUR1, phaseOneDurationValidated);
-                            device.WriteRegister(ElectricalStimulator.CH3PULSEDUR2, phaseTwoDurationValidated);
-                            device.WriteRegister(ElectricalStimulator.CH3TRAINDELAY, triggerDelayValidated);
-                            device.WriteRegister(ElectricalStimulator.CH3TRAINCNT, Ch3TrainBurstCount);
-                            device.WriteRegister(ElectricalStimulator.CH3RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
-                        }
-                        if (Ch4Enable)
-                        {
-                            channelEnable += 0b1000;
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch4BiPhasic, Ch4PhaseTwoCurrent, Ch4InterPhaseCurrent, Ch4PhaseTwoDuration, Ch4InterPhaseInterval, Ch4InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch4PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch4InterBurstInterval, Ch4TriggerDelay);
-
-                            int ch4Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch4TrainBurstCount, Ch4BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
-                            if (ch4Duration > maxDuration)
-                            {
-                                maxDuration = ch4Duration;
-                            }
-
-                            device.WriteRegister(ElectricalStimulator.CH4BURSTCNT, Ch4BurstPulseCount);
-                            device.WriteRegister(ElectricalStimulator.CH4BURSTINTERVAL, interBurstIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH4PHASEINTERVAL, interPhaseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH4PULSEINTERVAL, interPulseIntervalValidated);
-                            device.WriteRegister(ElectricalStimulator.CH4CURRENT1, NeuracleUtils.ConvertUAToDeviceValue(Ch4PhaseOneCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH4CURRENT2, NeuracleUtils.ConvertUAToDeviceValue(phaseTwoCurrent));
-                            device.WriteRegister(ElectricalStimulator.CH4PULSEDUR1, phaseOneDurationValidated);
-                            device.WriteRegister(ElectricalStimulator.CH4PULSEDUR2, phaseTwoDurationValidated);
-                            device.WriteRegister(ElectricalStimulator.CH4TRAINDELAY, triggerDelayValidated);
-                            device.WriteRegister(ElectricalStimulator.CH4TRAINCNT, Ch4TrainBurstCount);
-                            device.WriteRegister(ElectricalStimulator.CH4RESTCURRENT, NeuracleUtils.ConvertUAToDeviceValue(interPhaseCurrent));
-                        }
-                        // 将设置的寄存器值写入设备
-                        device.WriteRegister(ElectricalStimulator.CHANNEL_ENABLE, channelEnable);
-                        device.WriteRegister(ElectricalStimulator.RESISTOR_MODE, 0);
-                        device.StartStimulate();
-                        var messageBox = new NeuracleMessageBox("下发刺激成功");
-                        messageBox.Show();
-                        Task.Run(() =>
-                        {
-                            var switchDeviceName = _switchDeviceName;
-                            // 等待刺激完成
-                            Thread.Sleep(maxDuration / 1000);
-                            if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(switchDeviceName, out var hubName))
-                            {
-                                NeuracleGlobalState.HubStates[hubName] = HubState.Data;
-                            }
-                            DeviceManager.GetDevice(switchDeviceName).Subscribe(x =>
-                            {
-                                var device = x.GetDeviceContext(typeof(SwitchDevice));
-                                device.WriteRegister(SwitchDevice.SwitchCref, 1028);
-                                device.OpenAllAdc();
-                                device.CloseAllDac();
-                                device.StartSwitch();
-                            });
-                        });
-                    });
+                    var ch1StimulateParameter = new StimulateParameter(Ch1BiPhasic, Ch1BurstPulseCount, Ch1Enable, Ch1InterBurstInterval,
+                                                                       Ch1InterPhaseCurrent, Ch1InterPhaseInterval, Ch1InterPulseInterval,
+                                                                       Ch1PhaseOneCurrent, Ch1PhaseOneDuration, Ch1PhaseTwoCurrent, Ch1PhaseTwoDuration,
+                                                                       Ch1StimulateChannel, Ch1TrainBurstCount, Ch1TriggerDelay);
+                    var ch2StimulateParameter = new StimulateParameter(Ch2BiPhasic, Ch2BurstPulseCount, Ch2Enable, Ch2InterBurstInterval,
+                                                                       Ch2InterPhaseCurrent, Ch2InterPhaseInterval, Ch2InterPulseInterval,
+                                                                       Ch2PhaseOneCurrent, Ch2PhaseOneDuration, Ch2PhaseTwoCurrent, Ch2PhaseTwoDuration,
+                                                                       Ch2StimulateChannel, Ch2TrainBurstCount, Ch2TriggerDelay);
+                    var ch3StimulateParameter = new StimulateParameter(Ch3BiPhasic, Ch3BurstPulseCount, Ch3Enable, Ch3InterBurstInterval,
+                                                                       Ch3InterPhaseCurrent, Ch3InterPhaseInterval, Ch3InterPulseInterval,
+                                                                       Ch3PhaseOneCurrent, Ch3PhaseOneDuration, Ch3PhaseTwoCurrent, Ch3PhaseTwoDuration,
+                                                                       Ch3StimulateChannel, Ch3TrainBurstCount, Ch3TriggerDelay);
+                    var ch4StimulateParameter = new StimulateParameter(Ch4BiPhasic, Ch4BurstPulseCount, Ch4Enable, Ch4InterBurstInterval,
+                                                                       Ch4InterPhaseCurrent, Ch4InterPhaseInterval, Ch4InterPulseInterval,
+                                                                       Ch4PhaseOneCurrent, Ch4PhaseOneDuration, Ch4PhaseTwoCurrent, Ch4PhaseTwoDuration,
+                                                                       Ch4StimulateChannel, Ch4TrainBurstCount, Ch4TriggerDelay);
+                    StimulateProcedure(_stimulationDeviceName, _switchDeviceName,
+                                       ch1StimulateParameter, ch2StimulateParameter,
+                                       ch3StimulateParameter, ch4StimulateParameter);
+                    var messageBox = new NeuracleMessageBox("下发刺激成功");
+                    messageBox.Show();
                     observer.OnNext(value);
                 },
                 observer.OnError,

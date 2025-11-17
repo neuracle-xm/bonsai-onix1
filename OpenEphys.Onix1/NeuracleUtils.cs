@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace NeuracleExtension;
 
@@ -170,6 +171,56 @@ public class NeuracleUtils
         }
         return current;
     }
+
+    /// <summary>
+    /// 取HubClock的低32位数据
+    /// </summary>
+    /// <param name="hubClock"></param>
+    /// <returns></returns>
+    public static uint GetHubClockLow(ulong hubClock)
+    {
+        var low = hubClock >> 32;
+        var result = (uint)low;
+        return result;
+    }
+
+    /// <summary>
+    /// 取HubClock的高32位数据
+    /// </summary>
+    /// <param name="hubClock"></param>
+    /// <returns></returns>
+    public static ulong GetHubClockHigh(ulong hubClock)
+    {
+        var high = hubClock << 32;
+        return high;
+    }
+
+    /// <summary>
+    /// 把HubClock转成真正的时间
+    /// </summary>
+    /// <param name="hubClock"></param>
+    /// <returns></returns>
+    public static ulong HubClockToTime(ulong hubClock)
+    {
+        var low = GetHubClockLow(hubClock);
+        var high = GetHubClockHigh(hubClock);
+        //首位不要用
+        high &= 0x7FFF_FFFF_FFFF_FFFF;
+        var result = high + low;
+        return result;
+    }
+
+    /// <summary>
+    /// 判断HubClock首位是不是1
+    /// </summary>
+    /// <param name="hubClock"></param>
+    /// <returns></returns>
+    public static bool IsHubClockFirstBitOne(ulong hubClock)
+    {
+        var high = GetHubClockHigh(hubClock);
+        var result = high & 0x8000_0000_0000_0000;
+        return result != 0;
+    }
 }
 
 public class MatCache<T> where T : class
@@ -190,5 +241,68 @@ public class MatCache<T> where T : class
 
         // 将数据添加到对应队列中
         queue.Enqueue(item);
+    }
+}
+
+/// <summary>
+/// 刺激参数
+/// </summary>
+public class StimulateParameter
+{
+    public bool ChBiPhasic { get; set; }
+    public uint ChBurstPulseCount { get; set; }
+    public bool ChEnable { get; set; }
+    public uint ChInterBurstInterval { get; set; }
+    public int ChInterPhaseCurrent { get; set; }
+    public uint ChInterPhaseInterval { get; set; }
+    public uint ChInterPulseInterval { get; set; }
+    public int ChPhaseOneCurrent { get; set; }
+    public uint ChPhaseOneDuration { get; set; }
+    public int ChPhaseTwoCurrent { get; set; }
+    public uint ChPhaseTwoDuration { get; set; }
+    public uint ChStimulateChannel { get; set; }
+    public uint ChTrainBurstCount { get; set; }
+    public uint ChTriggerDelay { get; set; }
+
+    public StimulateParameter(bool chBiPhasic, uint chBurstPulseCount, bool chEnable, uint chInterBurstInterval,
+                              int chInterPhaseCurrent, uint chInterPhaseInterval, uint chInterPulseInterval,
+                              int chPhaseOneCurrent, uint chPhaseOneDuration, int chPhaseTwoCurrent,
+                              uint chPhaseTwoDuration, uint chStimulateChannel, uint chTrainBurstCount,
+                              uint chTriggerDelay)
+    {
+        ChBiPhasic = chBiPhasic;
+        ChBurstPulseCount = chBurstPulseCount;
+        ChEnable = chEnable;
+        ChInterBurstInterval = chInterBurstInterval;
+        ChInterPhaseCurrent = chInterPhaseCurrent;
+        ChInterPhaseInterval = chInterPhaseInterval;
+        ChInterPulseInterval = chInterPulseInterval;
+        ChPhaseOneCurrent = chPhaseOneCurrent;
+        ChPhaseOneDuration = chPhaseOneDuration;
+        ChPhaseTwoCurrent = chPhaseTwoCurrent;
+        ChPhaseTwoDuration = chPhaseTwoDuration;
+        ChStimulateChannel = chStimulateChannel;
+        ChTrainBurstCount = chTrainBurstCount;
+        ChTriggerDelay = chTriggerDelay;
+    }
+
+    public override string ToString()
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine($"ChBiPhasic:{ChBiPhasic}");
+        stringBuilder.AppendLine($"ChBurstPulseCount:{ChBurstPulseCount}");
+        stringBuilder.AppendLine($"ChEnable:{ChEnable}");
+        stringBuilder.AppendLine($"ChInterBurstInterval:{ChInterBurstInterval}");
+        stringBuilder.AppendLine($"ChInterPhaseCurrent:{ChInterPhaseCurrent}");
+        stringBuilder.AppendLine($"ChInterPhaseInterval:{ChInterPhaseInterval}");
+        stringBuilder.AppendLine($"ChInterPulseInterval:{ChInterPulseInterval}");
+        stringBuilder.AppendLine($"ChPhaseOneCurrent:{ChPhaseOneCurrent}");
+        stringBuilder.AppendLine($"ChPhaseOneDuration:{ChPhaseOneDuration}");
+        stringBuilder.AppendLine($"ChPhaseTwoCurrent:{ChPhaseTwoCurrent}");
+        stringBuilder.AppendLine($"ChPhaseTwoDuration:{ChPhaseTwoDuration}");
+        stringBuilder.AppendLine($"ChStimulateChannel:{ChStimulateChannel}");
+        stringBuilder.AppendLine($"ChTrainBurstCount:{ChTrainBurstCount}");
+        stringBuilder.AppendLine($"ChTriggerDelay:{ChTriggerDelay}");
+        return stringBuilder.ToString();
     }
 }

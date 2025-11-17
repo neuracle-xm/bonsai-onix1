@@ -9,6 +9,7 @@ namespace OpenEphys.Onix1
     class DeviceManager
     {
         static readonly Dictionary<string, DeviceDisposable> deviceMap = new();
+
         static readonly object managerLock = new();
 
         internal static IDisposable RegisterDevice(string name, DeviceContext device, Type deviceType)
@@ -58,13 +59,13 @@ namespace OpenEphys.Onix1
         {
             lock (managerLock)
             {
-                if (deviceMap.ContainsKey(name))
-                {
-                    throw new ArgumentException(
-                        $"A device with the same name '{name}' has already been configured.",
-                        nameof(name)
-                    );
-                }
+                //if (deviceMap.ContainsKey(name))
+                //{
+                //    throw new ArgumentException(
+                //        $"A device with the same name '{name}' has already been configured.",
+                //        nameof(name)
+                //    );
+                //}
 
                 var subject = new AsyncSubject<DeviceInfo>();
                 var dispose = Disposable.Create(() =>
@@ -74,7 +75,8 @@ namespace OpenEphys.Onix1
                 });
 
                 var deviceDisposable = new DeviceDisposable(subject, dispose);
-                deviceMap.Add(name, deviceDisposable);
+                deviceMap[name] = deviceDisposable;
+                //deviceMap.Add(name, deviceDisposable);
                 return deviceDisposable;
             }
         }

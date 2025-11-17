@@ -5,6 +5,7 @@
                  xmlns:p1="clr-namespace:NeuracleExtension;assembly=OpenEphys.Onix1"
                  xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
                  xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns:osc="clr-namespace:Bonsai.Osc;assembly=Bonsai.Osc"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
@@ -42,8 +43,6 @@
         <Combinator xsi:type="p1:NeuracleHubData">
           <p1:DeviceName>HubA/NeuracleData</p1:DeviceName>
           <p1:BufferSize>3200</p1:BufferSize>
-          <p1:PairR1>INF</p1:PairR1>
-          <p1:PairR2>INF</p1:PairR2>
         </Combinator>
       </Expression>
       <Expression xsi:type="MemberSelector">
@@ -54,8 +53,9 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="dsp:MatrixWriter">
+          <dsp:Path>C:\Users\wangr\Downloads\negativeBias</dsp:Path>
           <dsp:Suffix>None</dsp:Suffix>
-          <dsp:Overwrite>false</dsp:Overwrite>
+          <dsp:Overwrite>true</dsp:Overwrite>
           <dsp:Layout>ColumnMajor</dsp:Layout>
         </Combinator>
       </Expression>
@@ -89,62 +89,62 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:NeuracleStimulateMode">
           <p1:HubName>HubA</p1:HubName>
-          <p1:Ch1Enable>false</p1:Ch1Enable>
+          <p1:Ch1Enable>true</p1:Ch1Enable>
           <p1:Ch1StimulateChannel>0</p1:Ch1StimulateChannel>
-          <p1:Ch1TriggerDelay>0</p1:Ch1TriggerDelay>
-          <p1:Ch1PhaseOneCurrent>0</p1:Ch1PhaseOneCurrent>
-          <p1:Ch1InterPhaseCurrent>0</p1:Ch1InterPhaseCurrent>
-          <p1:Ch1PhaseTwoCurrent>0</p1:Ch1PhaseTwoCurrent>
-          <p1:Ch1PhaseOneDuration>0</p1:Ch1PhaseOneDuration>
-          <p1:Ch1InterPhaseInterval>0</p1:Ch1InterPhaseInterval>
-          <p1:Ch1PhaseTwoDuration>0</p1:Ch1PhaseTwoDuration>
-          <p1:Ch1InterPulseInterval>0</p1:Ch1InterPulseInterval>
-          <p1:Ch1InterBurstInterval>0</p1:Ch1InterBurstInterval>
-          <p1:Ch1BurstPulseCount>1</p1:Ch1BurstPulseCount>
-          <p1:Ch1TrainBurstCount>1</p1:Ch1TrainBurstCount>
-          <p1:Ch1BiPhasic>false</p1:Ch1BiPhasic>
-          <p1:Ch2Enable>false</p1:Ch2Enable>
-          <p1:Ch2StimulateChannel>0</p1:Ch2StimulateChannel>
-          <p1:Ch2TriggerDelay>0</p1:Ch2TriggerDelay>
-          <p1:Ch2PhaseOneCurrent>0</p1:Ch2PhaseOneCurrent>
-          <p1:Ch2InterPhaseCurrent>0</p1:Ch2InterPhaseCurrent>
-          <p1:Ch2PhaseTwoCurrent>0</p1:Ch2PhaseTwoCurrent>
-          <p1:Ch2PhaseOneDuration>0</p1:Ch2PhaseOneDuration>
-          <p1:Ch2InterPhaseInterval>0</p1:Ch2InterPhaseInterval>
-          <p1:Ch2PhaseTwoDuration>0</p1:Ch2PhaseTwoDuration>
-          <p1:Ch2InterPulseInterval>0</p1:Ch2InterPulseInterval>
-          <p1:Ch2InterBurstInterval>0</p1:Ch2InterBurstInterval>
-          <p1:Ch2BurstPulseCount>1</p1:Ch2BurstPulseCount>
-          <p1:Ch2TrainBurstCount>1</p1:Ch2TrainBurstCount>
-          <p1:Ch2BiPhasic>false</p1:Ch2BiPhasic>
-          <p1:Ch3Enable>false</p1:Ch3Enable>
-          <p1:Ch3StimulateChannel>0</p1:Ch3StimulateChannel>
-          <p1:Ch3TriggerDelay>0</p1:Ch3TriggerDelay>
-          <p1:Ch3PhaseOneCurrent>0</p1:Ch3PhaseOneCurrent>
-          <p1:Ch3InterPhaseCurrent>0</p1:Ch3InterPhaseCurrent>
-          <p1:Ch3PhaseTwoCurrent>0</p1:Ch3PhaseTwoCurrent>
-          <p1:Ch3PhaseOneDuration>0</p1:Ch3PhaseOneDuration>
-          <p1:Ch3InterPhaseInterval>0</p1:Ch3InterPhaseInterval>
-          <p1:Ch3PhaseTwoDuration>0</p1:Ch3PhaseTwoDuration>
-          <p1:Ch3InterPulseInterval>0</p1:Ch3InterPulseInterval>
-          <p1:Ch3InterBurstInterval>0</p1:Ch3InterBurstInterval>
-          <p1:Ch3BurstPulseCount>1</p1:Ch3BurstPulseCount>
-          <p1:Ch3TrainBurstCount>1</p1:Ch3TrainBurstCount>
-          <p1:Ch3BiPhasic>false</p1:Ch3BiPhasic>
-          <p1:Ch4Enable>false</p1:Ch4Enable>
-          <p1:Ch4StimulateChannel>0</p1:Ch4StimulateChannel>
-          <p1:Ch4TriggerDelay>0</p1:Ch4TriggerDelay>
-          <p1:Ch4PhaseOneCurrent>0</p1:Ch4PhaseOneCurrent>
-          <p1:Ch4InterPhaseCurrent>0</p1:Ch4InterPhaseCurrent>
-          <p1:Ch4PhaseTwoCurrent>0</p1:Ch4PhaseTwoCurrent>
-          <p1:Ch4PhaseOneDuration>0</p1:Ch4PhaseOneDuration>
-          <p1:Ch4InterPhaseInterval>0</p1:Ch4InterPhaseInterval>
-          <p1:Ch4PhaseTwoDuration>0</p1:Ch4PhaseTwoDuration>
-          <p1:Ch4InterPulseInterval>0</p1:Ch4InterPulseInterval>
-          <p1:Ch4InterBurstInterval>0</p1:Ch4InterBurstInterval>
-          <p1:Ch4BurstPulseCount>1</p1:Ch4BurstPulseCount>
-          <p1:Ch4TrainBurstCount>1</p1:Ch4TrainBurstCount>
-          <p1:Ch4BiPhasic>false</p1:Ch4BiPhasic>
+          <p1:Ch1TriggerDelay>1</p1:Ch1TriggerDelay>
+          <p1:Ch1PhaseOneCurrent>2000</p1:Ch1PhaseOneCurrent>
+          <p1:Ch1InterPhaseCurrent>500</p1:Ch1InterPhaseCurrent>
+          <p1:Ch1PhaseTwoCurrent>-2000</p1:Ch1PhaseTwoCurrent>
+          <p1:Ch1PhaseOneDuration>1000</p1:Ch1PhaseOneDuration>
+          <p1:Ch1InterPhaseInterval>100</p1:Ch1InterPhaseInterval>
+          <p1:Ch1PhaseTwoDuration>1000</p1:Ch1PhaseTwoDuration>
+          <p1:Ch1InterPulseInterval>500</p1:Ch1InterPulseInterval>
+          <p1:Ch1InterBurstInterval>100</p1:Ch1InterBurstInterval>
+          <p1:Ch1BurstPulseCount>5</p1:Ch1BurstPulseCount>
+          <p1:Ch1TrainBurstCount>5000</p1:Ch1TrainBurstCount>
+          <p1:Ch1BiPhasic>true</p1:Ch1BiPhasic>
+          <p1:Ch2Enable>true</p1:Ch2Enable>
+          <p1:Ch2StimulateChannel>1</p1:Ch2StimulateChannel>
+          <p1:Ch2TriggerDelay>1</p1:Ch2TriggerDelay>
+          <p1:Ch2PhaseOneCurrent>2000</p1:Ch2PhaseOneCurrent>
+          <p1:Ch2InterPhaseCurrent>500</p1:Ch2InterPhaseCurrent>
+          <p1:Ch2PhaseTwoCurrent>-2000</p1:Ch2PhaseTwoCurrent>
+          <p1:Ch2PhaseOneDuration>1000</p1:Ch2PhaseOneDuration>
+          <p1:Ch2InterPhaseInterval>100</p1:Ch2InterPhaseInterval>
+          <p1:Ch2PhaseTwoDuration>1000</p1:Ch2PhaseTwoDuration>
+          <p1:Ch2InterPulseInterval>500</p1:Ch2InterPulseInterval>
+          <p1:Ch2InterBurstInterval>100</p1:Ch2InterBurstInterval>
+          <p1:Ch2BurstPulseCount>5</p1:Ch2BurstPulseCount>
+          <p1:Ch2TrainBurstCount>5000</p1:Ch2TrainBurstCount>
+          <p1:Ch2BiPhasic>true</p1:Ch2BiPhasic>
+          <p1:Ch3Enable>true</p1:Ch3Enable>
+          <p1:Ch3StimulateChannel>2</p1:Ch3StimulateChannel>
+          <p1:Ch3TriggerDelay>1</p1:Ch3TriggerDelay>
+          <p1:Ch3PhaseOneCurrent>2000</p1:Ch3PhaseOneCurrent>
+          <p1:Ch3InterPhaseCurrent>500</p1:Ch3InterPhaseCurrent>
+          <p1:Ch3PhaseTwoCurrent>-2000</p1:Ch3PhaseTwoCurrent>
+          <p1:Ch3PhaseOneDuration>1000</p1:Ch3PhaseOneDuration>
+          <p1:Ch3InterPhaseInterval>100</p1:Ch3InterPhaseInterval>
+          <p1:Ch3PhaseTwoDuration>1000</p1:Ch3PhaseTwoDuration>
+          <p1:Ch3InterPulseInterval>500</p1:Ch3InterPulseInterval>
+          <p1:Ch3InterBurstInterval>100</p1:Ch3InterBurstInterval>
+          <p1:Ch3BurstPulseCount>5</p1:Ch3BurstPulseCount>
+          <p1:Ch3TrainBurstCount>5000</p1:Ch3TrainBurstCount>
+          <p1:Ch3BiPhasic>true</p1:Ch3BiPhasic>
+          <p1:Ch4Enable>true</p1:Ch4Enable>
+          <p1:Ch4StimulateChannel>3</p1:Ch4StimulateChannel>
+          <p1:Ch4TriggerDelay>1</p1:Ch4TriggerDelay>
+          <p1:Ch4PhaseOneCurrent>2000</p1:Ch4PhaseOneCurrent>
+          <p1:Ch4InterPhaseCurrent>500</p1:Ch4InterPhaseCurrent>
+          <p1:Ch4PhaseTwoCurrent>-2000</p1:Ch4PhaseTwoCurrent>
+          <p1:Ch4PhaseOneDuration>1000</p1:Ch4PhaseOneDuration>
+          <p1:Ch4InterPhaseInterval>100</p1:Ch4InterPhaseInterval>
+          <p1:Ch4PhaseTwoDuration>1000</p1:Ch4PhaseTwoDuration>
+          <p1:Ch4InterPulseInterval>500</p1:Ch4InterPulseInterval>
+          <p1:Ch4InterBurstInterval>100</p1:Ch4InterBurstInterval>
+          <p1:Ch4BurstPulseCount>5</p1:Ch4BurstPulseCount>
+          <p1:Ch4TrainBurstCount>5000</p1:Ch4TrainBurstCount>
+          <p1:Ch4BiPhasic>true</p1:Ch4BiPhasic>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -164,6 +164,21 @@
           <p1:ChannelIndex>0</p1:ChannelIndex>
         </Combinator>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="osc:CreateUdpClient">
+          <osc:Name>receiver</osc:Name>
+          <osc:Port>50000</osc:Port>
+          <osc:RemoteHostName>localhost</osc:RemoteHostName>
+          <osc:RemotePort>0</osc:RemotePort>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="osc:ReceiveMessage">
+        <osc:Address>/</osc:Address>
+        <osc:Connection>receiver</osc:Connection>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleSystemApi" />
+      </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
@@ -177,6 +192,7 @@
       <Edge From="11" To="12" Label="Source1" />
       <Edge From="13" To="14" Label="Source1" />
       <Edge From="14" To="15" Label="Source1" />
+      <Edge From="17" To="18" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

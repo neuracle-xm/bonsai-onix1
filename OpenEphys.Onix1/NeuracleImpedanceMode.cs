@@ -61,10 +61,12 @@ public class NeuracleImpedanceMode : Sink<bool>
     /// 阻抗下发命令的过程
     /// </summary>
     /// <param name="channelIndex">需要测的那个通道</param>
-    private void ImpedanceProcedure(uint channelIndex)
+    /// <param name="stimulationDeviceName"></param>
+    /// <param name="switchDeviceName"></param>
+    private static void ImpedanceHelper(uint channelIndex, string stimulationDeviceName, string switchDeviceName)
     {
         //测(0 - 63通道)
-        DeviceManager.GetDevice(_switchDeviceName).Subscribe(deviceInfo =>
+        DeviceManager.GetDevice(switchDeviceName).Subscribe(deviceInfo =>
         {
             var switchDevice = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
             //Switch_cref置为0
@@ -75,7 +77,7 @@ public class NeuracleImpedanceMode : Sink<bool>
             //开始切换
             switchDevice.StartSwitch();
         });
-        DeviceManager.GetDevice(_stimulationDeviceName).Subscribe(deviceInfo =>
+        DeviceManager.GetDevice(stimulationDeviceName).Subscribe(deviceInfo =>
         {
             var stimulationDevice = deviceInfo.GetDeviceContext(typeof(ElectricalStimulator));
             //刺激参数中Channel_enable置为0
@@ -87,6 +89,33 @@ public class NeuracleImpedanceMode : Sink<bool>
             //刺激参数中resistor_mode置为1
             stimulationDevice.WriteRegister(ElectricalStimulator.RESISTOR_MODE, 1);
         });
+    }
+
+    /// <summary>
+    /// 阻抗测量的过程
+    /// </summary>
+    /// <param name="channelIndex"></param>
+    /// <param name="stimulationDeviceName"></param>
+    /// <param name="switchDeviceName"></param>
+    public static void ImpedanceProcedure(uint channelIndex, string stimulationDeviceName, string switchDeviceName)
+    {
+        NeuracleGlobalState.ImpedanceChannelIndex = channelIndex;
+        //先测的是配对通道的阻抗
+        NeuracleGlobalState.IsPairImpedanceComplete = false;
+        //设置需要检测的那个阻抗通道的配对通道
+        var pairChannelIndex = SwitchWriteRegisterFunctions.GetPairChannelIndex(channelIndex);
+        ImpedanceHelper(pairChannelIndex, stimulationDeviceName, switchDeviceName);
+        if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(switchDeviceName, out var hubName))
+        {
+            NeuracleGlobalState.HubStates[hubName] = HubState.Impedance;
+        }
+        //等配对通道的阻抗计算完毕
+        while (!NeuracleGlobalState.IsPairImpedanceComplete)
+        {
+            Thread.Sleep(1);
+        }
+        //再测真正的阻抗
+        ImpedanceHelper(channelIndex, stimulationDeviceName, switchDeviceName);
     }
 
     /// <summary>
@@ -105,63 +134,7 @@ public class NeuracleImpedanceMode : Sink<bool>
                     {
                         return;
                     }
-                    //先测的是配对通道的阻抗
-                    NeuracleGlobalState.IsPairImpedanceComplete = false;
-                    //设置需要检测的那个阻抗通道的配对通道
-                    var pairChannelIndex = SwitchWriteRegisterFunctions.GetPairChannelIndex(ChannelIndex);
-                    ImpedanceProcedure(pairChannelIndex);
-                    if (NeuracleGlobalState.DeviceNameToHubName.TryGetValue(_switchDeviceName, out var hubName))
-                    {
-                        NeuracleGlobalState.HubStates[hubName] = HubState.Impedance;
-                    }
-                    //等配对通道的阻抗计算完毕
-                    while (!NeuracleGlobalState.IsPairImpedanceComplete)
-                    {
-                        Thread.Sleep(1);
-                    }
-                    //再测真正的阻抗
-                    ImpedanceProcedure(ChannelIndex);
-                    ////内部测Cref(Cref1,Cref2)
-                    //DeviceManager.GetDevice(SwitchDeviceName).Subscribe(deviceInfo =>
-                    //{
-                    //    var switchDevice = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
-                    //    //Switch_cref置为5(测Cref1)或3(测Cref2)
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchCref, 5);
-                    //    //Switch_adc全部关闭，全置0
-                    //    switchDevice.CloseAllAdc();
-                    //    //Switch_dac中通道0的stimb的bit置为1，其他置为0
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac32_63, 0b01000000_00000000_00000000_00000000);
-                    //    //其他Dac都关闭
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac0_31, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac64_95, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac96_127, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac128_159, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac160_191, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac192_223, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac224_255, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac256_287, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac288_319, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac320_351, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac352_383, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac384_415, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac416_447, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac448_479, 0);
-                    //    switchDevice.WriteRegister(SwitchDevice.SwitchDac480_511, 0);
-                    //    //开始切换
-                    //    switchDevice.Start();
-                    //});
-                    //DeviceManager.GetDevice(StimulationDeviceName).Subscribe(deviceInfo =>
-                    //{
-                    //    var stimulationDevice = deviceInfo.GetDeviceContext(typeof(Headstage64ElectricalStimulator));
-                    //    //刺激参数中Channel_enable置为0
-                    //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CHANNEL_ENABLE, 0);
-                    //    //刺激参数中Ch1current1置为1mA(暂定)
-                    //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CH1CURRENT1, 1);
-                    //    //刺激参数中Ch2current1置为0
-                    //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.CH2CURRENT1, 0);
-                    //    //刺激参数中resistor_mode置为1
-                    //    stimulationDevice.WriteRegister(Headstage64ElectricalStimulator.RESISTOR_MODE, 1);
-                    //});
+                    ImpedanceProcedure(ChannelIndex, _stimulationDeviceName, _switchDeviceName);
                     var messageBox = new NeuracleMessageBox("切换到阻抗模式");
                     messageBox.Show();
                     observer.OnNext(value);

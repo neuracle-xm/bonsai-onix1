@@ -121,6 +121,8 @@ public static class SwitchWriteRegisterFunctions
         uint writeValue = (uint)(Math.Pow(2, stimaIndex) + Math.Pow(2, stimbIndex));
         //找到这个通道对应的地址
         var address = SelectRegisterAddressWithChannel(channelIndex);
+        //把stima和stimb打开
+        deviceContext.WriteRegister(SwitchDevice.SwitchNewDac, 0b00000000_00000000_01000000_01000000);
         deviceContext.WriteRegister(address, writeValue);
     }
 
@@ -238,6 +240,43 @@ public static class SwitchWriteRegisterFunctions
         uint targetIndex = channelIndex * 8 + stiChIdx;
         uint writeValue = mask >> (int)targetIndex;
         return writeValue;
+    }
+
+    /// <summary>
+    /// 通道0切到采集模式
+    /// </summary>
+    /// <param name="deviceContext"></param>
+    public static void Channel0ToData(this DeviceContext deviceContext)
+    {
+        deviceContext.WriteRegister(SwitchDevice.SwitchAdc0_31, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchAdc32_63, 0b10000000_00000000_00000000_00000000);
+        deviceContext.WriteRegister(SwitchDevice.SwitchAdc64_95, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchAdc96_127, 0);
+    }
+
+    /// <summary>
+    /// 通道1切到刺激模式
+    /// </summary>
+    /// <param name="deviceContext"></param>
+    public static void Channel1ToStim(this DeviceContext deviceContext)
+    {
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac0_31, 0);
+        //使用通道1的stima
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac32_63, 0b00000000_01000000_00000000_00000000);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac64_95, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac96_127, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac128_159, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac160_191, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac192_223, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac224_255, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac256_287, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac288_319, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac320_351, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac352_383, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac384_415, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac416_447, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac448_479, 0);
+        deviceContext.WriteRegister(SwitchDevice.SwitchDac480_511, 0);
     }
 }
 

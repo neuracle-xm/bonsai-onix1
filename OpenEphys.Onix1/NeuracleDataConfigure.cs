@@ -30,7 +30,6 @@ public class NeuracleDataConfigure : SingleDeviceFactory
         return source.ConfigureDevice(context =>
         {
             var device = context.GetDeviceContext(deviceAddress, DeviceType);
-
             return DeviceManager.RegisterDevice(deviceName, device, DeviceType);
         });
     }
