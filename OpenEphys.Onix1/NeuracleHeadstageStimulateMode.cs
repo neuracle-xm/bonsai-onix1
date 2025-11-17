@@ -126,7 +126,53 @@ public class NeuracleHeadstageStimulateMode : Sink<bool>
     /// <summary>
     /// 写寄存器之间的间隔时间,单位ms
     /// </summary>
-    private readonly int _delay = 100;
+    private const int _delay = 100;
+
+    public static void StimulateProcedure(string deviceName, StimulateParameter ch1StimulateParameter)
+    {
+        Task task = Task.Run(() =>
+        {
+            DeviceManager.GetDevice(deviceName).Subscribe(x =>
+            {
+                var device = x.GetDeviceContext(typeof(HeadstageStimulator));
+                (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(ch1StimulateParameter.ChBiPhasic, ch1StimulateParameter.ChPhaseTwoCurrent, ch1StimulateParameter.ChInterPhaseCurrent, ch1StimulateParameter.ChPhaseTwoDuration, ch1StimulateParameter.ChInterPhaseInterval, ch1StimulateParameter.ChInterPulseInterval);
+                (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(ch1StimulateParameter.ChPhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, ch1StimulateParameter.ChInterBurstInterval, ch1StimulateParameter.ChTriggerDelay);
+                int ch1Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, ch1StimulateParameter.ChTrainBurstCount, ch1StimulateParameter.ChBurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
+                device.WriteRegister(HeadstageStimulator.CH1PULSEDUR1, phaseOneDurationValidated);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1PULSEDUR2, phaseTwoDurationValidated);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1PHASEINTERVAL, interPhaseIntervalValidated);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1PULSEINTERVAL, interPulseIntervalValidated);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1BURSTCNT, ch1StimulateParameter.ChBurstPulseCount);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1BURSTINTERVAL, interBurstIntervalValidated);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1CURRENT1, NeuracleUtils.HeadstageConvertUAToDeviceValue(ch1StimulateParameter.ChPhaseOneCurrent));
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1CURRENT2, NeuracleUtils.HeadstageConvertUAToDeviceValue(phaseTwoCurrent));
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1RESTCURRENT, NeuracleUtils.HeadstageConvertUAToDeviceValue(interPhaseCurrent));
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1TRAINCNT, ch1StimulateParameter.ChTrainBurstCount);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.CH1TRAINDELAY, triggerDelayValidated);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.STIM_NULL, 1);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.POWER_EN, 1);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.STIM_START, 0);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.STIM_START, 1);
+                Thread.Sleep(_delay);
+                device.WriteRegister(HeadstageStimulator.STIM_START, 0);
+            });
+        });
+        task.Wait();
+    }
 
     public override IObservable<bool> Process(IObservable<bool> source)
     {
@@ -139,48 +185,12 @@ public class NeuracleHeadstageStimulateMode : Sink<bool>
                     {
                         return;
                     }
-                    Task task = Task.Run(() =>
-                    {
-                        DeviceManager.GetDevice(DeviceName).Subscribe(x =>
-                        {
-                            var device = x.GetDeviceContext(typeof(HeadstageStimulator));
-                            (var phaseTwoCurrent, var interPhaseCurrent, var phaseTwoDuration, var interPhaseInterval, var interPulseInterval) = NeuracleUtils.ChangeParamByBiPhasic(Ch1BiPhasic, Ch1PhaseTwoCurrent, Ch1InterPhaseCurrent, Ch1PhaseTwoDuration, Ch1InterPhaseInterval, Ch1InterPulseInterval);
-                            (var phaseOneDurationValidated, var phaseTwoDurationValidated, var interPhaseIntervalValidated, var interPulseIntervalValidated, var interBurstIntervalValidated, var triggerDelayValidated) = NeuracleUtils.ValidateDuration(Ch1PhaseOneDuration, phaseTwoDuration, interPhaseInterval, interPulseInterval, Ch1InterBurstInterval, Ch1TriggerDelay);
-                            int ch1Duration = NeuracleUtils.CalStimulationDuration(triggerDelayValidated, Ch1TrainBurstCount, Ch1BurstPulseCount, interPulseIntervalValidated, interBurstIntervalValidated, phaseOneDurationValidated, phaseTwoDurationValidated, interPhaseIntervalValidated);
-                            device.WriteRegister(HeadstageStimulator.CH1PULSEDUR1, phaseOneDurationValidated);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1PULSEDUR2, phaseTwoDurationValidated);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1PHASEINTERVAL, interPhaseIntervalValidated);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1PULSEINTERVAL, interPulseIntervalValidated);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1BURSTCNT, Ch1BurstPulseCount);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1BURSTINTERVAL, interBurstIntervalValidated);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1CURRENT1, NeuracleUtils.HeadstageConvertUAToDeviceValue(Ch1PhaseOneCurrent));
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1CURRENT2, NeuracleUtils.HeadstageConvertUAToDeviceValue(phaseTwoCurrent));
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1RESTCURRENT, NeuracleUtils.HeadstageConvertUAToDeviceValue(interPhaseCurrent));
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1TRAINCNT, Ch1TrainBurstCount);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.CH1TRAINDELAY, triggerDelayValidated);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.STIM_NULL, 1);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.POWER_EN, 1);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.STIM_START, 0);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.STIM_START, 1);
-                            Thread.Sleep(_delay);
-                            device.WriteRegister(HeadstageStimulator.STIM_START, 0);
-                        });
-                    });
-                    task.Wait();
+                    //ChEnable和ChStimulateChannel在Headstage这边没用
+                    var ch1StimulateParameter = new StimulateParameter(Ch1BiPhasic, Ch1BurstPulseCount, true, Ch1InterBurstInterval,
+                                                                       Ch1InterPhaseCurrent, Ch1InterPhaseInterval, Ch1InterPulseInterval,
+                                                                       Ch1PhaseOneCurrent, Ch1PhaseOneDuration, Ch1PhaseTwoCurrent, Ch1PhaseTwoDuration,
+                                                                       0, Ch1TrainBurstCount, Ch1TriggerDelay);
+                    StimulateProcedure(DeviceName, ch1StimulateParameter);
                     var messageBox = new NeuracleMessageBox("Headstage下发刺激成功");
                     messageBox.Show();
                     observer.OnNext(value);

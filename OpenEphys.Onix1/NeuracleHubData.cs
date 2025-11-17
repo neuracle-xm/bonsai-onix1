@@ -45,7 +45,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
     }
 
     /// <summary>
-    /// 采集数据的增益
+    /// 采集数据的增益,单位mV
     /// </summary>
     public static float DataScale = (float)(4096 / Math.Pow(2, 23) / 12);
 
@@ -71,6 +71,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
             deviceInfo => Observable.Create<NeuracleHubDataFrame>(observer =>
             {
                 var device = deviceInfo.GetDeviceContext(typeof(NeuracleData));
+                //这个就相当于时间戳
                 var hubClockBuffer = new ulong[bufferSize];
                 var clockBuffer = new ulong[bufferSize];
                 var sampleIndex = 0;
@@ -80,7 +81,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                     frame =>
                     {
                         var payload = (NeuracleHubDataPayload*)frame.Data.ToPointer();
-                        hubClockBuffer[sampleIndex] = payload->HubClock;
+                        hubClockBuffer[sampleIndex] = NeuracleUtils.HubClockToTime(payload->HubClock);
                         clockBuffer[sampleIndex] = frame.Clock;
                         Marshal.Copy(new IntPtr(payload->AmplifierData), amplifierBuffer, sampleIndex * NeuracleData.AmplifierChannelCount, NeuracleData.AmplifierChannelCount);
                         Marshal.Copy(new IntPtr(payload->ImpedanceData), impedanceBuffer, sampleIndex * NeuracleData.ImpedanceChannelCount, NeuracleData.ImpedanceChannelCount);
@@ -131,13 +132,13 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                 float r1 = float.PositiveInfinity;
                                 float r2 = float.PositiveInfinity;
                                 //现在阻抗模式下发的电流是0.61mA，只有接收到的电流值大于30%才认为是有阻抗的
-                                if (i1_mean > 0.183)
-                                {
-                                    var v1_mean = v1_sum * VoltageScale / bufferSize;
-                                    var v2_mean = v2_sum * VoltageScale / bufferSize;
-                                    r1 = (v1_mean - v2_mean) / i1_mean;
-                                    r2 = v2_mean / i1_mean;
-                                }
+                                //if (i1_mean > 0.183)
+                                //{
+                                var v1_mean = v1_sum * VoltageScale / bufferSize;
+                                var v2_mean = v2_sum * VoltageScale / bufferSize;
+                                r1 = (v1_mean - v2_mean) / i1_mean;
+                                r2 = v2_mean / i1_mean;
+                                //}
                                 //还没计算过配对阻抗
                                 if (!NeuracleGlobalState.IsPairImpedanceComplete)
                                 {

@@ -35,16 +35,31 @@ public class NeuracleDataMode : Sink<bool>
     private string _switchDeviceName;
 
     /// <summary>
+    /// 切换到采集模式
+    /// </summary>
+    /// <param name="switchDeviceName"></param>
+    public static void DataProcedure(string switchDeviceName)
+    {
+        NeuracleGlobalState.HubStates[NeuracleGlobalState.DeviceNameToHubName[switchDeviceName]] = HubState.Data;
+        DeviceManager.GetDevice(switchDeviceName).Subscribe(deviceInfo =>
+        {
+            var switchDevice = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
+            switchDevice.WriteRegister(SwitchDevice.SwitchCref, 1028);
+            switchDevice.OpenAllAdc();
+            switchDevice.CloseAllDac();
+            switchDevice.StartSwitch();
+        });
+    }
+
+    /// <summary>
     /// Start an electrical stimulus sequence.
     /// </summary>
     /// <param name="source">A sequence of boolean values indicating the start of a stimulus sequence when true.</param>
     /// <returns>A sequence of boolean values that is identical to <paramref name="source"/></returns>
     public override IObservable<bool> Process(IObservable<bool> source)
     {
-        return DeviceManager.GetDevice(_switchDeviceName).SelectMany(
-            deviceInfo => Observable.Create<bool>(observer =>
+        return Observable.Create<bool>(observer =>
             {
-                var device = deviceInfo.GetDeviceContext(typeof(SwitchDevice));
                 var triggerObserver = Observer.Create<bool>(
                     value =>
                     {
@@ -52,38 +67,15 @@ public class NeuracleDataMode : Sink<bool>
                         {
                             return;
                         }
-                        NeuracleGlobalState.HubStates[NeuracleGlobalState.DeviceNameToHubName[_switchDeviceName]] = HubState.Data;
-                        //这些是测试用的
-                        //device.TestCref1();
-                        //device.TestCref2();
-                        //device.TestStima();
-                        //device.TestCref1_Stima();
-                        //device.TestCref2_Stima();
-                        //device.TestChannel0();
-                        //device.TestChannel1();
-                        //device.TestCloseAll();
-                        //device.TestOpenAll();
-                        //device.TestChannel2Stima();
-                        //device.TestChannel2Stimb();
-                        //device.TestChannel2Stimc();
-                        //device.TestChannel2Stimd();
-                        //device.TestChannel9Stima();
-                        //device.TestChannel9Stimb();
-                        //device.TestChannel9Stimc();
-                        //device.TestChannel9Stimd();
-                        //下面的是正式切换到采集流程
-                        device.WriteRegister(SwitchDevice.SwitchCref, 1028);
-                        device.OpenAllAdc();
-                        device.CloseAllDac();
-                        device.StartSwitch();
-                        observer.OnNext(value);
+                        DataProcedure(_switchDeviceName);
                         var messageBox = new NeuracleMessageBox("切换到采集模式");
                         messageBox.Show();
+                        observer.OnNext(value);
                     },
                     observer.OnError,
                     observer.OnCompleted);
                 return source.SubscribeSafe(triggerObserver);
-            }));
+            });
     }
 }
 

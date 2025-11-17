@@ -45,6 +45,41 @@ public class NeuracleHubDataFrame : BufferedDataFrame
     public Tuple<string, float, float> ImpedanceValue { get; }
 }
 
+/// <summary>
+/// 只用于测试Neuracle头盒相关指标
+/// </summary>
+public class NeuracleMeaDataFrame : NeuracleHubDataFrame
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="deviceName">采集数据的DeviceName。</param>
+    /// <param name="clock">时钟数组。</param>
+    /// <param name="hubClock">hub时钟计数值数组。</param>
+    /// <param name="amplifierData">Rhd2164多通道电生理数据。</param>
+    /// <param name="r1">阻抗R1</param>
+    /// <param name="r2">阻抗R2</param>
+    /// <param name="switchTimeStart">采集刺激开始切换时间</param>
+    /// <param name="switchTimeEnd">采集刺激结束切换时间</param>
+    public NeuracleMeaDataFrame(string deviceName, ulong[] clockBuffer, ulong[] hubClockBuffer, Mat amplifierData, uint channelIndex,
+                                float r1, float r2, ulong? switchTimeStart, ulong? switchTimeEnd)
+                                : base(deviceName, clockBuffer, hubClockBuffer, amplifierData, channelIndex, r1, r2)
+    {
+        SwitchTimeStart = switchTimeStart;
+        SwitchTimeEnd = switchTimeEnd;
+    }
+
+    /// <summary>
+    /// 记录采集/刺激开始切换的时间
+    /// </summary>
+    public ulong? SwitchTimeStart { get; }
+
+    /// <summary>
+    /// 记录采集/刺激切换结束的时间
+    /// </summary>
+    public ulong? SwitchTimeEnd { get; }
+}
+
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 unsafe struct NeuracleHubDataPayload
 {

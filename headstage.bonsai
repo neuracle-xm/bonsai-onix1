@@ -4,6 +4,7 @@
                  xmlns:onix1="clr-namespace:OpenEphys.Onix1;assembly=OpenEphys.Onix1"
                  xmlns:p1="clr-namespace:NeuracleExtension;assembly=OpenEphys.Onix1"
                  xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns:osc="clr-namespace:Bonsai.Osc;assembly=Bonsai.Osc"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
@@ -70,7 +71,7 @@
       </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="IncludeWorkflow" Path="OpenEphys.Commutator:AutoCommutator.bonsai">
-          <PortName xsi:nil="true" />
+          <PortName>COM3</PortName>
           <Enable>true</Enable>
           <EnableLed>true</EnableLed>
         </Builder>
@@ -163,18 +164,18 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:NeuracleHeadstageStimulateMode">
           <p1:DeviceName>HeadstageA/HeadstageStimulator</p1:DeviceName>
-          <p1:Ch1TriggerDelay>0</p1:Ch1TriggerDelay>
-          <p1:Ch1PhaseOneCurrent>0</p1:Ch1PhaseOneCurrent>
-          <p1:Ch1InterPhaseCurrent>0</p1:Ch1InterPhaseCurrent>
-          <p1:Ch1PhaseTwoCurrent>0</p1:Ch1PhaseTwoCurrent>
-          <p1:Ch1PhaseOneDuration>0</p1:Ch1PhaseOneDuration>
-          <p1:Ch1InterPhaseInterval>0</p1:Ch1InterPhaseInterval>
-          <p1:Ch1PhaseTwoDuration>0</p1:Ch1PhaseTwoDuration>
-          <p1:Ch1InterPulseInterval>0</p1:Ch1InterPulseInterval>
-          <p1:Ch1InterBurstInterval>0</p1:Ch1InterBurstInterval>
-          <p1:Ch1BurstPulseCount>1</p1:Ch1BurstPulseCount>
-          <p1:Ch1TrainBurstCount>1</p1:Ch1TrainBurstCount>
-          <p1:Ch1BiPhasic>false</p1:Ch1BiPhasic>
+          <p1:Ch1TriggerDelay>1</p1:Ch1TriggerDelay>
+          <p1:Ch1PhaseOneCurrent>2000</p1:Ch1PhaseOneCurrent>
+          <p1:Ch1InterPhaseCurrent>500</p1:Ch1InterPhaseCurrent>
+          <p1:Ch1PhaseTwoCurrent>-2000</p1:Ch1PhaseTwoCurrent>
+          <p1:Ch1PhaseOneDuration>1000</p1:Ch1PhaseOneDuration>
+          <p1:Ch1InterPhaseInterval>100</p1:Ch1InterPhaseInterval>
+          <p1:Ch1PhaseTwoDuration>1000</p1:Ch1PhaseTwoDuration>
+          <p1:Ch1InterPulseInterval>100</p1:Ch1InterPulseInterval>
+          <p1:Ch1InterBurstInterval>100</p1:Ch1InterBurstInterval>
+          <p1:Ch1BurstPulseCount>5</p1:Ch1BurstPulseCount>
+          <p1:Ch1TrainBurstCount>1000</p1:Ch1TrainBurstCount>
+          <p1:Ch1BiPhasic>true</p1:Ch1BiPhasic>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -193,6 +194,62 @@
           <p1:DeviceName>HeadstageA/NeuracleHeadstageData</p1:DeviceName>
           <p1:ChannelIndex>0</p1:ChannelIndex>
         </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>MButton ShiftKey Capital CapsLock Space Home D0 D4 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="BooleanProperty">
+          <Value>true</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleTwoHeadstageStimulateMode">
+          <p1:DeviceName>HeadstageA/HeadstageStimulator</p1:DeviceName>
+          <p1:Ch1TriggerDelay>1</p1:Ch1TriggerDelay>
+          <p1:Ch1PhaseOneCurrent>2000</p1:Ch1PhaseOneCurrent>
+          <p1:Ch1InterPhaseCurrent>500</p1:Ch1InterPhaseCurrent>
+          <p1:Ch1PhaseTwoCurrent>-2000</p1:Ch1PhaseTwoCurrent>
+          <p1:Ch1PhaseOneDuration>1000</p1:Ch1PhaseOneDuration>
+          <p1:Ch1InterPhaseInterval>100</p1:Ch1InterPhaseInterval>
+          <p1:Ch1PhaseTwoDuration>1000</p1:Ch1PhaseTwoDuration>
+          <p1:Ch1InterPulseInterval>100</p1:Ch1InterPulseInterval>
+          <p1:Ch1InterBurstInterval>100</p1:Ch1InterBurstInterval>
+          <p1:Ch1BurstPulseCount>5</p1:Ch1BurstPulseCount>
+          <p1:Ch1TrainBurstCount>1000</p1:Ch1TrainBurstCount>
+          <p1:Ch1BiPhasic>true</p1:Ch1BiPhasic>
+          <p1:Device2Name>HeadstageB/HeadstageStimulator</p1:Device2Name>
+          <p1:Ch2TriggerDelay>1</p1:Ch2TriggerDelay>
+          <p1:Ch2PhaseOneCurrent>2000</p1:Ch2PhaseOneCurrent>
+          <p1:Ch2InterPhaseCurrent>500</p1:Ch2InterPhaseCurrent>
+          <p1:Ch2PhaseTwoCurrent>-2000</p1:Ch2PhaseTwoCurrent>
+          <p1:Ch2PhaseOneDuration>1000</p1:Ch2PhaseOneDuration>
+          <p1:Ch2InterPhaseInterval>100</p1:Ch2InterPhaseInterval>
+          <p1:Ch2PhaseTwoDuration>1000</p1:Ch2PhaseTwoDuration>
+          <p1:Ch2InterPulseInterval>100</p1:Ch2InterPulseInterval>
+          <p1:Ch2InterBurstInterval>100</p1:Ch2InterBurstInterval>
+          <p1:Ch2BurstPulseCount>5</p1:Ch2BurstPulseCount>
+          <p1:Ch2TrainBurstCount>1000</p1:Ch2TrainBurstCount>
+          <p1:Ch2BiPhasic>true</p1:Ch2BiPhasic>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="osc:CreateUdpClient">
+          <osc:Name>receiver</osc:Name>
+          <osc:Port>50000</osc:Port>
+          <osc:RemoteHostName>localhost</osc:RemoteHostName>
+          <osc:RemotePort>0</osc:RemotePort>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="osc:ReceiveMessage">
+        <osc:Address>/</osc:Address>
+        <osc:Connection>receiver</osc:Connection>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleSystemApi" />
       </Expression>
     </Nodes>
     <Edges>
@@ -227,6 +284,9 @@
       <Edge From="32" To="33" Label="Source1" />
       <Edge From="34" To="35" Label="Source1" />
       <Edge From="35" To="36" Label="Source1" />
+      <Edge From="37" To="38" Label="Source1" />
+      <Edge From="38" To="39" Label="Source1" />
+      <Edge From="41" To="42" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
