@@ -1,8 +1,16 @@
 function shortCircuitNoise(noisePath)
     %% 输入数据
     %-----测试人员参数区-----%
+    Fs = 64000;
+    channel = 1;
+    total_data = readOnixData(noisePath);
+%     这个短路噪声要的单位是μV
+% 前3秒的数据不要了
+    EEGData = total_data(channel,Fs * 3:end) * 1000;
+    EEGData = EEGData - mean(EEGData);
     DeviceType='EEG';               % 待测试设备的类型，脑电（EEG）或肌电（EMG），测试已知
-    WinLength=60;                   % 滑窗窗宽，单位秒，本测试中，固定为10秒，不用改
+%     直接取整段数据
+    WinLength=floor(length(EEGData) / Fs);                   % 滑窗窗宽，单位秒，本测试中，固定为10秒，不用改
     WinStep=10;                     % 滑窗步进，单位秒，本测试中，固定为10秒，不用改
     WinLength_RMS=0.5;              % 计算RMS的窗宽，单位秒 
     WinStep_RMS=0.1;               % 计算RMS的步进，单位秒
@@ -22,7 +30,6 @@ function shortCircuitNoise(noisePath)
     % read_Intan_RHD2000_file
     % filename = 'data';
     % filename = './IRN_32P.mat';
-    Fs = 64000;
     % EEG = pop_importdata('data',filename,'dataformat','array','srate',Fs);
     % 把50,100,150Hz滤掉
     % EEG = pop_eegfiltnew(EEG, 'locutoff', 45, 'hicutoff', 55, 'revfilt', 1);
@@ -38,9 +45,6 @@ function shortCircuitNoise(noisePath)
     %     EEG = pop_eegfiltnew(EEG, 'locutoff', i * 1000 - 5, 'hicutoff', i * 1000 + 5, 'revfilt', 1);
     % end
     % total_data =double(EEG.data);
-    channel = 1;
-    total_data = readOnixData(noisePath);
-    EEGData = total_data(channel,:);
     % 
     if strcmp(DeviceType,'EEG')
         LowFreq=0.1;                % 高通滤波的截止频率，单位Hz，用于EEG
@@ -61,6 +65,9 @@ function shortCircuitNoise(noisePath)
             HighFreq_3=10*1e+3;
         end
     end
+
+%     中值滤波,两边7ms的点
+%     EEGData = medfilt1(EEGData,64*7);
     %% 对噪声进行两次滤波（EEG：0.5-40Hz，0.5-70Hz；EMG：20-250Hz，20-500Hz）
     % Rs=60;
     % Rp=1;
@@ -69,24 +76,39 @@ function shortCircuitNoise(noisePath)
     elseif strcmp(DeviceType,'EMG')
         N_hp=4;
     end
-    N_lp=3;
-    WinSize=40*1e-3;
+    N_lp=4;
+%     WinSize=40*1e-3;
     [b_hp,a_hp]=butter(N_hp,LowFreq/(Fs/2),'high');
     [b_lp_1,a_lp_1]=butter(N_lp,HighFreq_1/(Fs/2),'low');
+%         freqz(b_lp_1,a_lp_1,4096,Fs)
     [b_lp_2,a_lp_2]=butter(N_lp,HighFreq_2/(Fs/2),'low');
-    [b,a]=iirnotch(50/(Fs/2),2/(Fs/2));
-    
-    [EEGData_Filt,Zi]=my_filter(b_hp,a_hp,EEGData,WinSize*Fs);
-    [EEGData_1,Zi_1]=my_filter(b_lp_1,a_lp_1,EEGData_Filt,WinSize*Fs);
-    [EEGData_2,Zi_2]=my_filter(b_lp_2,a_lp_2,EEGData_Filt,WinSize*Fs);
-    [EEGData_2,Zi_3]=my_filter(b,a,EEGData_2,WinSize*Fs);
-    
+    [b_50,a_50]=iirnotch(50/(Fs/2),35/(Fs/2));
+
+%     freqz(b,a)
+%     [EEGData_Filt,Zi]=my_filter(b_hp,a_hp,EEGData,WinSize*Fs);
+%     [EEGData_1,Zi_1]=my_filter(b_lp_1,a_lp_1,EEGData_Filt,WinSize*Fs);
+%     [EEGData_2,Zi_2]=my_filter(b_lp_2,a_lp_2,EEGData_Filt,WinSize*Fs);
+%     [EEGData_2,Zi_3]=my_filter(b,a,EEGData_2,WinSize*Fs);
+%     firOrder = 4000;
+%     b = fir1(firOrder,LowFreq/(Fs/2),'high');
+%     b_lp_1 = fir1(firOrder,HighFreq_1/(Fs/2),'low');
+%     b_lp_2 = fir1(firOrder,HighFreq_2/(Fs/2),'low');
+% freqz(b,1,1024,Fs)
+% freqz(b_lp_1,1,4096,Fs)
+% freqz(b_lp_2,1,1024,Fs)
+    EEGData_Filt = filtfilt(b_hp,a_hp,EEGData);
+    EEGData_1=filtfilt(b_lp_1,a_lp_1,EEGData_Filt);
+    EEGData_1=filtfilt(b_50,a_50,EEGData_1);
+    EEGData_2=filtfilt(b_lp_2,a_lp_2,EEGData_Filt);
+    EEGData_2=filtfilt(b_50,a_50,EEGData_2);
+
     if Fs>20*1e+3
         [b_hp_1,a_hp_1]=butter(N_hp,LowFreq_1/(Fs/2),'high');
         [b_lp_3,a_lp_3]=butter(N_lp,HighFreq_3/(Fs/2),'low');
-        [EEGData_Filt_1,Zi_sub]=my_filter(b_hp_1,a_hp_1,EEGData,WinSize*Fs);
-        [EEGData_3,Zi_4]=my_filter(b_lp_3,a_lp_3,EEGData_Filt_1,WinSize*Fs);
+        EEGData_Filt_1=filtfilt(b_hp_1,a_hp_1,EEGData);
+        EEGData_3=filtfilt(b_lp_3,a_lp_3,EEGData_Filt_1);
     end
+
     %% 滑窗计算噪声数据的功率谱密度、RMS及峰峰值
     WinNum=length(1:WinStep*Fs:length(EEGData)-WinLength*Fs+1);
     for win=1:WinNum
@@ -123,11 +145,31 @@ function shortCircuitNoise(noisePath)
         Vpp_3=zeros(1,WinNum_RMS);
         for ii=1:WinNum_RMS
             Stock_4=Stock_1(int32((ii-1)*WinStep_RMS*Fs+1:(ii-1)*WinStep_RMS*Fs+WinLength_RMS*Fs));
+%             Stock_4_demean = Stock_4 - mean(Stock_4);
             RMS_1(ii)=sqrt(mean(Stock_4.^2));
-            Vpp_1(ii)=max(Stock_4)-min(Stock_4);
+            %                 去除3倍标准差之外的点
+            sigma = std(Stock_4);
+            m = mean(Stock_4);
+            thr = 3*sigma;  % ±3σ
+            x_clip = Stock_4;
+            x_clip(Stock_4 > m + thr) = m + thr;
+            x_clip(Stock_4 < m - thr) = m - thr;
+            Vpp_1(ii)=max(x_clip)-min(x_clip);
+%             Vpp_1(ii)=max(Stock_4)-min(Stock_4);
             Stock_5=Stock_2(int32((ii-1)*WinStep_RMS*Fs+1:(ii-1)*WinStep_RMS*Fs+WinLength_RMS*Fs));
+%             Stock_5_demean = Stock_5 - mean(Stock_5);
             RMS_2(ii)=sqrt(mean(Stock_5.^2));
-            Vpp_2(ii)=max(Stock_5)-min(Stock_5);
+
+   %                 去除3倍标准差之外的点
+            sigma2 = std(Stock_5);
+            m2 = mean(Stock_5);
+            thr2 = 3*sigma2;  % ±3σ
+            x_clip2 = Stock_5;
+            x_clip2(Stock_5 > m2 + thr2) = m2 + thr2;
+            x_clip2(Stock_5 < m2 - thr2) = m2 - thr2;
+            Vpp_2(ii)=max(x_clip2)-min(x_clip2);
+
+%             Vpp_2(ii)=max(Stock_5)-min(Stock_5);
             if Fs>20*1e+3
                 Stock_6=Stock_3(int32((ii-1)*WinStep_RMS*Fs+1:(ii-1)*WinStep_RMS*Fs+WinLength_RMS*Fs));
                 RMS_3(ii)=sqrt(mean(Stock_6.^2));
@@ -183,24 +225,5 @@ function shortCircuitNoise(noisePath)
         title(strcat('第',num2str(win),'段数据（',num2str(LowFreq_1),'-',num2str(HighFreq_3),'Hz）：有效值（',num2str(mean(RMS_3),3),'±',num2str(std(RMS_3),3),'μV），峰峰值（',num2str(mean(Vpp_3),3),'±',num2str(std(Vpp_3),3),'μV）'));
         xlim([0 max(t_RMS)]);
         legend('有效值','峰峰值','Location','SouthWest');
-    
-        PLI_Thd=30;    % 工频阈值，单位dB
-        if strcmp(DeviceType,'EEG')
-    %         if db(PSD_X(round(50/Fs*length(PSD_X))))-mean(db(PSD_X(round(50/Fs*length(PSD_X))-9:round(50/Fs*length(PSD_X))+10)))>=PLI_Thd-10
-    %             warndlg(strcat('第',num2str(win),'段数据存在工频干扰！'),'数据异常提示');
-    %         end
-        elseif strcmp(DeviceType,'EMG')
-            if db(PSD_X(round(50/Fs*length(PSD_X))))-mean(db(PSD_X(round(50/Fs*length(PSD_X))-9:round(50/Fs*length(PSD_X))+10)))>=PLI_Thd||...
-               db(PSD_X(round(100/Fs*length(PSD_X))))-mean(db(PSD_X(round(100/Fs*length(PSD_X))-9:round(100/Fs*length(PSD_X))+10)))>=PLI_Thd||...
-               db(PSD_X(round(150/Fs*length(PSD_X))))-mean(db(PSD_X(round(150/Fs*length(PSD_X))-9:round(150/Fs*length(PSD_X))+10)))>=PLI_Thd||...
-               db(PSD_X(round(200/Fs*length(PSD_X))))-mean(db(PSD_X(round(200/Fs*length(PSD_X))-9:round(200/Fs*length(PSD_X))+10)))>=PLI_Thd||...
-               db(PSD_X(round(250/Fs*length(PSD_X))))-mean(db(PSD_X(round(250/Fs*length(PSD_X))-9:round(250/Fs*length(PSD_X))+10)))>=PLI_Thd||...
-               db(PSD_X(round(300/Fs*length(PSD_X))))-mean(db(PSD_X(round(300/Fs*length(PSD_X))-9:round(300/Fs*length(PSD_X))+10)))>=PLI_Thd||...
-               db(PSD_X(round(350/Fs*length(PSD_X))))-mean(db(PSD_X(round(350/Fs*length(PSD_X))-9:round(350/Fs*length(PSD_X))+10)))>=PLI_Thd||...
-               db(PSD_X(round(400/Fs*length(PSD_X))))-mean(db(PSD_X(round(400/Fs*length(PSD_X))-9:round(400/Fs*length(PSD_X))+10)))>=PLI_Thd||...
-               db(PSD_X(round(450/Fs*length(PSD_X))))-mean(db(PSD_X(round(450/Fs*length(PSD_X))-9:round(450/Fs*length(PSD_X))+10)))>=PLI_Thd
-                warndlg(strcat('第',num2str(win),'段数据存在工频干扰！'),'数据异常提示');
-            end
-        end
     end
 end
