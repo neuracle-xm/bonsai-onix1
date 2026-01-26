@@ -196,6 +196,35 @@ public class NeuracleHeadstageGlobalState
         }
         return impedanceValue;
     }
+
+    /// <summary>
+    /// 计算阻抗的过程,单位Ω
+    /// </summary>
+    /// <param name="voltageArray"></param>
+    /// <returns></returns>
+    public static float ComputeImpedanceRhs2116(float[] voltageArray)
+    {
+        var restArray = SkipPoints(voltageArray);
+        var meanVoltage = MeanVoltage(restArray);
+        var impedanceValue = meanVoltage / ExcitationCurrent * 1000 * 1000;
+        impedanceValue *= 0.006f;
+        //根据拟合的结果进行计算
+        //1010000对应的的68k阻抗的数值
+        if (impedanceValue < 1010000)
+        {
+            impedanceValue = 6.806e-08f * impedanceValue * impedanceValue - 0.0162f * impedanceValue + 3151.6f;
+        }
+        //之后的数值很离谱,直接认为是无穷
+        else
+        {
+            impedanceValue = float.PositiveInfinity;
+        }
+        if (impedanceValue < 0)
+        {
+            impedanceValue = 0;
+        }
+        return impedanceValue;
+    }
 }
 
 /// <summary>
