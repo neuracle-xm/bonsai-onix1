@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.8.5"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:onix1="clr-namespace:OpenEphys.Onix1;assembly=OpenEphys.Onix1"
+                 xmlns:p1="clr-namespace:NeuracleExtension;assembly=OpenEphys.Onix1"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
+                 xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:CreateContext">
+          <onix1:Driver>riffa</onix1:Driver>
+          <onix1:Index>0</onix1:Index>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleConfigureHeadstageRhs2116">
+          <p1:Name>HeadstageA</p1:Name>
+          <p1:HeadstageDataRhs2116>
+            <p1:DeviceName>HeadstageA/NeuracleHeadstageDataRhs2116</p1:DeviceName>
+            <p1:DeviceAddress>39168</p1:DeviceAddress>
+          </p1:HeadstageDataRhs2116>
+          <p1:HeadstageAdcRhs2116>
+            <p1:DeviceName>HeadstageA/NeuracleHeadstageAdcRhs2116</p1:DeviceName>
+            <p1:DeviceAddress>39169</p1:DeviceAddress>
+          </p1:HeadstageAdcRhs2116>
+          <p1:HeadstageName>HeadstageA</p1:HeadstageName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:StartAcquisition">
+          <onix1:ReadSize>393216</onix1:ReadSize>
+          <onix1:WriteSize>2048</onix1:WriteSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleHeadstageDataSourceRhs2116">
+          <p1:DeviceName>HeadstageA/NeuracleHeadstageDataRhs2116</p1:DeviceName>
+          <p1:AdDeviceName>HeadstageA/NeuracleHeadstageAdcRhs2116</p1:AdDeviceName>
+          <p1:BufferSize>3000</p1:BufferSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>AmplifierData</Selector>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="dsp:MatrixWriter">
+            <dsp:Path>C:\Users\Neuracle\Desktop\noise</dsp:Path>
+            <dsp:Suffix>None</dsp:Suffix>
+            <dsp:Overwrite>true</dsp:Overwrite>
+            <dsp:Layout>ColumnMajor</dsp:Layout>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>ImpedanceValue</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>AuxData</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Bno055DataFrame</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Quaternion</Selector>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="IncludeWorkflow" Path="OpenEphys.Commutator:AutoCommutator.bonsai">
+          <PortName xsi:nil="true" />
+          <Enable>true</Enable>
+          <EnableLed>true</EnableLed>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>EulerAngle</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Gravity</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Acceleration</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Temperature</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Calibration</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>LButton ShiftKey ControlKey Space Prior PageUp D0 D1 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="BooleanProperty">
+          <Value>true</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleHeadstageDataModeRhs2116">
+          <p1:DeviceName>HeadstageA/NeuracleHeadstageAdcRhs2116</p1:DeviceName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>RButton ShiftKey Menu Space Next PageDown D0 D2 Control</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="BooleanProperty">
+          <Value>true</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:NeuracleHeadstageImpedanceModeRhs2116">
+          <p1:DeviceName>HeadstageA/NeuracleHeadstageAdcRhs2116</p1:DeviceName>
+          <p1:ChannelIndex>0</p1:ChannelIndex>
+        </Combinator>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+      <Edge From="3" To="6" Label="Source1" />
+      <Edge From="3" To="7" Label="Source1" />
+      <Edge From="3" To="8" Label="Source1" />
+      <Edge From="4" To="5" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="8" To="11" Label="Source1" />
+      <Edge From="8" To="12" Label="Source1" />
+      <Edge From="8" To="13" Label="Source1" />
+      <Edge From="8" To="14" Label="Source1" />
+      <Edge From="8" To="15" Label="Source1" />
+      <Edge From="9" To="10" Label="Source1" />
+      <Edge From="16" To="17" Label="Source1" />
+      <Edge From="17" To="18" Label="Source1" />
+      <Edge From="19" To="20" Label="Source1" />
+      <Edge From="20" To="21" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
