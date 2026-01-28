@@ -68,7 +68,7 @@ NeuracleEphys/
 
 4. 将生成的dll(项目根目录/artifacts/bin/OpenEphys.Onix1/release/)拷贝至NeuracleEphys/bonsai/Extensions/ 
 
-5. 将项目根目录workflow布局文件(xxx.layout xxx.bonsai)和测试数据(xxx.csv) 复制至NeuracleEphys/
+5. 将项目根目录workflow布局文件(xxx.layout xxx.bonsai,不要复制voltage_configure.bonsai相关的两个)和测试数据(xxx.csv) 复制至NeuracleEphys/
 
 6. 参考 项目根目录/python/python环境搭建.md搭建 python环境 并移动至 NeuracleEphys/python
 
