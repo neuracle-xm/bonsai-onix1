@@ -10,6 +10,15 @@ using OpenEphys.Onix1;
 
 namespace NeuracleExtension;
 
+public enum DeviceNumberOption
+{
+    [Description("单套设备")]
+    One = 2,
+
+    [Description("5套设备")]
+    Five = 8
+}
+
 [Description("输出Neuracle头盒的数据")]
 public class NeuracleHubData : Source<NeuracleHubDataFrame>
 {
@@ -21,6 +30,10 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
     [Description("缓存的帧大小")]
     [Category(DeviceFactory.ConfigurationCategory)]
     public int BufferSize { get; set; } = NeuracleGlobalState.BufferSize;
+
+    [Description("设备数量,选2套或5套")]
+    [Category(DeviceFactory.ConfigurationCategory)]
+    public DeviceNumberOption DeviceNumber { get; set; } = DeviceNumberOption.One;
 
     /// <summary>
     /// 生成测试用方波
@@ -75,8 +88,14 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                 var hubClockBuffer = new ulong[bufferSize];
                 var clockBuffer = new ulong[bufferSize];
                 var sampleIndex = 0;
-                var amplifierBuffer = new int[NeuracleData.AmplifierChannelCount * bufferSize];
+                int replication = (int)DeviceNumber;
+                var amplifierBuffer = new int[NeuracleData.AmplifierChannelCount * bufferSize]; // 只存储原始64通道
+                var random = new Random();
                 var impedanceBuffer = new int[NeuracleData.ImpedanceChannelCount * bufferSize];
+                // 预先生成噪声通道的置换顺序：每个噪声位置应该复制哪个原始通道
+                int channelCount = NeuracleData.AmplifierChannelCount;
+                int noiseChannelCount = channelCount * (replication - 1);
+                var noiseShuffleMap = Enumerable.Range(0, noiseChannelCount).Select(i => i % channelCount).OrderBy(_ => random.Next()).ToArray();
                 var frameObserver = Observer.Create<oni.Frame>(
                     frame =>
                     {
@@ -85,14 +104,45 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                         clockBuffer[sampleIndex] = frame.Clock;
                         Marshal.Copy(new IntPtr(payload->AmplifierData), amplifierBuffer, sampleIndex * NeuracleData.AmplifierChannelCount, NeuracleData.AmplifierChannelCount);
                         Marshal.Copy(new IntPtr(payload->ImpedanceData), impedanceBuffer, sampleIndex * NeuracleData.ImpedanceChannelCount, NeuracleData.ImpedanceChannelCount);
-                        //采集模式取前64个通道数据
+                        //采集模式
                         if (NeuracleGlobalState.HubStates[NeuracleGlobalState.DeviceNameToHubName[DeviceName]] == HubState.Data)
                         {
                             if (++sampleIndex >= bufferSize)
                             {
-                                var digitalMat = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, NeuracleData.AmplifierChannelCount, Depth.S32);
+                                // 创建新的大buffer：原始通道 + 噪声通道
+                                int totalChannels = channelCount * replication;
+                                var fullBuffer = new int[totalChannels * bufferSize];
+                                // 复制原始通道（位置0-63）
+                                for (int sample = 0; sample < bufferSize; sample++)
+                                {
+                                    for (int ch = 0; ch < channelCount; ch++)
+                                    {
+                                        fullBuffer[sample * totalChannels + ch] = amplifierBuffer[sample * channelCount + ch];
+                                    }
+                                }
+                                // 根据预先生成的置换顺序复制噪声通道（位置64-511）
+                                for (int sample = 0; sample < bufferSize; sample++)
+                                {
+                                    for (int noiseIdx = 0; noiseIdx < noiseChannelCount; noiseIdx++)
+                                    {
+                                        int srcChannel = noiseShuffleMap[noiseIdx]; // 原始通道索引
+                                        int dstIndex = sample * totalChannels + channelCount + noiseIdx;
+                                        fullBuffer[dstIndex] = amplifierBuffer[sample * channelCount + srcChannel];
+                                    }
+                                }
+                                var digitalMat = BufferHelper.CopyTranspose(fullBuffer, bufferSize, totalChannels, Depth.S32);
                                 Mat analogMat = new(digitalMat.Rows, digitalMat.Cols, Depth.F32, digitalMat.Channels);
                                 CV.ConvertScale(digitalMat, analogMat, DataScale);
+                                // 对噪声通道加噪声
+                                for (int ch = channelCount; ch < totalChannels; ch++)
+                                {
+                                    using var row = analogMat.GetRow(ch);
+                                    var data = (float*)row.Data.ToPointer();
+                                    for (int col = 0; col < row.Cols; col++)
+                                    {
+                                        data[col] += (float)(data[col] * 0.2 * (random.NextDouble() - 0.5) * 2);
+                                    }
+                                }
                                 observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, analogMat, NeuracleGlobalState.ImpedanceChannelIndex, float.PositiveInfinity, float.PositiveInfinity));
                                 sampleIndex = 0;
                             }
@@ -146,7 +196,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                     _pairR2 = r2;
                                     NeuracleGlobalState.IsPairImpedanceComplete = true;
                                     //这时候还没测真正的阻抗，就直接显示为无穷
-                                    observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), NeuracleGlobalState.ImpedanceChannelIndex, float.PositiveInfinity, float.PositiveInfinity));
+                                    observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount * 8, bufferSize, Depth.F32, 1), NeuracleGlobalState.ImpedanceChannelIndex, float.PositiveInfinity, float.PositiveInfinity));
                                 }
                                 //已经算过配对通道的阻抗了，那就先看这些阻抗是不是无穷大
                                 else
@@ -158,7 +208,7 @@ public class NeuracleHubData : Source<NeuracleHubDataFrame>
                                         r1 = float.PositiveInfinity;
                                         r2 = float.PositiveInfinity;
                                     }
-                                    observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount, bufferSize, Depth.F32, 1), NeuracleGlobalState.ImpedanceChannelIndex, r1, r2));
+                                    observer.OnNext(new NeuracleHubDataFrame(DeviceName, clockBuffer, hubClockBuffer, Mat.Zeros(NeuracleData.AmplifierChannelCount * 8, bufferSize, Depth.F32, 1), NeuracleGlobalState.ImpedanceChannelIndex, r1, r2));
                                 }
                                 sampleIndex = 0;
                             }
