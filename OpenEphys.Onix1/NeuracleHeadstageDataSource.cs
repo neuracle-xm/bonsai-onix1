@@ -21,7 +21,7 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
     /// <summary>
     /// 采集模式电压转换系数，原始值乘这个值
     /// </summary>
-    public const float VoltageCoefficient = 0.0006f;
+    public const float VoltageCoefficient = 0.000195f * 2 * 1.1f;
 
     [Description("缓存的帧大小")]
     [Category(DeviceFactory.ConfigurationCategory)]
@@ -87,7 +87,7 @@ public class NeuracleHeadstageDataSource : Source<NeuracleHeadstageDataFrame>
                                 //转换成实际的电压值，单位mV
                                 for (int i = 0; i < rawAmplifierBuffer.Length; i++)
                                 {
-                                    amplifierBuffer[i] = rawAmplifierBuffer[i] * VoltageCoefficient;
+                                    amplifierBuffer[i] = (rawAmplifierBuffer[i] - 32768) * VoltageCoefficient;
                                 }
                                 var amplifierData = BufferHelper.CopyTranspose(amplifierBuffer, bufferSize, NeuracleHeadstageData.AmplifierChannelCount, Depth.F32);
                                 observer.OnNext(new NeuracleHeadstageDataFrame(DeviceName, clock, hubClock, amplifierData, NeuracleHeadstageGlobalState.ImpedanceChannelIndex, float.PositiveInfinity, auxData, bno055DataFrame, ts4231V1DataFrame1, ts4231V1DataFrame2, ts4231V1DataFrame3, ts4231V1DataFrame4));

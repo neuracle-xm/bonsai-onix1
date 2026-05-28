@@ -3,6 +3,7 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:onix1="clr-namespace:OpenEphys.Onix1;assembly=OpenEphys.Onix1"
                  xmlns:p1="clr-namespace:NeuracleExtension;assembly=OpenEphys.Onix1"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
                  xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
                  xmlns:osc="clr-namespace:Bonsai.Osc;assembly=Bonsai.Osc"
                  xmlns="https://bonsai-rx.org/2018/workflow">
@@ -41,9 +42,6 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="MemberSelector">
-        <Selector>AmplifierData</Selector>
-      </Expression>
-      <Expression xsi:type="MemberSelector">
         <Selector>ImpedanceValue</Selector>
       </Expression>
       <Expression xsi:type="MemberSelector">
@@ -52,10 +50,57 @@
       <Expression xsi:type="MemberSelector">
         <Selector>Quaternion</Selector>
       </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="OpenEphys.Commutator:AutoCommutator.bonsai">
-        <PortName>COM3</PortName>
-        <Enable>true</Enable>
-        <EnableLed>true</EnableLed>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="IncludeWorkflow" Path="OpenEphys.Commutator:AutoCommutator.bonsai">
+          <PortName>COM3</PortName>
+          <Enable>true</Enable>
+          <EnableLed>true</EnableLed>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>AmplifierData</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:IirFilter">
+          <dsp:FeedforwardCoefficients>0.999863186406,-1.99972637281,0.999863186406</dsp:FeedforwardCoefficients>
+          <dsp:FeedbackCoefficients>1,-1.99980651088,0.999806521842</dsp:FeedbackCoefficients>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:IirFilter">
+          <dsp:FeedforwardCoefficients>1,-2,1</dsp:FeedforwardCoefficients>
+          <dsp:FeedbackCoefficients>1,-1.99991984322,0.999919854181</dsp:FeedbackCoefficients>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:IirFilter">
+          <dsp:FeedforwardCoefficients>0.999476675189,-1.9988437465,0.999476675189</dsp:FeedforwardCoefficients>
+          <dsp:FeedbackCoefficients>1,-1.9988437465,0.998953350378</dsp:FeedbackCoefficients>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:IirFilter">
+          <dsp:FeedforwardCoefficients>0.998953897542,-1.99746962089,0.998953897542</dsp:FeedforwardCoefficients>
+          <dsp:FeedbackCoefficients>1,-1.99746962089,0.997907795085</dsp:FeedbackCoefficients>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:IirFilter">
+          <dsp:FeedforwardCoefficients>0.998431665917,-1.99587800032,0.998431665917</dsp:FeedforwardCoefficients>
+          <dsp:FeedbackCoefficients>1,-1.99587800032,0.996863331833</dsp:FeedbackCoefficients>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:IirFilter">
+          <dsp:FeedforwardCoefficients>0.997909979171,-1.99406928515,0.997909979171</dsp:FeedforwardCoefficients>
+          <dsp:FeedbackCoefficients>1,-1.99406928515,0.995819958342</dsp:FeedbackCoefficients>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="dsp:IirFilter">
+          <dsp:FeedforwardCoefficients>0.997388836167,-1.99204389886,0.997388836167</dsp:FeedforwardCoefficients>
+          <dsp:FeedbackCoefficients>1,-1.99204389886,0.994777672335</dsp:FeedbackCoefficients>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="wie:KeyDown">
@@ -139,16 +184,23 @@
       <Edge From="1" To="2" Label="Source1" />
       <Edge From="3" To="4" Label="Source1" />
       <Edge From="3" To="5" Label="Source1" />
-      <Edge From="3" To="6" Label="Source1" />
+      <Edge From="3" To="8" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
       <Edge From="6" To="7" Label="Source1" />
-      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
       <Edge From="9" To="10" Label="Source1" />
       <Edge From="10" To="11" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
       <Edge From="12" To="13" Label="Source1" />
       <Edge From="13" To="14" Label="Source1" />
-      <Edge From="15" To="16" Label="Source1" />
+      <Edge From="14" To="15" Label="Source1" />
       <Edge From="16" To="17" Label="Source1" />
+      <Edge From="17" To="18" Label="Source1" />
       <Edge From="19" To="20" Label="Source1" />
+      <Edge From="20" To="21" Label="Source1" />
+      <Edge From="22" To="23" Label="Source1" />
+      <Edge From="23" To="24" Label="Source1" />
+      <Edge From="26" To="27" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
